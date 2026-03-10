@@ -1,0 +1,62 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+.h2 {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3vw, 44px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 24px;
+}
+
+.sub {
+  color: var(--text-dim);
+  font-size: 15px;
+  line-height: 1.8;
+  font-weight: 300;
+}
+
+.segGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+}
+
+.seg {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 20px 24px;
+  font-size: 13px;
+  color: var(--text-dim);
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+  cursor: default;
+}
+
+.seg::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--grad);
+  transform: scaleY(0);
+  transition: transform 0.3s;
+}
+
+.seg:hover {
+  border-color: var(--border-bright);
+  color: var(--text);
+  background: var(--bg3);
+}
+.seg:hover::before { transform: scaleY(1); }
+
+@media (max-width: 900px) {
+  .grid { grid-template-columns: 1fr; gap: 40px; }
+  .segGrid { grid-template-columns: 1fr; }
+}

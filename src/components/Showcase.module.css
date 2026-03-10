@@ -1,0 +1,203 @@
+.bg {
+  background: var(--bg);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 48px;
+}
+
+.header { margin-bottom: 72px; }
+
+.h2 {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4.5vw, 68px);
+  font-weight: 800;
+  line-height: 1.0;
+  letter-spacing: -0.03em;
+  margin-bottom: 24px;
+}
+
+.sub {
+  max-width: 560px;
+  color: var(--text-dim);
+  font-size: 15px;
+  line-height: 1.75;
+  font-weight: 300;
+}
+
+/* ─── Mockup row ─── */
+.row {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr;
+  gap: 2px;
+}
+
+.card {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  display: flex;
+  flex-direction: column;
+}
+
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(123,53,240,0.04), rgba(0,212,255,0.02));
+  pointer-events: none;
+  z-index: 1;
+}
+
+.cardInner {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+}
+
+.cardCenter {
+  align-items: center;
+  justify-content: center;
+}
+
+.caption {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--text-faint);
+  text-transform: uppercase;
+  padding: 12px 20px;
+  border-top: 1px solid var(--border);
+  background: rgba(8,8,16,0.7);
+  position: relative;
+  z-index: 2;
+}
+
+/* ─── Browser mockup ─── */
+.browser {
+  width: 90%;
+  background: #0a0a14;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.bar {
+  background: #111120;
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.dotRed    { background: #ff5f57; }
+.dotYellow { background: #ffbd2e; }
+.dotGreen  { background: #28ca41; }
+
+.url {
+  flex: 1;
+  height: 14px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 3px;
+  margin-left: 8px;
+}
+
+.browserBody {
+  padding: 16px;
+}
+
+.heroBlock {
+  height: 56px;
+  background: linear-gradient(135deg, rgba(123,53,240,0.2), rgba(0,212,255,0.1));
+  border: 1px solid rgba(123,53,240,0.2);
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.heroBlock::after {
+  content: '';
+  position: absolute;
+  left: 12px; top: 50%;
+  transform: translateY(-50%);
+  width: 55%; height: 8px;
+  background: linear-gradient(90deg, rgba(123,53,240,0.6), rgba(0,212,255,0.4));
+  border-radius: 1px;
+}
+
+.twoCol {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.block {
+  height: 32px;
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.06);
+}
+.blockSm {
+  height: 24px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+}
+
+/* ─── Phone mockup ─── */
+.phone {
+  width: 52%;
+  background: #0a0a14;
+  border: 2px solid rgba(255,255,255,0.12);
+  border-radius: 24px;
+  overflow: hidden;
+}
+
+.notch {
+  display: block;
+  width: 38%; height: 4px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  margin: 10px auto 0;
+}
+
+.phoneBody { padding: 10px 10px; }
+
+.pHero {
+  height: 44px;
+  background: linear-gradient(135deg, rgba(123,53,240,0.25), rgba(0,212,255,0.12));
+  border: 1px solid rgba(123,53,240,0.2);
+  margin-bottom: 7px;
+  position: relative;
+  overflow: hidden;
+}
+.pHero::after {
+  content: '';
+  position: absolute;
+  left: 8px; top: 50%;
+  transform: translateY(-50%);
+  width: 50%; height: 6px;
+  background: linear-gradient(90deg, rgba(155,95,255,0.7), rgba(0,212,255,0.5));
+  border-radius: 1px;
+}
+.pBlock   { height: 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); margin-bottom: 5px; }
+.pBlockSm { height: 18px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.04); margin-bottom: 5px; }
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+  .inner { padding: 80px 24px; }
+  .row { grid-template-columns: 1fr; }
+  .card { aspect-ratio: 16 / 10; }
+}
