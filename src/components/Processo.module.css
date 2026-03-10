@@ -1,0 +1,101 @@
+.bg {
+  background: var(--bg2);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 120px 48px;
+}
+
+.header {
+  margin-bottom: 72px;
+}
+
+.h2 {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3vw, 44px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  max-width: 540px;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.step {
+  padding: 36px 0;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+/* Odd cols get right border + right padding */
+.step:nth-child(odd) {
+  padding-right: 60px;
+  border-right: 1px solid var(--border);
+}
+
+/* Even cols get left padding */
+.step:nth-child(even) {
+  padding-left: 60px;
+}
+
+/* Last 2 items: remove bottom border */
+.step:nth-last-child(-n+2) {
+  border-bottom: none;
+}
+
+/* If 7 items (odd total), last item in odd column still has no border */
+.step:last-child {
+  border-bottom: none;
+}
+
+.num {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--text-faint);
+  padding-top: 3px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+
+.body {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.75;
+  font-weight: 300;
+}
+
+@media (max-width: 900px) {
+  .inner { padding: 72px 20px; }
+
+  .list { grid-template-columns: 1fr; }
+
+  .step:nth-child(odd) {
+    padding-right: 0;
+    border-right: none;
+  }
+  .step:nth-child(even) {
+    padding-left: 0;
+  }
+  .step:nth-last-child(-n+2) {
+    border-bottom: 1px solid var(--border);
+  }
+  .step:last-child { border-bottom: none; }
+  .step { padding: 24px 0; }
+}

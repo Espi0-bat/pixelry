@@ -1,0 +1,38 @@
+.bg {
+  background: linear-gradient(180deg, var(--bg2) 0%, var(--bg) 100%);
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.inner {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 140px 48px;
+}
+
+.h2 {
+  font-family: var(--font-display);
+  font-size: clamp(32px, 4.5vw, 64px);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.03em;
+  margin-bottom: 48px;
+}
+
+.body {
+  font-size: 16px;
+  color: var(--text-dim);
+  line-height: 1.85;
+  font-weight: 300;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.body strong {
+  color: var(--text);
+  font-weight: 500;
+}
+
+@media (max-width: 900px) {
+  .inner { padding: 80px 24px; }
+}

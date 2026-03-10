@@ -1,0 +1,65 @@
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: start;
+}
+
+.h2 {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3vw, 44px);
+  font-weight: 700;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin-bottom: 28px;
+}
+
+.body {
+  color: var(--text-dim);
+  font-size: 16px;
+  line-height: 1.85;
+  font-weight: 300;
+}
+
+.quote {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--purple);
+  padding: 40px 36px;
+  margin-top: 60px;
+  position: relative;
+}
+
+.quote::before {
+  content: '"';
+  font-family: var(--font-display);
+  font-size: 80px;
+  font-weight: 800;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  position: absolute;
+  top: 10px;
+  left: 30px;
+  line-height: 1;
+  opacity: 0.6;
+}
+
+.quote p {
+  font-family: var(--font-display);
+  font-size: 19px;
+  font-weight: 600;
+  line-height: 1.45;
+  color: var(--text);
+  margin-top: 24px;
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .quote { margin-top: 0; padding: 28px 24px; }
+  .quote p { font-size: 17px; }
+}
