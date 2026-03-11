@@ -1,40 +1,32 @@
 /* ─────────────────────────────────────────────
-   PIXELRY — Global Styles
+   PIXELRY — Global Styles v3
    ───────────────────────────────────────────── */
 
 :root {
-  /* Colors */
   --bg:      #070710;
   --bg2:     #0c0c1c;
   --bg3:     #101022;
   --surface: #141430;
-  --border:         rgba(255, 255, 255, 0.09);
-  --border-bright:  rgba(255, 255, 255, 0.16);
+  --border:         rgba(255, 255, 255, 0.08);
+  --border-bright:  rgba(255, 255, 255, 0.15);
 
-  /* Text — increased contrast across the board */
   --text:       #f0f0fa;
-  --text-dim:   rgba(240, 240, 250, 0.70);
-  --text-faint: rgba(240, 240, 250, 0.38);
+  --text-dim:   rgba(240, 240, 250, 0.55);
+  --text-faint: rgba(240, 240, 250, 0.32);
 
-  /* Brand */
   --purple: #8040F5;
   --cyan:   #00D8FF;
-  --green:  #25D366;        /* WhatsApp green */
   --grad:       linear-gradient(135deg, #8040F5, #00D8FF);
   --grad-text:  linear-gradient(90deg, #A065FF, #00D8FF);
-  --grad-wa:    linear-gradient(135deg, #1fbe57, #25D366);
 
-  /* Typography */
   --font-display: 'Syne', sans-serif;
   --font-body:    'DM Sans', sans-serif;
   --font-mono:    'JetBrains Mono', monospace;
 
-  /* Spacing */
-  --section-pad: 120px 48px;
-  --section-pad-mobile: 72px 20px;
+  --section-pad: 140px 48px;
+  --section-pad-mobile: 80px 20px;
 }
 
-/* ─── RESET ─── */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -61,16 +53,10 @@ body {
   font-feature-settings: "kern" 1, "liga" 1;
 }
 
-/* ─── SCROLLBAR ─── */
 ::-webkit-scrollbar         { width: 3px; }
 ::-webkit-scrollbar-track   { background: var(--bg); }
 ::-webkit-scrollbar-thumb   { background: var(--purple); border-radius: 2px; }
 
-/* ─── TYPOGRAPHY HELPERS ─── */
-.display { font-family: var(--font-display); }
-.mono    { font-family: var(--font-mono); }
-
-/* ─── GRADIENT TEXT ─── */
 .grad-text {
   background: var(--grad-text);
   -webkit-background-clip: text;
@@ -78,7 +64,6 @@ body {
   background-clip: text;
 }
 
-/* ─── LABEL (section tag) ─── */
 .label {
   font-family: var(--font-mono);
   font-size: 10px;
@@ -100,10 +85,10 @@ body {
 }
 
 /* ─────────────────────────────────────────────
-   BUTTONS
+   BUTTONS — refined, no green
    ───────────────────────────────────────────── */
 
-/* Standard gradient CTA */
+/* Primary gradient CTA */
 .btn-primary {
   display: inline-flex;
   align-items: center;
@@ -121,31 +106,22 @@ body {
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.22s ease;
-}
-.btn-primary::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: rgba(255,255,255,0.12);
-  opacity: 0;
-  transition: opacity 0.2s;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s ease;
 }
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 32px rgba(128, 64, 245, 0.45);
 }
-.btn-primary:hover::after { opacity: 1; }
 .btn-primary:active { transform: translateY(0); }
 
-/* WhatsApp CTA — green, pulsing */
+/* WhatsApp CTA — elegant gradient, no green */
 .btn-whatsapp {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: var(--green);
+  background: transparent;
   color: #fff;
   font-family: var(--font-mono);
   font-size: 13px;
@@ -153,32 +129,31 @@ body {
   letter-spacing: 0.06em;
   padding: 20px 44px;
   text-decoration: none;
-  border: none;
+  border: 1px solid rgba(0, 216, 255, 0.45);
   cursor: pointer;
   position: relative;
-  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.22s ease;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s ease,
+              border-color 0.25s ease,
+              background 0.25s ease;
 }
 .btn-whatsapp::before {
   content: '';
   position: absolute;
-  inset: -4px;
-  background: rgba(37, 211, 102, 0.25);
-  animation: waPulse 2.2s ease-in-out infinite;
-  pointer-events: none;
+  inset: 0;
+  background: var(--grad);
+  opacity: 0;
+  transition: opacity 0.25s ease;
 }
 .btn-whatsapp:hover {
   transform: translateY(-3px);
-  box-shadow: 0 12px 40px rgba(37, 211, 102, 0.5);
+  box-shadow: 0 0 28px rgba(0, 216, 255, 0.3), 0 12px 40px rgba(128, 64, 245, 0.25);
+  border-color: rgba(0, 216, 255, 0.8);
 }
+.btn-whatsapp:hover::before { opacity: 1; }
+.btn-whatsapp > * { position: relative; z-index: 1; }
 .btn-whatsapp:active { transform: translateY(0); }
 
-@keyframes waPulse {
-  0%, 100% { opacity: 0; transform: scale(1); }
-  50%       { opacity: 1; transform: scale(1.06); }
-}
-
-/* WhatsApp icon */
 .wa-icon {
   width: 20px;
   height: 20px;
@@ -197,7 +172,7 @@ body {
   padding: 17px 0;
   text-decoration: none;
   border-bottom: 1px solid var(--border-bright);
-  transition: color 0.2s, border-color 0.2s;
+  transition: color 0.25s, border-color 0.25s;
   background: none;
   border-top: none;
   border-left: none;
@@ -206,7 +181,43 @@ body {
 }
 .btn-secondary:hover {
   color: var(--text);
-  border-bottom-color: rgba(240,240,250,0.4);
+  border-bottom-color: rgba(0, 216, 255, 0.5);
+}
+
+/* ─── STICKY MOBILE CTA ─── */
+.sticky-cta {
+  display: none;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 999;
+  padding: 12px 20px 20px;
+  background: linear-gradient(to top, var(--bg) 60%, transparent);
+}
+.sticky-cta a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 18px;
+  background: var(--grad);
+  color: #fff;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  transition: box-shadow 0.25s;
+}
+.sticky-cta a:hover {
+  box-shadow: 0 0 24px rgba(128, 64, 245, 0.5);
+}
+
+@media (max-width: 768px) {
+  .sticky-cta { display: block; }
+  body { padding-bottom: 80px; }
 }
 
 /* ─── GRADIENT LINE ─── */
@@ -225,13 +236,13 @@ body {
 }
 
 /* ─────────────────────────────────────────────
-   REVEAL ANIMATIONS — refined easing + distances
+   REVEAL ANIMATIONS
    ───────────────────────────────────────────── */
 .reveal {
   opacity: 0;
-  transform: translateY(32px);
-  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1),
-              transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(36px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .reveal.visible {
   opacity: 1;
@@ -244,9 +255,7 @@ body {
 
 /* ─── RESPONSIVE ─── */
 @media (max-width: 900px) {
-  .section-wrap {
-    padding: var(--section-pad-mobile);
-  }
+  .section-wrap { padding: var(--section-pad-mobile); }
 }
 
 @media (max-width: 480px) {
