@@ -7,12 +7,10 @@
 .inner {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 120px 48px;
+  padding: 140px 48px;
 }
 
-.header {
-  margin-bottom: 72px;
-}
+.header { margin-bottom: 80px; }
 
 .h2 {
   font-family: var(--font-display);
@@ -29,34 +27,22 @@
 }
 
 .step {
-  padding: 36px 0;
+  padding: 44px 0;
   border-bottom: 1px solid var(--border);
   display: grid;
   grid-template-columns: 72px 1fr;
   gap: 16px;
   align-items: start;
+  transition: background 0.25s ease;
 }
 
-/* Odd cols get right border + right padding */
 .step:nth-child(odd) {
-  padding-right: 60px;
+  padding-right: 64px;
   border-right: 1px solid var(--border);
 }
-
-/* Even cols get left padding */
-.step:nth-child(even) {
-  padding-left: 60px;
-}
-
-/* Last 2 items: remove bottom border */
-.step:nth-last-child(-n+2) {
-  border-bottom: none;
-}
-
-/* If 7 items (odd total), last item in odd column still has no border */
-.step:last-child {
-  border-bottom: none;
-}
+.step:nth-child(even) { padding-left: 64px; }
+.step:nth-last-child(-n+2) { border-bottom: none; }
+.step:last-child { border-bottom: none; }
 
 .num {
   font-family: var(--font-mono);
@@ -64,38 +50,32 @@
   letter-spacing: 0.1em;
   color: var(--text-faint);
   padding-top: 3px;
+  transition: color 0.25s;
 }
+
+.step:hover .num { color: var(--cyan); }
 
 .title {
   font-family: var(--font-display);
-  font-size: 16px;
+  font-size: 17px;
   font-weight: 700;
   letter-spacing: -0.01em;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .body {
   font-size: 14px;
   color: var(--text-dim);
-  line-height: 1.75;
+  line-height: 1.8;
   font-weight: 300;
 }
 
 @media (max-width: 900px) {
-  .inner { padding: 72px 20px; }
-
+  .inner { padding: 80px 20px; }
   .list { grid-template-columns: 1fr; }
-
-  .step:nth-child(odd) {
-    padding-right: 0;
-    border-right: none;
-  }
-  .step:nth-child(even) {
-    padding-left: 0;
-  }
-  .step:nth-last-child(-n+2) {
-    border-bottom: 1px solid var(--border);
-  }
+  .step:nth-child(odd) { padding-right: 0; border-right: none; }
+  .step:nth-child(even) { padding-left: 0; }
+  .step:nth-last-child(-n+2) { border-bottom: 1px solid var(--border); }
   .step:last-child { border-bottom: none; }
-  .step { padding: 24px 0; }
+  .step { padding: 28px 0; }
 }
