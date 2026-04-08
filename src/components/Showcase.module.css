@@ -16,7 +16,7 @@
   font-family: var(--font-display);
   font-size: clamp(32px, 4.5vw, 68px);
   font-weight: 800;
-  line-height: 1.0;
+  line-height: var(--lh-heading);
   letter-spacing: -0.03em;
   margin-bottom: 24px;
 }
