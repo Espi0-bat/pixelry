@@ -60,8 +60,8 @@ export default function Processo() {
               className={`${styles.step} reveal ${i % 2 === 1 ? 'reveal-d1' : ''}`}
             >
               <div className={styles.numWrap}>
-                <span className={styles.letterGhost} aria-hidden="true">{s.letter}</span>
                 <span className={styles.num}>{s.num}</span>
+                <span className={styles.letterGhost} aria-hidden="true">{s.letter}</span>
               </div>
               <div>
                 <h3 className={styles.title}>{s.title}</h3>

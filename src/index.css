@@ -300,8 +300,6 @@ body {
 /* ─── RESPONSIVE ─── */
 @media (max-width: 900px) {
   .section-wrap { padding: var(--section-pad-mobile); }
-  /* Remove quebras forçadas de linha em mobile — o texto flui naturalmente */
-  br { display: none; }
 }
 
 @media (max-width: 480px) {
