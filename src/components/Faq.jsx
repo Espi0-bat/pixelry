@@ -4,12 +4,12 @@ import styles from './Faq.module.css'
 
 const FAQS = [
   {
-    q: 'Quanto tempo leva para criar um site profissional?',
-    a: 'Projetos completos levam entre 2 a 4 semanas, dependendo do escopo e da agilidade na troca de informações. Trabalhamos com cronograma claro desde a primeira reunião — sem prazo aberto.',
+    q: 'O que exatamente é um sistema de aquisição de clientes?',
+    a: 'Não é apenas um site. É uma estrutura integrada: página de alta conversão, integração com WhatsApp, rastreamento técnico (GA4/Pixel), SEO local e — quando validado — mídia paga. Cada peça trabalha em conjunto para transformar intenção de busca em agendamento real na sua agenda.',
   },
   {
-    q: 'Meu negócio é pequeno. Realmente preciso de um site?',
-    a: 'O tamanho do negócio não define a necessidade de presença digital — o padrão do serviço define. Se você cobra bem e entrega bem, seu site precisa comunicar isso antes que o cliente te ligue. Um negócio pequeno com presença digital profissional parece maior e cobra mais com menos objeção.',
+    q: 'Minha clínica já tem redes sociais. Por que precisaria disso?',
+    a: 'Redes sociais geram visibilidade, mas não controlam a jornada do cliente. Um sistema de aquisição captura esse tráfego, qualifica o lead e direciona diretamente para o fechamento — de forma rastreable e previsível. São camadas complementares, não concorrentes.',
   },
   {
     q: 'Qual a diferença entre a PIXELRY e agências de marketing?',

@@ -176,6 +176,33 @@ export default function Hero() {
             </a>
           </div>
         </div>
+
+        {/* Dashboard inline — visible only on mobile */}
+        <div className={styles.dashboardMobile} aria-hidden="true">
+          <div className={styles.dashHeader}>
+            <span className={styles.dashTitle}>Desempenho de Aquisição</span>
+            <span className={styles.dashStatus}>SISTEMA ATIVO</span>
+          </div>
+          <div className={styles.dashMetrics}>
+            <div className={styles.dashMetric}>
+              <div className={styles.dashMetricLabel}>Leads Qualificados</div>
+              <div className={styles.dashMetricValue}>+34%</div>
+            </div>
+            <div className={styles.dashMetric}>
+              <div className={styles.dashMetricLabel}>Custo por Aquisição</div>
+              <div className={styles.dashMetricValue}>-18%</div>
+            </div>
+          </div>
+          <div className={styles.dashChart}>
+            <div className={styles.dashBar} />
+            <div className={styles.dashBar} />
+            <div className={styles.dashBar} />
+            <div className={styles.dashBar} />
+            <div className={styles.dashBar} />
+            <div className={styles.dashBar} />
+          </div>
+        </div>
+
       </div>
     </section>
   )

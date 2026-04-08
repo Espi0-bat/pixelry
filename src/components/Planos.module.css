@@ -170,6 +170,7 @@
 
 @media (max-width: 900px) {
   .grid { grid-template-columns: 1fr; }
+  .card { padding: 28px 24px; }
   .destaque { transform: none; }
   .destaque:hover { transform: translateY(-5px); }
 }

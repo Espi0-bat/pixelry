@@ -104,7 +104,7 @@ export default function Planos() {
                 </div>
               </div>
               <a href={`https://wa.me/556193720900?text=${encodeURIComponent('Olá Erick! Quero saber mais sobre a implementação do plano ' + p.nome + '.')}`} target="_blank" rel="noreferrer" className={styles.btn}>
-                Aplicar para Diagnóstico Gratuito
+                Aplicar para o plano {p.nome} →
               </a>
             </div>
           ))}

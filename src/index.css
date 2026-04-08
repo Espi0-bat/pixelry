@@ -296,7 +296,8 @@ body {
 
 @media (max-width: 480px) {
   body { font-size: 15px; }
-  .btn-primary  { padding: 16px 28px; font-size: 11px; width: 100%; }
-  .btn-whatsapp { padding: 18px 28px; font-size: 12px; width: 100%; }
+  .btn-primary   { padding: 16px 28px; font-size: 11px; width: 100%; }
+  .btn-whatsapp  { padding: 18px 28px; font-size: 12px; width: 100%; }
+  .btn-hero-cta  { width: 100%; justify-content: center; font-size: 13px; }
   .btn-secondary { width: 100%; justify-content: center; }
 }
