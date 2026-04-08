@@ -8,8 +8,8 @@ const ITEMS = [
     wide: false,
   },
   {
-    title: 'Estética como instrumento estratégico',
-    body: 'Cada decisão visual tem função comercial. Design não é decoração — é comunicação de autoridade. Construímos interfaces que justificam o preço que você cobra antes que qualquer palavra seja dita.',
+    title: 'Engenharia aplicada, não enfeite visual',
+    body: 'Cada decisão nossa tem função comercial. Não tratamos páginas como artes — as tratamos como máquinas de atração de agenda. Construímos estruturas de rastreamento que justificam o seu investimento com dados reais.',
     wide: false,
   },
   {
@@ -18,8 +18,8 @@ const ITEMS = [
     wide: false,
   },
   {
-    title: 'Parceria além da entrega',
-    body: 'Não entregamos um projeto e encerramos o contato. Somos um estúdio que acompanha o que constrói — porque uma presença digital precisa evoluir junto com o negócio.',
+    title: 'Parceria orientada a resultados',
+    body: 'Não entregamos um site e encerramos o contato. Somos uma empresa de tecnologia que realiza a leitura dos dados do que constrói — porque o sistema digital precisa evoluir e escalar as suas vendas continuamente.',
     wide: false,
   },
   {
@@ -39,7 +39,7 @@ export default function Diferenciais() {
           <span className="label">POSICIONAMENTO</span>
           <h2 className={styles.h2}>
             Não somos a agência que faz tudo.<br />
-            Somos o estúdio que faz o que importa.
+            Somos a estrutura que traz previsibilidade.
           </h2>
         </div>
 

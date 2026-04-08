@@ -2,12 +2,12 @@ import { useRevealContainer } from '../hooks/useReveal'
 import styles from './ParaQuem.module.css'
 
 const SEGMENTS = [
-  'Clínicas e consultórios',
-  'Escritórios e prestadores',
-  'Cafeterias e restaurantes',
-  'Barbearias e salões premium',
-  'Estúdios e espaços criativos',
-  'Marcas locais em expansão',
+  'Clínicas Médicas',
+  'Dentistas e Odontologia',
+  'Clínicas de Estética Avançada',
+  'Profissionais Liberais',
+  'Consultoria de Alto Ticket',
+  'Prestadores B2B de Serviço',
 ]
 
 export default function ParaQuem() {

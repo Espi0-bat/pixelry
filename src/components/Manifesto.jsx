@@ -17,10 +17,10 @@ export default function Manifesto() {
 
         <p className={`${styles.body} reveal reveal-d2`}>
           Existe uma lacuna entre o que muitos negócios são e o que eles comunicam online.
-          A PIXELRY nasceu para fechar essa lacuna. <strong>Com metodologia. Com design estratégico. Com comprometimento real.</strong>{' '}
-          Não somos a agência que promete crescimento viral. Somos o estúdio que constrói a base
-          digital que transforma autoridade real em credibilidade percebida —
-          e credibilidade percebida em clientes que pagam o que você vale.{' '}
+          A PIXELRY nasceu para fechar essa lacuna. <strong>Com o Método P.I.X.E.L. Com engenharia digital focada em atração.</strong>{' '}
+          Não somos a agência que promete crescimento viral. Somos a empresa de tecnologia que constrói o sistema
+          que transforma autoridade real em previsibilidade comercial —
+          e visitantes em clientes no seu WhatsApp.{' '}
           <strong>Brasília — DF. Padrão sem concessão.</strong>
         </p>
       </div>

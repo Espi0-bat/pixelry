@@ -2,13 +2,11 @@ import { useRevealContainer } from '../hooks/useReveal'
 import styles from './Processo.module.css'
 
 const STEPS = [
-  { num: '01', title: 'Imersão',         body: 'Mapeamos seu negócio, mercado, público e posicionamento atual. Entendemos o que você entrega e o que sua presença digital está comunicando — mesmo que seja o silêncio.' },
-  { num: '02', title: 'Estratégia',      body: 'Definimos linguagem visual, arquitetura de marca, prioridades de execução e o que precisa existir antes do que é apenas desejável.' },
-  { num: '03', title: 'Design',          body: 'Cada decisão visual tem função estratégica. Criamos interfaces que comunicam autoridade antes que qualquer texto seja lido.' },
-  { num: '04', title: 'Engenharia',      body: 'Código limpo, responsivo e performático. Estrutura construída para durar e escalar — sem atalhos que viram problemas.' },
-  { num: '05', title: 'Refinamento',     body: 'Revisamos cada detalhe até o projeto representar com precisão o nível do seu negócio. Sem aprovação prematura.' },
-  { num: '06', title: 'Ativação',        body: 'Publicação com validação técnica completa. O projeto vai ao ar funcionando — não em fase de testes.' },
-  { num: '07', title: 'Continuidade',    body: 'Permanecemos presentes após a entrega. Monitoramos, ajustamos e evoluímos o que foi construído junto com o seu negócio.' },
+  { num: '01', title: 'P - Posicionamento', body: 'Antes do visual, definimos a oferta, o público e a promessa principal. Sua página vira um ambiente de conversão quando o cliente entende imediatamente o porquê você é a escolha certa.' },
+  { num: '02', title: 'I - Identidade', body: 'A estética é um instrumento de percepção de confiança. Geramos um ambiente profissional e coeso que reflete qualidade e eleva a autoridade percebida da sua clínica.' },
+  { num: '03', title: 'X - Experiência', body: 'Reduzimos toda a fricção de navegação. Um layout confuso ou lento joga o cliente para trás. Nosso papel é pavimentar um caminho rápido e limpo até o botão de contato.' },
+  { num: '04', title: 'E - Estratégia', body: 'A estrutura é pensada no fechamento. Organizamos Copy, CTAs, gatilhos de prova social e a integração direta com automações básicas no seu canal principal (WhatsApp).' },
+  { num: '05', title: 'L - Leitura de Dados', body: 'Sem dados, é intuição. Instalamos o rastreamento técnico (Pixel, GA4) para monitorar resultados e lapidar a estratégia continuamente, de forma recorrente.' },
 ]
 
 export default function Processo() {

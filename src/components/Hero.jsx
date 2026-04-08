@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import styles from './Hero.module.css'
 
-const WA_LINK = 'https://wa.me/5561991410161?text=Olá!%20Vim%20pelo%20site%20da%20PIXELRY%20e%20gostaria%20de%20saber%20mais%20sobre%20os%20serviços.'
+const WA_LINK = 'https://wa.me/556193720900?text=Olá%20Erick!%20Vi%20a%20estrutura%20de%20vocês%20para%20aquisição%20de%20clientes%20e%20quero%20o%20Diagnóstico%20Gratuito.'
 
 const WaIcon = () => (
   <svg className="wa-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -46,11 +46,19 @@ export default function Hero() {
     function resize() {
       canvas.width  = canvas.offsetWidth
       canvas.height = canvas.offsetHeight
+      if (window.innerWidth <= 900) {
+        dots = []
+        return
+      }
       buildDots(canvas.width, canvas.height)
     }
 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
+      if (dots.length === 0) {
+        animId = requestAnimationFrame(draw)
+        return
+      }
       time += 0.010
       mouseRef.current.x += (targetRef.current.x - mouseRef.current.x) * 0.06
       mouseRef.current.y += (targetRef.current.y - mouseRef.current.y) * 0.06
@@ -103,44 +111,70 @@ export default function Hero() {
       <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
       <div className={styles.glow} aria-hidden="true" />
 
-      <div className={styles.geoWrap} aria-hidden="true">
-        <div className={`${styles.geo} ${styles.geo1}`} />
-        <div className={`${styles.geo} ${styles.geo2}`} />
-        <div className={`${styles.geo} ${styles.geo3}`} />
-        <div className={`${styles.geo} ${styles.geo4}`} />
+      <div className={styles.dashboardWrap} aria-hidden="true">
+        <div className={styles.dashboard}>
+          <div className={styles.dashHeader}>
+            <span className={styles.dashTitle}>Desempenho de Aquisição</span>
+            <span className={styles.dashStatus}>SISTEMA ATIVO</span>
+          </div>
+          <div className={styles.dashMetrics}>
+            <div className={styles.dashMetric}>
+              <div className={styles.dashMetricLabel}>Leads Qualificados</div>
+              <div className={styles.dashMetricValue}>+34%</div>
+            </div>
+            <div className={styles.dashMetric}>
+              <div className={styles.dashMetricLabel}>Custo por Aquisição</div>
+              <div className={styles.dashMetricValue}>-18%</div>
+            </div>
+          </div>
+          <div className={styles.dashChart}>
+            <div className={styles.dashBar} />
+            <div className={styles.dashBar} />
+            <div className={styles.dashBar} />
+            <div className={styles.dashBar} />
+            <div className={styles.dashBar} />
+            <div className={styles.dashBar} />
+          </div>
+        </div>
       </div>
 
       <div className={styles.content}>
         <p className={styles.eyebrow}>
           <span className={styles.eyebrowDot} />
-          ESTÚDIO DIGITAL · BRASÍLIA — DF
+          ESPECIALISTAS EM ESTRUTURAS DE AQUISIÇÃO PARA CLÍNICAS E NEGÓCIOS LOCAIS
         </p>
 
         <h1 className={styles.h1}>
-          Sua marca já tem valor.<br />
-          O digital precisa<br />
-          <span className="grad-text">comunicar isso com precisão.</span>
+          Transformamos a presença digital<br />
+          de empresas em uma estrutura que<br />
+          <span className="grad-text">gera clientes de forma previsível.</span>
         </h1>
 
         <p className={styles.sub}>
-          Inconsistência de marca online custa clientes antes de qualquer conversa.
-          A PIXELRY estrutura sua presença digital com metodologia, design estratégico
-          e acompanhamento contínuo — para que cada ponto de contato converta.
+          Cansado de uma presença digital fragmentada que não traz retorno? Implementamos o sistema 
+          técnico que organiza sua captação e enche sua agenda.
         </p>
 
         <div className={styles.ctas}>
-          <a href={WA_LINK} target="_blank" rel="noreferrer" className="btn-whatsapp">
-            <WaIcon />
-            Iniciar diagnóstico gratuito
-          </a>
-          <a href="#servicos" className="btn-secondary">
-            Ver serviços ↓
-          </a>
-        </div>
+          <div className={styles.ctaGroupPrimary}>
+            <a href={WA_LINK} target="_blank" rel="noreferrer" className="btn-hero-cta">
+              <WaIcon />
+              Agendar Diagnóstico
+            </a>
+            
+            <p className={styles.microcopy}>Análise técnica do seu funil atual. Resposta rápida.</p>
+            
+            <div className={styles.proof}>
+              <span className={styles.proofDot} />
+              Disponível em Brasília — DF
+            </div>
+          </div>
 
-        <div className={styles.proof}>
-          <span className={styles.proofDot} />
-          Disponível para novos projetos em Brasília — DF
+          <div className={styles.ctaGroupSecondary}>
+            <a href="#servicos" className="btn-secondary">
+              Ver serviços ↓
+            </a>
+          </div>
         </div>
       </div>
     </section>

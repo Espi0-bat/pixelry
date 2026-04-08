@@ -1,4 +1,6 @@
-const WA_LINK = 'https://wa.me/5561991410161?text=Olá!%20Vim%20pelo%20site%20da%20PIXELRY%20e%20gostaria%20de%20conversar%20sobre%20meu%20projeto.'
+import { useState, useEffect } from 'react'
+
+const WA_LINK = 'https://wa.me/556193720900?text=Olá%20Erick!%20Vim%20pelo%20botão%20flutuante%20do%20site.%20Gostaria%20de%20discutir%20minha%20infraestrutura%20de%20marketing.'
 
 const WaIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -8,11 +10,23 @@ const WaIcon = () => (
 )
 
 export default function StickyCta() {
+  const [visible, setVisible] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => {
+      setVisible(window.scrollY > 500)
+    }
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  if (!visible) return null
+
   return (
-    <div className="sticky-cta" aria-label="Contato rápido">
+    <div className="sticky-cta" aria-label="Contato rápido" style={{ animation: 'fadeUp 0.4s ease' }}>
       <a href={WA_LINK} target="_blank" rel="noreferrer">
         <WaIcon />
-        Falar no WhatsApp
+        Agendar Diagnóstico
       </a>
     </div>
   )

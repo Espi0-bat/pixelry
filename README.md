@@ -1,4 +1,4 @@
-# PIXELRY — Estúdio Digital
+# PIXELRY — Engenharia Digital
 
 Landing page da PIXELRY construída com **React + Vite**.  
 Design dark premium com gradiente roxo → ciano, grid de pontos animado e formas geométricas.

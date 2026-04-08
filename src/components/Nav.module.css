@@ -16,7 +16,12 @@
   backdrop-filter: blur(20px);
 }
 
-.logo {
+.brand {
+  display: flex;
+  align-items: center;
+}
+
+.logoText {
   font-family: var(--font-display);
   font-size: 18px;
   font-weight: 800;
@@ -26,22 +31,41 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  display: block;
+}
+
+.logoImage {
+  display: none;
+  height: 36px;
+  width: auto;
+  border-radius: 8px; /* caso tenha fundo preenchido e fique quadrado */
 }
 
 .cta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-family: var(--font-mono);
   font-size: 11px;
-  letter-spacing: 0.1em;
-  color: var(--cyan);
-  border: 1px solid rgba(0, 216, 255, 0.3);
-  padding: 9px 22px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: var(--bg);
+  background: var(--grad);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 10px 24px;
   text-decoration: none;
-  transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+  text-transform: uppercase;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px rgba(128, 64, 245, 0.25);
 }
+
 .cta:hover {
-  background: rgba(0, 216, 255, 0.08);
+  background: transparent;
+  color: #fff;
   border-color: var(--cyan);
-  box-shadow: 0 0 16px rgba(0, 216, 255, 0.15);
+  box-shadow: 0 8px 30px rgba(0, 216, 255, 0.3);
+  transform: translateY(-2px);
 }
 
 .ctaMobile { display: none; }
@@ -49,6 +73,21 @@
 
 @media (max-width: 900px) {
   .nav { padding: 16px 20px; }
+  
+  .brand { gap: 8px; }
+  
+  .logoText { 
+    display: block; 
+    font-size: 15px;
+    letter-spacing: 0.08em;
+  }
+  
+  .logoImage { 
+    display: block;
+    height: 26px;
+    border-radius: 6px;
+  }
+  
   .cta { padding: 8px 16px; font-size: 10px; }
   .ctaFull   { display: none; }
   .ctaMobile { display: inline; }

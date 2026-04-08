@@ -1,7 +1,7 @@
 import { useRevealContainer } from '../hooks/useReveal'
 import styles from './CtaFinal.module.css'
 
-const WA_LINK = 'https://wa.me/5561991410161?text=Olá!%20Vim%20pelo%20site%20da%20PIXELRY%20e%20gostaria%20de%20conversar%20sobre%20meu%20projeto.'
+const WA_LINK = 'https://wa.me/556193720900?text=Olá%20Erick!%20Cheguei%20ao%20fim%20do%20site%20da%20PIXELRY%20e%20percebi%20que%20meu%20negócio%20precisa%20de%20uma%20Engenharia%20Digital.%20Podemos%20conversar?'
 
 const WaIcon = () => (
   <svg className="wa-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

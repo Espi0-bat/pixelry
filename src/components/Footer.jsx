@@ -1,6 +1,6 @@
 import styles from './Footer.module.css'
 
-const WA_LINK = 'https://wa.me/5561991410161?text=Olá!%20Vim%20pelo%20site%20da%20PIXELRY%20e%20gostaria%20de%20saber%20mais%20sobre%20os%20serviços.'
+const WA_LINK = 'https://wa.me/556193720900?text=Olá%20Erick!%20Vim%20pelo%20rodapé%20do%20site%20da%20PIXELRY%20e%20gostaria%20de%20falar%20sobre%20as%20soluções.'
 
 const WaIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -17,12 +17,12 @@ export default function Footer() {
         <div className={styles.brand}>
           <span className={styles.logo}>PIXELRY</span>
           <p className={styles.tagline}>
-            Estúdio digital focado em presença profissional<br />
-            para negócios locais em Brasília — DF.
+            Empresa de engenharia digital focada em estruturar<br />
+            sistemas de aquisição para clínicas e negócios.
           </p>
           <a href={WA_LINK} target="_blank" rel="noreferrer" className={styles.waLink}>
             <WaIcon />
-            (61) 99141-0161
+            (61) 9372-0900
           </a>
         </div>
 

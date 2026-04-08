@@ -7,6 +7,7 @@ import Diferenciais from './components/Diferenciais'
 import Showcase     from './components/Showcase'
 import ParaQuem     from './components/ParaQuem'
 import Manifesto    from './components/Manifesto'
+import Planos       from './components/Planos'
 import Faq          from './components/Faq'
 import CtaFinal     from './components/CtaFinal'
 import Footer       from './components/Footer'
@@ -25,6 +26,7 @@ export default function App() {
         <Showcase />
         <ParaQuem />
         <Manifesto />
+        <Planos />
         <Faq />
         <CtaFinal />
       </main>
