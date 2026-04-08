@@ -160,28 +160,56 @@ body {
   flex-shrink: 0;
 }
 
+/* Primary High-Contrast CTA for Hero */
+.btn-hero-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  background: #25D366;
+  color: #000;
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 22px 48px;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.25s ease,
+              background 0.25s ease;
+  box-shadow: 0 0 24px rgba(37, 211, 102, 0.3);
+}
+.btn-hero-cta:hover {
+  transform: translateY(-3px);
+  background: #2ae871;
+  box-shadow: 0 8px 40px rgba(37, 211, 102, 0.5);
+}
+.btn-hero-cta:active { transform: translateY(0); }
+.btn-hero-cta .wa-icon { color: #000; }
+
 /* Secondary text link */
 .btn-secondary {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  color: var(--text-dim);
+  color: var(--text-faint);
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: 11px;
   letter-spacing: 0.08em;
-  padding: 17px 0;
+  padding: 8px 0;
   text-decoration: none;
-  border-bottom: 1px solid var(--border-bright);
-  transition: color 0.25s, border-color 0.25s;
+  transition: color 0.25s, opacity 0.25s;
   background: none;
-  border-top: none;
-  border-left: none;
-  border-right: none;
+  border: none;
   cursor: pointer;
+  opacity: 0.5;
 }
 .btn-secondary:hover {
   color: var(--text);
-  border-bottom-color: rgba(0, 216, 255, 0.5);
+  opacity: 1;
 }
 
 /* ─── STICKY MOBILE CTA ─── */

@@ -12,8 +12,8 @@ const FAQS = [
     a: 'O tamanho do negócio não define a necessidade de presença digital — o padrão do serviço define. Se você cobra bem e entrega bem, seu site precisa comunicar isso antes que o cliente te ligue. Um negócio pequeno com presença digital profissional parece maior e cobra mais com menos objeção.',
   },
   {
-    q: 'Qual a diferença entre a PIXELRY e outras agências?',
-    a: 'Agências genéricas atendem volume. Nós atendemos profundidade. Cada projeto passa por diagnóstico estratégico, é construído com código limpo e acompanhado após entrega. Não vendemos pacotes prontos — vendemos estrutura digital pensada para o seu negócio específico.',
+    q: 'Qual a diferença entre a PIXELRY e agências de marketing?',
+    a: 'Nós não somos uma agência de estética ou mídias sociais. Somos uma empresa de engenharia digital focada em aquisição de clientes. Em vez de vender "design", construímos o PIXELRY CORE: um sistema que integra atração, conversão e dados para garantir rastreabilidade nas suas vendas.',
   },
   {
     q: 'Vou precisar entender de tecnologia para gerenciar meu site?',
