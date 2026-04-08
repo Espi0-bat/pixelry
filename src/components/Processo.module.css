@@ -2,6 +2,11 @@
   background: var(--bg2);
   border-top: 1px solid var(--border);
   border-bottom: 1px solid var(--border);
+  /* Blueprint grid sutil */
+  background-image:
+    linear-gradient(rgba(0, 216, 255, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 216, 255, 0.025) 1px, transparent 1px);
+  background-size: 48px 48px;
 }
 
 .inner {
@@ -36,6 +41,31 @@
   transition: background 0.25s ease;
 }
 
+/* Wrap number + ghost letter */
+.numWrap {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  padding-top: 3px;
+}
+
+.letterGhost {
+  position: absolute;
+  top: -8px;
+  left: -4px;
+  font-family: var(--font-display);
+  font-size: 52px;
+  font-weight: 800;
+  color: rgba(128, 64, 245, 0.07);
+  letter-spacing: -0.05em;
+  line-height: 1;
+  pointer-events: none;
+  user-select: none;
+  transition: color 0.3s;
+}
+.step:hover .letterGhost { color: rgba(0, 216, 255, 0.1); }
+
 .step:nth-child(odd) {
   padding-right: 64px;
   border-right: 1px solid var(--border);
@@ -68,6 +98,31 @@
   color: var(--text-dim);
   line-height: 1.8;
   font-weight: 300;
+  margin-bottom: 16px;
+}
+
+/* Output tag */
+.output {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  border: 1px solid var(--border);
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+.outputDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cyan);
+  flex-shrink: 0;
+  box-shadow: 0 0 4px rgba(0, 216, 255, 0.6);
 }
 
 @media (max-width: 900px) {
@@ -78,4 +133,5 @@
   .step:nth-last-child(-n+2) { border-bottom: 1px solid var(--border); }
   .step:last-child { border-bottom: none; }
   .step { padding: 28px 0; }
+  .letterGhost { font-size: 36px; }
 }

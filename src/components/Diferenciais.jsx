@@ -23,8 +23,8 @@ const ITEMS = [
     wide: false,
   },
   {
-    title: 'Atenção total em cada projeto',
-    body: 'Estamos em fase de crescimento estratégico — e é exatamente por isso que cada cliente recebe dedicação integral. Não existe fila de projetos no piloto automático aqui. Cada entrega é tratada como se fosse a única.',
+    title: 'Portfólio selecionado, não volume',
+    body: 'Mantemos um portfólio restrito e criterioso. Cada cliente passa por um diagnóstico antes da proposta. Não trabalhamos com volume — trabalhamos com fit estratégico entre o nosso sistema e o seu negócio.',
     wide: true,
   },
 ]
