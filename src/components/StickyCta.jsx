@@ -24,7 +24,13 @@ export default function StickyCta() {
 
   return (
     <div className="sticky-cta" aria-label="Contato rápido" style={{ animation: 'fadeUp 0.4s ease' }}>
-      <a href={WA_LINK} target="_blank" rel="noreferrer" title="Falar com Especialista">
+      <a 
+        href={WA_LINK} 
+        target="_blank" 
+        rel="noreferrer" 
+        title="Falar com Especialista"
+        aria-label="Agendar diagnóstico via WhatsApp"
+      >
         <WaIcon />
       </a>
     </div>

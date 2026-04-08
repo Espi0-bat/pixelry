@@ -51,7 +51,7 @@ export default function Showcase() {
           <span className="label">DIREÇÃO VISUAL</span>
           <h2 className={styles.h2}>Este site é o nosso portfólio.</h2>
           <p className={styles.sub}>
-            O padrão visual, a estrutura e a atenção ao detalhe que você vê aqui são o que levamos para cada projeto. Estamos construindo nossos primeiros casos com o mesmo nível de critério. Abaixo, a direção visual que orienta cada entrega da PIXELRY.
+            O padrão visual, a estrutura e a atenção ao detalhe que você vê aqui são o que levamos para cada projeto. Cada entrega segue os mesmos critérios de uma firma de engenharia: estrutura antes de estética, conversão antes de decoração. Abaixo, a direção visual que orienta cada entrega da PIXELRY.
           </p>
         </header>
 

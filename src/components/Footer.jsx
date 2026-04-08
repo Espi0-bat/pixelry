@@ -46,7 +46,7 @@ export default function Footer() {
       </div>
 
       <div className={styles.bottom}>
-        <span className={styles.copy}>© 2025 PIXELRY · Todos os direitos reservados</span>
+        <span className={styles.copy}>© 2026 PIXELRY · Todos os direitos reservados</span>
         <span className={styles.copy}>Padrão sem concessão.</span>
       </div>
     </footer>

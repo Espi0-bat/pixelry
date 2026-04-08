@@ -11,8 +11,8 @@ const SERVICES = [
   },
   {
     num: '02',
-    title: 'Automação Simples e Rastreamento (GA4 & Meta Pixel)',
-    body: 'Rastreamento confiável como infraestrutura. Instalamos configurações de tags e eventos para você enxergar de onde vêm seus leads, permitindo decisões guiadas por dados reais, não intuições.',
+    title: 'Rastreamento Técnico & Leitura de Dados',
+    body: 'Rastreamento confiável como infraestrutura. Instalamos configurações de tags e eventos (GA4 & Meta Pixel) para você enxergar de onde vêm seus leads, permitindo decisões guiadas por dados reais, não intuições.',
     badge: null,
     wide: false,
   },
