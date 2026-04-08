@@ -2,6 +2,7 @@ import Nav          from './components/Nav'
 import Hero         from './components/Hero'
 import Problema     from './components/Problema'
 import Servicos     from './components/Servicos'
+import Core         from './components/Core'
 import Processo     from './components/Processo'
 import Diferenciais from './components/Diferenciais'
 import Showcase     from './components/Showcase'
@@ -21,6 +22,7 @@ export default function App() {
         <Hero />
         <Problema />
         <Servicos />
+        <Core />
         <Processo />
         <Diferenciais />
         <Showcase />
