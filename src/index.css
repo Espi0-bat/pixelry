@@ -25,6 +25,14 @@
 
   --section-pad: 140px 48px;
   --section-pad-mobile: 80px 20px;
+
+  /* ─── Escala tipográfica padronizada ─── */
+  --lh-heading: 1.12;
+  --lh-sub:     1.3;
+  --lh-body:    1.75;
+  --fs-body:    15px;
+  --fs-intro:   16px;
+  --fs-label:   10px;
 }
 
 *, *::before, *::after {
@@ -292,6 +300,8 @@ body {
 /* ─── RESPONSIVE ─── */
 @media (max-width: 900px) {
   .section-wrap { padding: var(--section-pad-mobile); }
+  /* Remove quebras forçadas de linha em mobile — o texto flui naturalmente */
+  br { display: none; }
 }
 
 @media (max-width: 480px) {
