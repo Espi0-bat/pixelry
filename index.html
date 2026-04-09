@@ -1,13 +1,32 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
   <head>
+    <!-- ========================================== -->
+    <!-- GTM E PIXELS GLOBAIS (Cole o GTM HEAD aqui) -->
+    <!-- ========================================== -->
+
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- SEO Básico -->
+    <title>PIXELRY — Engenharia Digital e Aquisição de Clientes</title>
     <meta name="description" content="PIXELRY — Empresa de engenharia digital em Brasília. Construímos sistemas previsíveis de aquisição de clientes para clínicas e negócios locais que precisam encher a agenda." />
     <meta name="keywords" content="engenharia digital brasilia, aquisição de clientes, presença digital, estrutura de vendas, captação de leads brasilia" />
+    <link rel="canonical" href="https://COLOQUE_AQUI_O_DOMINIO.com.br" />
+
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://COLOQUE_AQUI_O_DOMINIO.com.br" />
     <meta property="og:title" content="PIXELRY — Engenharia Digital e Aquisição de Clientes" />
     <meta property="og:description" content="Transformamos a presença digital de clínicas e empresas locais em uma estrutura que gera clientes de forma previsível." />
-    <meta property="og:type" content="website" />
+    <meta property="og:image" content="https://COLOQUE_AQUI_O_DOMINIO.com.br/pixelryicone.jpeg" />
+    
+    <!-- Twitter Cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="PIXELRY — Engenharia Digital" />
+    <meta name="twitter:description" content="Sistemas previsíveis de aquisição de clientes para negócios locais." />
+    <meta name="twitter:image" content="https://COLOQUE_AQUI_O_DOMINIO.com.br/pixelryicone.jpeg" />
+
     <meta name="theme-color" content="#070710" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="icon" href="/favicon.ico" />
@@ -17,9 +36,31 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    <title>PIXELRY — Engenharia Digital e Aquisição de Clientes</title>
+
+    <!-- LocalBusiness Schema (JSON-LD) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "LocalBusiness",
+      "name": "PIXELRY",
+      "image": "https://COLOQUE_AQUI_O_DOMINIO.com.br/pixelryicone.jpeg",
+      "url": "https://COLOQUE_AQUI_O_DOMINIO.com.br",
+      "telephone": "+556193720900",
+      "address": {
+        "@type": "PostalAddress",
+        "addressLocality": "Brasília",
+        "addressRegion": "DF",
+        "addressCountry": "BR"
+      },
+      "description": "Engenharia Digital e Aquisição de Clientes para Clínicas e Negócios Locais em Brasília."
+    }
+    </script>
   </head>
   <body>
+    <!-- ========================================== -->
+    <!-- GTM NOSCRIPT (Cole o GTM BODY aqui)        -->
+    <!-- ========================================== -->
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
