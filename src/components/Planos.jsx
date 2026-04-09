@@ -21,7 +21,7 @@ const PLANOS = [
   },
   {
     nome: 'PRO',
-    desc: 'Máquina de aquisição previsível. A estrutura definitiva para negócios que precisam escalar lead e agenda.',
+    desc: 'Máquina de aquisição previsível. A estrutura definitiva para negócios que precisam escalar a captação de leads e a agenda.',
     setup: 'R$ 2.997',
     recorrencia: 'R$ 497/mês',
     setupFeatures: [
