@@ -57,6 +57,33 @@ export default function Planos() {
   const ref = useRevealContainer()
   const [activeIndex, setActiveIndex] = useState(1); // Começa com o plano PRO (meio) em destaque
 
+  // --- SWIPE LOGIC ---
+  const [touchStartX, setTouchStartX] = useState(null);
+  const [touchEndX, setTouchEndX] = useState(null);
+  const minSwipeDistance = 50;
+
+  const onTouchStart = (e) => {
+    setTouchEndX(null);
+    setTouchStartX(e.targetTouches[0].clientX);
+  };
+
+  const onTouchMove = (e) => {
+    setTouchEndX(e.targetTouches[0].clientX);
+  };
+
+  const onTouchEnd = () => {
+    if (!touchStartX || !touchEndX) return;
+    const distance = touchStartX - touchEndX;
+    const isLeftSwipe = distance > minSwipeDistance;
+    const isRightSwipe = distance < -minSwipeDistance;
+    
+    if (isLeftSwipe) {
+      nextSlide();
+    } else if (isRightSwipe) {
+      prevSlide();
+    }
+  };
+
   const nextSlide = () => {
     setActiveIndex((prev) => (prev + 1) % PLANOS.length);
   };
@@ -88,7 +115,12 @@ export default function Planos() {
         </div>
 
         <div className={`${styles.carouselContainer} reveal reveal-d1`}>
-          <div className={styles.carouselCards}>
+          <div 
+            className={styles.carouselCards}
+            onTouchStart={onTouchStart}
+            onTouchMove={onTouchMove}
+            onTouchEnd={onTouchEnd}
+          >
             {PLANOS.map((p, i) => {
               const positionClass = getPositionClass(i);
               const isDestaque = i === activeIndex;
