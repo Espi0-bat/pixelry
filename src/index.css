@@ -61,6 +61,12 @@ body {
   font-feature-settings: "kern" 1, "liga" 1;
 }
 
+#root {
+  overflow-x: hidden;
+  position: relative;
+  width: 100%;
+}
+
 ::-webkit-scrollbar         { width: 3px; }
 ::-webkit-scrollbar-track   { background: var(--bg); }
 ::-webkit-scrollbar-thumb   { background: var(--purple); border-radius: 2px; }

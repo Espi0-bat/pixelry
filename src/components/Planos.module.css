@@ -26,7 +26,6 @@
   justify-content: center;
   align-items: center;
   touch-action: pan-y; /* Permite scroll vertical, previne refresh swipe */
-  overflow: hidden; /* Prevent horizontal scroll / zoom out on iOS */
 }
 
 .cardCover {
