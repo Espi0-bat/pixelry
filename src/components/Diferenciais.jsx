@@ -23,8 +23,8 @@ const ITEMS = [
     wide: false,
   },
   {
-    title: 'Portfólio selecionado, não volume',
-    body: 'Mantemos um portfólio restrito e criterioso. Cada cliente passa por um diagnóstico antes da proposta. Não trabalhamos com volume — trabalhamos com fit estratégico entre o nosso sistema e o seu negócio.',
+    title: 'Parcerias selecionadas, não volume',
+    body: 'Mantemos um atendimento restrito e criterioso. Cada cliente passa por um diagnóstico detalhado antes da proposta. Não trabalhamos com metas de volume — nosso foco está no fit estratégico entre nossa engenharia e o seu negócio.',
     wide: true,
   },
 ]

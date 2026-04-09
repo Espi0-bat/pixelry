@@ -8,11 +8,76 @@
   margin-top: 0;
 }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+.carouselContainer {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+
+.carouselCards {
+  position: relative;
+  width: 100%;
+  height: 850px; /* Increased to fix text overlap */
+  perspective: 1000px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.cardCover {
+  position: absolute;
+  width: 320px;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), 
+              opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), 
+              z-index 0.6s;
+  cursor: pointer;
+  transform-style: preserve-3d;
+}
+
+/* --- COVERFLOW POSITIONS --- */
+
+.activeConfig {
+  opacity: 1;
+  z-index: 10;
+  transform: translateX(0) scale(1) translateZ(0);
+  cursor: default; /* Disable pointer when active */
+}
+
+.leftConfig {
+  opacity: 0.5;
+  z-index: 5;
+  transform: translateX(-65%) scale(0.85) translateZ(-100px);
+}
+
+.rightConfig {
+  opacity: 0.5;
+  z-index: 5;
+  transform: translateX(65%) scale(0.85) translateZ(-100px);
+}
+
+.hiddenConfig {
+  opacity: 0;
+  z-index: 1;
+  transform: translateX(0) scale(0.8) translateZ(-200px);
+  pointer-events: none;
+}
+
+/* Hover effects for lateral cards */
+.leftConfig:hover {
+  opacity: 0.8;
+  transform: translateX(-65%) scale(0.9) translateZ(-50px);
+}
+
+.rightConfig:hover {
+  opacity: 0.8;
+  transform: translateX(65%) scale(0.9) translateZ(-50px);
+}
+
+/* --- CARD INTERNALS --- */
 
 .card {
   background: var(--bg3);
@@ -22,21 +87,28 @@
   display: flex;
   flex-direction: column;
   position: relative;
-  transition: transform 0.3s ease, border-color 0.3s ease;
+  transition: border-color 0.3s ease;
+  height: 100%; /* Fill the wrapper */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+}
+
+.activeConfig .card {
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.7);
 }
 
 .card:hover {
-  transform: translateY(-5px);
   border-color: var(--cyan);
 }
 
 .destaque {
   border-color: var(--purple);
-  box-shadow: 0 12px 40px rgba(128, 64, 245, 0.15);
-  transform: scale(1.02);
 }
+
+.activeConfig .destaque {
+  box-shadow: 0 12px 40px rgba(128, 64, 245, 0.15);
+}
+
 .destaque:hover {
-  transform: scale(1.02) translateY(-5px);
   border-color: var(--cyan);
 }
 
@@ -168,9 +240,86 @@
   color: var(--bg);
 }
 
+/* --- NAV CONTROLS --- */
+.navControls {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.navBtn {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cyan);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.navBtn:hover {
+  background: var(--surface);
+  border-color: var(--purple);
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(128, 64, 245, 0.2);
+}
+
+.navBtn:active {
+  transform: translateY(0);
+}
+
 @media (max-width: 900px) {
-  .grid { grid-template-columns: 1fr; }
+  .carouselCards {
+    height: 900px;
+    perspective: 800px;
+  }
+  
+  .cardCover {
+    width: 290px;
+  }
+
   .card { padding: 28px 24px; }
-  .destaque { transform: none; }
-  .destaque:hover { transform: translateY(-5px); }
+  
+  /* Mobile Coverflow positions */
+  .leftConfig {
+    transform: translateX(-40%) scale(0.8) translateZ(-150px);
+  }
+
+  .rightConfig {
+    transform: translateX(40%) scale(0.8) translateZ(-150px);
+  }
+
+  .leftConfig:hover {
+    transform: translateX(-40%) scale(0.85) translateZ(-100px);
+  }
+
+  .rightConfig:hover {
+    transform: translateX(40%) scale(0.85) translateZ(-100px);
+  }
+}
+
+@media (max-width: 480px) {
+  .carouselCards {
+    height: 950px;
+  }
+  
+  .cardCover {
+    width: 280px;
+  }
+  
+  /* Make them closer so hints of them show on narrow mobile screens */
+  .leftConfig {
+    transform: translateX(-60%) scale(0.8) translateZ(-200px);
+  }
+
+  .rightConfig {
+    transform: translateX(60%) scale(0.8) translateZ(-200px);
+  }
 }
