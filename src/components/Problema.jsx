@@ -15,7 +15,7 @@ export default function Problema() {
             </h2>
             <p className={styles.body}>
               Não é falta de mercado. É falta de sistema. Clínicas e negócios de alto 
-              padrão perdem diariamente visitantes que não viram contatos, desperdiçam 
+              padrão perdem diariamente visitantes que não se tornam contatos, desperdiçam 
               leads por falhas ou fricções de jornada, e continuam reféns de indicações boca a boca.
               Quando a presença digital não é tratada como um sistema de aquisição previsível, 
               você perde clientes para concorrentes muito menos qualificados, porém mais organizados.

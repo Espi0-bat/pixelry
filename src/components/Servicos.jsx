@@ -19,7 +19,7 @@ const SERVICES = [
   {
     num: '03',
     title: 'Otimização de Google Meu Negócio (SEO Local)',
-    body: 'Domínio nas pesquisas da sua região. Perfil completo com palavras-chave relevantes, conectando sua infraestrutura para garantir que clientes no momento de decisão encontrem você invés da concorrência.',
+    body: 'Domínio nas pesquisas da sua região. Perfil completo com palavras-chave relevantes, conectando sua infraestrutura para garantir que clientes no momento de decisão encontrem você em vez da concorrência.',
     badge: null,
     wide: false,
   },

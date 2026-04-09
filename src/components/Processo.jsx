@@ -6,7 +6,7 @@ const STEPS = [
     num: '01',
     letter: 'P',
     title: 'P - Posicionamento',
-    body: 'Antes do visual, definimos a oferta, o público e a promessa principal. Sua página vira um ambiente de conversão quando o cliente entende imediatamente o porquê você é a escolha certa.',
+    body: 'Antes do visual, definimos a oferta, o público e a promessa principal. Sua página vira um ambiente de conversão quando o cliente entende imediatamente por que você é a escolha certa.',
     output: 'Oferta clara + público mapeado'
   },
   {

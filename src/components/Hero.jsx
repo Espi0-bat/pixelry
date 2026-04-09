@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import styles from './Hero.module.css'
 
-const WA_LINK = 'https://wa.me/556193720900?text=Olá%20Erick!%20Vi%20a%20estrutura%20de%20vocês%20para%20aquisição%20de%20clientes%20e%20quero%20o%20Diagnóstico%20Gratuito.'
+const WA_LINK = 'https://wa.me/556193720900?text=Olá%20Erick!%20Vi%20a%20estrutura%20de%20vocês%20para%20aquisição%20de%20clientes%20e%20quero%20agendar%20um%20diagnóstico%20gratuito.'
 
 const WaIcon = () => (
   <svg className="wa-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

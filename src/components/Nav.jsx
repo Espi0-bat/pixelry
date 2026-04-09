@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import styles from './Nav.module.css'
 import logoImg from './images/pixelryicone.jpeg'
 
-const WA_LINK = 'https://wa.me/556193720900?text=Olá%20Erick!%20Vim%20pelo%20site%20da%20PIXELRY%20e%20quero%20agendar%20um%20Diagnóstico%20Gratuito.'
+const WA_LINK = 'https://wa.me/556193720900?text=Olá%20Erick!%20Vim%20pelo%20site%20da%20PIXELRY%20e%20quero%20agendar%20um%20diagnóstico%20gratuito.'
 
 const WaIcon = () => (
   <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style={{ marginTop: '-1px' }}>
