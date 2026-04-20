@@ -23,20 +23,11 @@
 }
 
 .logoText {
-  font-family: var(--font-display);
-  font-size: 18px;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  background: var(--grad-text);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  display: block;
+  display: none;
 }
 
 .logoImage {
-  display: none;
+  display: block;
   height: 36px;
   width: auto;
   border-radius: 8px; /* caso tenha fundo preenchido e fique quadrado */
@@ -78,14 +69,12 @@
   .brand { gap: 8px; }
   
   .logoText { 
-    display: block; 
-    font-size: 15px;
-    letter-spacing: 0.08em;
+    display: none; 
   }
   
   .logoImage { 
     display: block;
-    height: 26px;
+    height: 32px;
     border-radius: 6px;
   }
   
