@@ -1,5 +1,7 @@
-export const WA_LINK_NAV = 'https://wa.me/556193720900?text=Olá%20Erick!%20Vim%20pelo%20site%20da%20PIXELRY%20e%20quero%20agendar%20um%20diagnóstico%20gratuito.'
-export const WA_LINK_HERO = 'https://wa.me/556193720900?text=Olá%20Erick!%20Vi%20a%20estrutura%20de%20vocês%20para%20aquisição%20de%20clientes%20e%20quero%20agendar%20um%20diagnóstico%20gratuito.'
+import { buildWhatsAppLink } from '../../config/contact'
+
+export const WA_LINK_NAV = buildWhatsAppLink('Olá Erick! Vim pelo site da PIXELRY e quero agendar um diagnóstico gratuito.')
+export const WA_LINK_HERO = buildWhatsAppLink('Olá Erick! Vi a estrutura de vocês para aquisição de clientes e quero agendar um diagnóstico gratuito.')
 
 export const WaIconHero = () => (
   <svg className="wa-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

@@ -12,6 +12,7 @@ pixelry/
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml          # CI/CD automático → GitHub Pages
+├── docs/                       # Documentação e manuais
 ├── public/
 ├── src/
 │   ├── components/
@@ -26,11 +27,16 @@ pixelry/
 │   │   ├── Manifesto.jsx / .module.css
 │   │   ├── CtaFinal.jsx / .module.css
 │   │   └── Footer.jsx / .module.css
+│   ├── config/
+│   │   └── contact.js          # Configuração de contato via env
 │   ├── hooks/
 │   │   └── useReveal.js        # IntersectionObserver para scroll animations
+│   ├── pages/
+│   │   └── ClientPortal.jsx / .module.css
 │   ├── App.jsx
 │   ├── index.css               # CSS variables, resets, utilitários globais
 │   └── main.jsx
+├── .env.example
 ├── index.html
 ├── package.json
 ├── vite.config.js
@@ -85,7 +91,7 @@ https://seu-usuario.github.io/nome-do-seu-repo/
 
 | O que mudar          | Arquivo                        |
 |----------------------|--------------------------------|
-| Número do WhatsApp   | `Hero.jsx`, `Nav.jsx`, `CtaFinal.jsx` (constante `WA_LINK`) |
+| Número do WhatsApp   | `.env` / `.env.example` (`VITE_WHATSAPP_NUMBER`) |
 | Textos e copy        | Cada componente da seção       |
 | Cores da marca       | `src/index.css` (`:root`)      |
 | Fontes               | `index.html` + `index.css`     |

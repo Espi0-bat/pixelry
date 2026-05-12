@@ -1,6 +1,7 @@
+import { buildWhatsAppLink } from '../config/contact'
 import styles from './Footer.module.css'
 
-const WA_LINK = 'https://wa.me/556193720900?text=Olá%20Erick!%20Vim%20pelo%20rodapé%20do%20site%20da%20PIXELRY%20e%20gostaria%20de%20falar%20sobre%20as%20soluções.'
+const WA_LINK = buildWhatsAppLink('Olá Erick! Vim pelo rodapé do site da PIXELRY e gostaria de falar sobre as soluções.')
 
 const WaIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
