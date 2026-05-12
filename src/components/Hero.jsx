@@ -166,6 +166,9 @@ export default function Hero() {
             <a href="#servicos" className="btn-secondary" aria-label="Rolar para os serviços da Pixelry">
               Ver serviços ↓
             </a>
+            <a href="#portal" className="btn-secondary btn-client-area" aria-label="Abrir área do cliente Pixelry">
+              Área do Cliente
+            </a>
           </div>
         </div>
 
