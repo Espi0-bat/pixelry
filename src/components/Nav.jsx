@@ -16,6 +16,17 @@ export default function Nav() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  useEffect(() => {
+    const syncActiveHref = () => {
+      setActiveHref(window.location.hash || '#')
+    }
+
+    syncActiveHref()
+    window.addEventListener('hashchange', syncActiveHref)
+
+    return () => window.removeEventListener('hashchange', syncActiveHref)
+  }, [])
+
   return (
     <nav className={`${styles.nav} ${scrolled ? styles.scrolled : ''}`}>
       <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -26,7 +37,8 @@ export default function Nav() {
             { label: 'Início', href: '#' },
             { label: 'Serviços', href: '#servicos' },
             { label: 'Planos', href: '#planos' },
-            { label: 'FAQ', href: '#faq' }
+            { label: 'FAQ', href: '#faq' },
+            { label: 'Portal', href: '#portal' }
           ]}
           activeHref={activeHref}
           baseColor="#101022"

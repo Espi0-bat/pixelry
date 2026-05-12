@@ -339,4 +339,26 @@
 
 @media (max-width: 480px) {
   .hero { padding: 90px 20px 40px; }
+
+  .h1 {
+    font-size: clamp(30px, 9vw, 36px);
+    line-height: 1.12;
+    letter-spacing: 0;
+  }
+
+  .eyebrow {
+    font-size: 9px;
+    letter-spacing: 0.18em;
+    margin-bottom: 24px;
+  }
+}
+
+@media (max-width: 360px) {
+  .hero {
+    padding-inline: 16px;
+  }
+
+  .h1 {
+    font-size: 29px;
+  }
 }

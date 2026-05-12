@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useRevealContainer } from '../hooks/useReveal'
+import { buildWhatsAppLink } from '../config/contact'
 import styles from './Planos.module.css'
 
 const PLANOS = [
@@ -166,7 +167,7 @@ export default function Planos() {
                     </div>
                     {isDestaque && (
                       <a 
-                        href={`https://wa.me/556193720900?text=${encodeURIComponent('Olá Erick! Quero saber mais sobre a implementação do plano ' + p.nome + '.')}`} 
+                        href={buildWhatsAppLink('Olá Erick! Quero saber mais sobre a implementação do plano ' + p.nome + '.')} 
                         target="_blank" 
                         rel="noreferrer" 
                         className={styles.btn}

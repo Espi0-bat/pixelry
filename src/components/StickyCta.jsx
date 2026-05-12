@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
+import { buildWhatsAppLink } from '../config/contact'
 
-const WA_LINK = 'https://wa.me/556193720900?text=Olá%20Erick!%20Vim%20pelo%20botão%20flutuante%20do%20site.%20Gostaria%20de%20discutir%20minha%20infraestrutura%20de%20marketing.'
+const WA_LINK = buildWhatsAppLink('Olá Erick! Vim pelo botão flutuante do site. Gostaria de discutir minha infraestrutura de marketing.')
 
 const WaIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

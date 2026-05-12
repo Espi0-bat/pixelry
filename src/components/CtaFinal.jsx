@@ -1,7 +1,8 @@
 import { useRevealContainer } from '../hooks/useReveal'
+import { buildWhatsAppLink } from '../config/contact'
 import styles from './CtaFinal.module.css'
 
-const WA_LINK = 'https://wa.me/556193720900?text=Olá%20Erick!%20Cheguei%20ao%20fim%20do%20site%20da%20PIXELRY%20e%20percebi%20que%20meu%20negócio%20precisa%20de%20uma%20engenharia%20digital.%20Podemos%20conversar?'
+const WA_LINK = buildWhatsAppLink('Olá Erick! Cheguei ao fim do site da PIXELRY e percebi que meu negócio precisa de uma engenharia digital. Podemos conversar?')
 
 const WaIcon = () => (
   <svg className="wa-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
