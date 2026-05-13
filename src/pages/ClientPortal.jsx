@@ -23,7 +23,7 @@ import {
   Send,
 } from "lucide-react";
 import pixelryLogo from "../components/images/pixelryicone.jpeg";
-import { supabase } from "../config/supabase";
+import { isSupabaseConfigured, supabase } from "../config/supabase";
 import styles from "./ClientPortal.module.css";
 
 /* ─────────────────────────────────────────────
@@ -924,7 +924,7 @@ export default function ClientPortal({ user, onLogout }) {
   const currentPhase = pendingCount > 0 ? "Revisão" : activeCount > 0 ? "Implementação" : "Sem entregas";
 
   const loadDeliveries = useCallback(async () => {
-    if (!user?.id) {
+    if (!isSupabaseConfigured || !supabase || !user?.id) {
       setDeliveries([]);
       setLoadingDeliveries(false);
       return;
@@ -965,6 +965,11 @@ export default function ClientPortal({ user, onLogout }) {
       : PAGE_TITLES[activeNav];
 
   const updateDeliveryStatus = async (id, status) => {
+    if (!isSupabaseConfigured || !supabase) {
+      setDeliveriesError("O portal ainda não está conectado ao Supabase neste deploy.");
+      return;
+    }
+
     const previousDeliveries = deliveries;
     setActionStatus({ id, status });
     setDeliveriesError("");

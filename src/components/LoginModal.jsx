@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { CLIENT_WHATSAPP_NUMBER } from '../config/contact'
-import { supabase } from '../config/supabase'
+import { isSupabaseConfigured, supabase } from '../config/supabase'
 import styles from './LoginModal.module.css'
 import logoImg from './images/pixelryicone.jpeg'
 
@@ -15,6 +15,11 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!email || !password) return
+
+    if (!isSupabaseConfigured || !supabase) {
+      setErrorMessage('O portal ainda não está conectado ao Supabase neste deploy.')
+      return
+    }
 
     setLoading(true)
     setErrorMessage('')
