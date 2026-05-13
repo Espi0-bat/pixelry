@@ -6,8 +6,8 @@ import Servicos     from './components/Servicos'
 import Footer       from './components/Footer'
 import StickyCta    from './components/StickyCta'
 import LoginModal   from './components/LoginModal'
+import { supabase } from './config/supabase'
 
-const PORTAL_SESSION_KEY = 'pixelry_portal_session'
 const BASE_URL = import.meta.env.BASE_URL || '/'
 
 // Lazy Loading para componentes abaixo da dobra (ganho de performance substancial de LCP e FCP)
@@ -24,9 +24,9 @@ const ClientPortal = React.lazy(() => import('./pages/ClientPortal'))
 
 export default function App() {
   const [locationKey, setLocationKey] = useState(() => `${window.location.pathname}${window.location.hash}`)
-  const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return window.sessionStorage.getItem(PORTAL_SESSION_KEY) === 'true'
-  })
+  const [authReady, setAuthReady] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [currentUser, setCurrentUser] = useState(null)
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false)
 
   useEffect(() => {
@@ -47,14 +47,37 @@ export default function App() {
     window.location.pathname.replace(/\/$/, '').endsWith('/portal')
 
   useEffect(() => {
-    if (isPortal && !isAuthenticated) {
+    let mounted = true
+
+    const syncSession = (session) => {
+      if (!mounted) return
+      setCurrentUser(session?.user ?? null)
+      setIsAuthenticated(Boolean(session))
+      setAuthReady(true)
+    }
+
+    supabase.auth.getSession().then(({ data }) => {
+      syncSession(data.session)
+    })
+
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      syncSession(session)
+    })
+
+    return () => {
+      mounted = false
+      authListener.subscription.unsubscribe()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (authReady && isPortal && !isAuthenticated) {
       setIsLoginModalOpen(true)
     }
-  }, [isPortal, isAuthenticated])
+  }, [authReady, isPortal, isAuthenticated])
 
-  const handleLoginSuccess = (email) => {
-    console.log(`Logged in as: ${email}`)
-    window.sessionStorage.setItem(PORTAL_SESSION_KEY, 'true')
+  const handleLoginSuccess = (_session, user) => {
+    setCurrentUser(user)
     setIsAuthenticated(true)
     setIsLoginModalOpen(false)
   }
@@ -67,17 +90,22 @@ export default function App() {
     }
   }
 
-  const handlePortalLogout = () => {
-    window.sessionStorage.removeItem(PORTAL_SESSION_KEY)
+  const handlePortalLogout = async () => {
+    await supabase.auth.signOut()
     setIsAuthenticated(false)
+    setCurrentUser(null)
     setIsLoginModalOpen(false)
     window.location.href = BASE_URL
+  }
+
+  if (isPortal && !authReady) {
+    return <div style={{ minHeight: '100vh', background: 'var(--bg)' }}></div>
   }
 
   if (isPortal && isAuthenticated) {
     return (
       <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--bg)' }}></div>}>
-        <ClientPortal onLogout={handlePortalLogout} />
+        <ClientPortal user={currentUser} onLogout={handlePortalLogout} />
       </Suspense>
     )
   }

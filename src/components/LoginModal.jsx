@@ -1,25 +1,38 @@
 import { useState } from 'react'
 import { CLIENT_WHATSAPP_NUMBER } from '../config/contact'
+import { supabase } from '../config/supabase'
 import styles from './LoginModal.module.css'
 import logoImg from './images/pixelryicone.jpeg'
 
 export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
 
   if (!isOpen) return null
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!email) return
+    if (!email || !password) return
 
     setLoading(true)
-    
-    // Mocking an API call
-    setTimeout(() => {
+    setErrorMessage('')
+
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    })
+
+    if (error) {
       setLoading(false)
-      onLoginSuccess(email)
-    }, 1200)
+      setErrorMessage('E-mail ou senha inválidos. Verifique os dados e tente novamente.')
+      return
+    }
+
+    setLoading(false)
+    setPassword('')
+    onLoginSuccess(data.session, data.user)
   }
 
   return (
@@ -55,9 +68,30 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
             </div>
           </div>
 
+          <div className={styles.inputGroup}>
+            <label className={styles.inputLabel}>Senha</label>
+            <div className={styles.inputWrapper}>
+              <input
+                type="password"
+                className={styles.input}
+                placeholder="Sua senha"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+              />
+            </div>
+          </div>
+
+          {errorMessage && (
+            <p className={styles.errorText} role="alert">
+              {errorMessage}
+            </p>
+          )}
+
           <button type="submit" className={styles.submitBtn} disabled={loading}>
             {loading ? (
-              <span>Processando...</span>
+              <span>Verificando...</span>
             ) : (
               <>
                 <span>Acessar Portal</span>
