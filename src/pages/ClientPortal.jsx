@@ -187,13 +187,13 @@ function Logo({ onClick }) {
 }
 
 /** Circular progress SVG */
-function CircularProgress({ percent, size = 110, stroke = 7 }) {
+function CircularProgress({ percent, size = 110, stroke = 7, className }) {
   const r   = (size - stroke) / 2;
   const c   = 2 * Math.PI * r;
   const arc = (percent / 100) * c;
   const cx  = size / 2;
   return (
-    <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
+    <svg className={className} width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ transform: "rotate(-90deg)" }} aria-hidden="true">
       <defs>
         <linearGradient id="pg" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%"   stopColor="#8040F5" />
@@ -1021,16 +1021,16 @@ export default function ClientPortal({ onLogout }) {
                 padding: "22px 20px", display: "flex", alignItems: "center", gap: 18,
                 boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
               }}>
-                <div style={{ position: "relative", flexShrink: 0 }}>
-                  <CircularProgress percent={65} />
-                  <div style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center" }}>
-                    <span style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 20, color: C.text }}>65%</span>
+                <div className={styles.progressRingWrap}>
+                  <CircularProgress percent={65} className={styles.progressRing} />
+                  <div className={styles.progressPercentWrap}>
+                    <span className={styles.progressPercent} style={{ color: C.text }}>65%</span>
                   </div>
                 </div>
-                <div>
-                  <div style={{ fontSize: 10, color: C.cyan, letterSpacing: 1, textTransform: "uppercase", marginBottom: 4, fontFamily: FONT_MONO, fontWeight: 500 }}>Fase Atual</div>
-                  <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 14, color: C.text, marginBottom: 4 }}>Desenvolvimento</div>
-                  <div style={{ fontSize: 11, color: C.textSub }}>3 de 5 etapas concluídas</div>
+                <div className={styles.progressTileText}>
+                  <div className={styles.progressEyebrow} style={{ color: C.cyan }}>Fase Atual</div>
+                  <div className={styles.progressPhase} style={{ color: C.text }}>Desenvolvimento</div>
+                  <div className={styles.progressMeta} style={{ color: C.textSub }}>3 de 5 etapas concluídas</div>
                 </div>
               </div>
               <MetricCard label="Campanhas Ativas"   value="3"  sub="↑ 1 novo este mês"    accent={C.cyan}   />

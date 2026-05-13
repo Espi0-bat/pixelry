@@ -804,6 +804,51 @@
   backdrop-filter: blur(16px);
 }
 
+.progressRingWrap {
+  position: relative;
+  flex: 0 0 110px;
+  width: 110px;
+  height: 110px;
+}
+
+.progressRing {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.progressPercentWrap {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+
+.progressPercent {
+  font: 800 20px/1 var(--font-display);
+}
+
+.progressTileText {
+  min-width: 0;
+}
+
+.progressEyebrow {
+  margin-bottom: 4px;
+  font: 500 10px/1.2 var(--font-mono);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.progressPhase {
+  margin-bottom: 4px;
+  font: 700 14px/1.2 var(--font-display);
+}
+
+.progressMeta {
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 .deliverySectionHeader {
   gap: 14px;
 }
@@ -939,12 +984,33 @@
 
   .progressTile {
     align-items: center !important;
+    gap: 14px !important;
     padding: 18px 16px !important;
   }
 
-  .progressTile svg {
-    width: 86px;
-    height: 86px;
+  .progressRingWrap {
+    flex-basis: 78px;
+    width: 78px;
+    height: 78px;
+  }
+
+  .progressTile svg,
+  .progressRing {
+    width: 78px;
+    height: 78px;
+  }
+
+  .progressPercent {
+    font-size: 16px;
+  }
+
+  .progressPhase {
+    font-size: 13px !important;
+  }
+
+  .progressMeta,
+  .progressTileText > div:last-child {
+    font-size: 10px !important;
   }
 
   .metricTile {
@@ -1108,9 +1174,20 @@
     gap: 12px !important;
   }
 
-  .progressTile svg {
-    width: 74px;
-    height: 74px;
+  .progressRingWrap {
+    flex-basis: 70px;
+    width: 70px;
+    height: 70px;
+  }
+
+  .progressTile svg,
+  .progressRing {
+    width: 70px;
+    height: 70px;
+  }
+
+  .progressPercent {
+    font-size: 15px;
   }
 
   .mobileNavButton {
