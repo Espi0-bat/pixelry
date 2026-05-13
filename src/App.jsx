@@ -109,14 +109,6 @@ export default function App() {
     return <div style={{ minHeight: '100vh', background: 'var(--bg)' }}></div>
   }
 
-  if (isPortal && !isSupabaseConfigured) {
-    return (
-      <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--bg)' }}></div>}>
-        <ClientPortal onLogout={handlePortalLogout} />
-      </Suspense>
-    )
-  }
-
   if (isPortal && isAuthenticated) {
     return (
       <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--bg)' }}></div>}>
