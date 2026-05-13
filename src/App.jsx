@@ -6,7 +6,7 @@ import Servicos     from './components/Servicos'
 import Footer       from './components/Footer'
 import StickyCta    from './components/StickyCta'
 import LoginModal   from './components/LoginModal'
-import { supabase } from './config/supabase'
+import { isSupabaseConfigured, supabase } from './config/supabase'
 
 const BASE_URL = import.meta.env.BASE_URL || '/'
 
@@ -47,6 +47,11 @@ export default function App() {
     window.location.pathname.replace(/\/$/, '').endsWith('/portal')
 
   useEffect(() => {
+    if (!isSupabaseConfigured) {
+      setAuthReady(true)
+      return
+    }
+
     let mounted = true
 
     const syncSession = (session) => {
@@ -91,7 +96,9 @@ export default function App() {
   }
 
   const handlePortalLogout = async () => {
-    await supabase.auth.signOut()
+    if (supabase) {
+      await supabase.auth.signOut()
+    }
     setIsAuthenticated(false)
     setCurrentUser(null)
     setIsLoginModalOpen(false)
@@ -100,6 +107,14 @@ export default function App() {
 
   if (isPortal && !authReady) {
     return <div style={{ minHeight: '100vh', background: 'var(--bg)' }}></div>
+  }
+
+  if (isPortal && !isSupabaseConfigured) {
+    return (
+      <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--bg)' }}></div>}>
+        <ClientPortal onLogout={handlePortalLogout} />
+      </Suspense>
+    )
   }
 
   if (isPortal && isAuthenticated) {
