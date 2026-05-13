@@ -23,6 +23,7 @@ import {
   Send,
 } from "lucide-react";
 import pixelryLogo from "../components/images/pixelryicone.jpeg";
+import { supabase } from "../config/supabase";
 import styles from "./ClientPortal.module.css";
 
 /* ─────────────────────────────────────────────
@@ -51,48 +52,6 @@ const FONT_DISPLAY = "'Inter', sans-serif";
 const FONT_BODY = "'DM Sans', sans-serif";
 const FONT_MONO = "'JetBrains Mono', monospace";
 
-/* ─────────────────────────────────────────────
-   MOCK DATA
-───────────────────────────────────────────── */
-const DELIVERIES = [
-  {
-    id: 1,
-    title: "Landing Page — Versão Desktop",
-    date: "12 Mai 2026",
-    type: "Design",
-    status: "pending",
-    description:
-      "Arquivo entregue para revisão. Verifique as seções hero e CTA e nos diga se tudo está alinhado com a visão.",
-  },
-  {
-    id: 2,
-    title: "Identidade Visual — Manual da Marca",
-    date: "08 Mai 2026",
-    type: "Documento",
-    status: "approved",
-    description:
-      "Manual de identidade visual aprovado e arquivado. Disponível para download na aba Arquivos.",
-  },
-  {
-    id: 3,
-    title: "Vídeo Institucional — Corte Final",
-    date: "05 Mai 2026",
-    type: "Vídeo",
-    status: "revision",
-    description:
-      "Ajuste solicitado: substituir a trilha sonora nos primeiros 10 segundos e revisar legenda na cena 3.",
-  },
-  {
-    id: 4,
-    title: "Gestão de Tráfego — Relatório Maio",
-    date: "01 Mai 2026",
-    type: "Relatório",
-    status: "production",
-    description:
-      "Em produção. Entrega prevista para 20 de Maio com métricas completas do período.",
-  },
-];
-
 const STATUS = {
   pending:    { label: "Aguardando revisão", color: C.amber,   bg: "rgba(245,158,11,0.09)",  border: "rgba(245,158,11,0.22)"  },
   approved:   { label: "Aprovado",           color: C.success, bg: "rgba(37,211,102,0.09)",   border: "rgba(37,211,102,0.22)"  },
@@ -114,6 +73,60 @@ const TYPE_ICON = {
   Relatório: BarChart2,
 };
 
+const STATUS_ALIASES = {
+  pending: "pending",
+  aguardando_revisao: "pending",
+  aguardando: "pending",
+  approved: "approved",
+  aprovado: "approved",
+  revision: "revision",
+  ajuste_solicitado: "revision",
+  in_revision: "revision",
+  production: "production",
+  em_producao: "production",
+  in_production: "production",
+};
+
+function normalizeStatus(status) {
+  return STATUS_ALIASES[String(status || "").toLowerCase()] || "production";
+}
+
+function formatPortalDate(value) {
+  if (!value) return "Sem data";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+
+  return new Intl.DateTimeFormat("pt-BR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  })
+    .format(date)
+    .replace(".", "");
+}
+
+function getDeliverySortDate(row) {
+  const rawDate = row.due_date || row.delivery_date || row.created_at || row.updated_at;
+  const date = new Date(rawDate);
+  return Number.isNaN(date.getTime()) ? 0 : date.getTime();
+}
+
+function mapDelivery(row) {
+  const type = row.type || row.category || row.file_type || "Documento";
+
+  return {
+    id: row.id,
+    title: row.title || row.name || "Entrega sem título",
+    date: formatPortalDate(row.due_date || row.delivery_date || row.created_at || row.updated_at),
+    rawDate: row.due_date || row.delivery_date || row.created_at || row.updated_at,
+    type,
+    status: normalizeStatus(row.status),
+    description: row.description || row.notes || row.summary || "Entrega disponível para acompanhamento no portal.",
+    source: row,
+  };
+}
+
 function downloadPortalFile(file) {
   const content = [
     "PIXELRY - Portal do Cliente",
@@ -122,7 +135,7 @@ function downloadPortalFile(file) {
     `Tamanho: ${file.size}`,
     `Data: ${file.date}`,
     "",
-    "Este download simula o arquivo dentro do prototipo do portal.",
+    "Este download simula o arquivo dentro do protótipo do portal.",
   ].join("\n");
   const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
   const url = URL.createObjectURL(blob);
@@ -282,7 +295,7 @@ function MetricCard({ label, value, sub, accent }) {
 /** Delivery card row */
 function DeliveryRow({ item, onClick }) {
   const [hovered, setHovered] = useState(false);
-  const s   = STATUS[item.status];
+  const s   = STATUS[item.status] || STATUS.production;
   const Icon = TYPE_ICON[item.type] || FileText;
 
   return (
@@ -345,7 +358,7 @@ function DeliveryRow({ item, onClick }) {
 }
 
 /** Delivery modal */
-function Modal({ item, onClose, onApprove, onRequestRevision }) {
+function Modal({ item, onClose, onApprove, onRequestRevision, actionStatus }) {
   useEffect(() => {
     if (!item) return;
     const handler = (e) => { if (e.key === "Escape") onClose(); };
@@ -355,8 +368,15 @@ function Modal({ item, onClose, onApprove, onRequestRevision }) {
 
   if (!item) return null;
 
-  const s    = STATUS[item.status];
+  const s    = STATUS[item.status] || STATUS.production;
   const Icon = TYPE_ICON[item.type] || FileText;
+  const isUpdating = actionStatus?.id === item.id;
+  const actionLabel =
+    actionStatus?.status === "approved"
+      ? "Aprovando..."
+      : actionStatus?.status === "revision"
+        ? "Solicitando ajuste..."
+        : "";
 
   return (
     <div
@@ -460,38 +480,58 @@ function Modal({ item, onClose, onApprove, onRequestRevision }) {
 
         {/* Action buttons — only for pending items */}
         {item.status === "pending" ? (
-          <div style={{ display: "flex", gap: 10 }}>
-            <button
-              onClick={() => onApprove(item.id)}
-              style={{
-                flex: 1, padding: "13px",
-                borderRadius: 10, border: "none",
-                background: C.grad,
-                color: "#fff",
-                fontFamily: FONT_DISPLAY,
-                fontWeight: 700, fontSize: 13.5,
-                cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
-              }}
-            >
-              <CheckCircle2 size={15} /> Aprovar
-            </button>
-            <button
-              onClick={() => onRequestRevision(item.id)}
-              style={{
-                flex: 1, padding: "13px",
-                borderRadius: 10,
-                background: "rgba(244,63,94,0.08)",
-                border: `1px solid rgba(244,63,94,0.22)`,
-                color: C.red,
-                fontFamily: FONT_BODY,
-                fontWeight: 600, fontSize: 13.5,
-                cursor: "pointer",
-                display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
-              }}
-            >
-              <XCircle size={15} /> Solicitar Ajuste
-            </button>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            <p style={{
+              margin: 0,
+              color: C.textSub,
+              fontFamily: FONT_BODY,
+              fontSize: 12.5,
+              lineHeight: 1.6,
+            }}>
+              Ao aprovar esta entrega, você confirma que o layout está em conformidade com o planejado.
+            </p>
+            {isUpdating && (
+              <div style={{ fontSize: 12, color: C.cyan, fontFamily: FONT_BODY }}>
+                {actionLabel}
+              </div>
+            )}
+            <div style={{ display: "flex", gap: 10 }}>
+              <button
+                onClick={() => onApprove(item.id)}
+                disabled={isUpdating}
+                style={{
+                  flex: 1, padding: "13px",
+                  borderRadius: 10, border: "none",
+                  background: C.grad,
+                  color: "#fff",
+                  fontFamily: FONT_DISPLAY,
+                  fontWeight: 700, fontSize: 13.5,
+                  cursor: isUpdating ? "not-allowed" : "pointer",
+                  opacity: isUpdating ? 0.7 : 1,
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+                }}
+              >
+                <CheckCircle2 size={15} /> Aprovar
+              </button>
+              <button
+                onClick={() => onRequestRevision(item.id)}
+                disabled={isUpdating}
+                style={{
+                  flex: 1, padding: "13px",
+                  borderRadius: 10,
+                  background: "rgba(244,63,94,0.08)",
+                  border: `1px solid rgba(244,63,94,0.22)`,
+                  color: C.red,
+                  fontFamily: FONT_BODY,
+                  fontWeight: 600, fontSize: 13.5,
+                  cursor: isUpdating ? "not-allowed" : "pointer",
+                  opacity: isUpdating ? 0.7 : 1,
+                  display: "flex", alignItems: "center", justifyContent: "center", gap: 7,
+                }}
+              >
+                <XCircle size={15} /> Solicitar Ajuste
+              </button>
+            </div>
           </div>
         ) : (
           <div style={{
@@ -744,7 +784,7 @@ function FilesView() {
             Enviar Material
           </div>
           <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text, margin: 0, letterSpacing: "-0.01em" }}>
-            Seus Arquivos
+            Ativos e Documentação
           </h2>
           <p style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSub, marginTop: 6, lineHeight: 1.6 }}>
             Compartilhe materiais de referência, logos ou briefings com a equipe.
@@ -791,7 +831,7 @@ function SupportView() {
   return (
     <div className={styles.supportView}>
       <div style={{ marginBottom: 24 }}>
-        <div style={{ fontSize: 10, color: C.cyan, letterSpacing: 2, textTransform: "uppercase", fontFamily: FONT_MONO, fontWeight: 500, marginBottom: 6 }}>Suporte</div>
+        <div style={{ fontSize: 10, color: C.cyan, letterSpacing: 2, textTransform: "uppercase", fontFamily: FONT_MONO, fontWeight: 500, marginBottom: 6 }}>Central de Atendimento</div>
         <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 22, color: C.text, margin: 0, letterSpacing: "-0.01em" }}>Fale com a equipe</h2>
         <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub, marginTop: 8, lineHeight: 1.65 }}>Dúvidas, feedback ou solicitações — respondemos em até 24h.</p>
       </div>
@@ -846,31 +886,88 @@ function SupportView() {
 /* ─────────────────────────────────────────────
    MAIN COMPONENT
 ───────────────────────────────────────────── */
-export default function ClientPortal({ onLogout }) {
+export default function ClientPortal({ user, onLogout }) {
   const [activeNav,        setActiveNav]        = useState("Início");
   const [selectedDelivery, setSelectedDelivery] = useState(null);
-  const [deliveries,       setDeliveries]       = useState(DELIVERIES);
+  const [deliveries,       setDeliveries]       = useState([]);
+  const [loadingDeliveries, setLoadingDeliveries] = useState(true);
+  const [deliveriesError, setDeliveriesError] = useState("");
+  const [actionStatus, setActionStatus] = useState(null);
+  const clientName =
+    user?.user_metadata?.name ||
+    user?.user_metadata?.full_name ||
+    user?.email?.split("@")[0] ||
+    "Cliente";
+  const clientInitials = clientName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
 
   const NAV = [
     { icon: Home,          label: "Início"   },
     { icon: FolderOpen,    label: "Projetos" },
-    { icon: Files,         label: "Arquivos" },
-    { icon: MessageCircle, label: "Suporte"  },
+    { icon: Files,         label: "Ativos e Documentação" },
+    { icon: MessageCircle, label: "Central de Atendimento"  },
   ];
 
   const pendingCount = deliveries.filter((d) => d.status === "pending").length;
   const firstPending = deliveries.find((d) => d.status === "pending");
+  const approvedCount = deliveries.filter((d) => d.status === "approved").length;
+  const activeCount = deliveries.filter((d) => d.status !== "approved").length;
+  const nextDelivery = deliveries
+    .filter((d) => d.rawDate && d.status !== "approved")
+    .sort((a, b) => getDeliverySortDate(a.source) - getDeliverySortDate(b.source))[0];
+  const progressPercent = deliveries.length ? Math.round((approvedCount / deliveries.length) * 100) : 0;
+  const currentPhase = pendingCount > 0 ? "Revisão" : activeCount > 0 ? "Implementação" : "Sem entregas";
+
+  const loadDeliveries = useCallback(async () => {
+    if (!user?.id) {
+      setDeliveries([]);
+      setLoadingDeliveries(false);
+      return;
+    }
+
+    setLoadingDeliveries(true);
+    setDeliveriesError("");
+
+    const { data, error } = await supabase
+      .from("deliveries")
+      .select("*");
+
+    if (error) {
+      setDeliveries([]);
+      setDeliveriesError("Não foi possível carregar suas entregas agora.");
+      setLoadingDeliveries(false);
+      return;
+    }
+
+    setDeliveries((data || []).map(mapDelivery).sort((a, b) => getDeliverySortDate(b.source) - getDeliverySortDate(a.source)));
+    setLoadingDeliveries(false);
+  }, [user?.id]);
+
+  useEffect(() => {
+    loadDeliveries();
+  }, [loadDeliveries]);
 
   const PAGE_TITLES = {
     "Início":   { supra: "Bem-vindo de volta",      h1: "Olá, Ezer 👋"  },
     "Projetos": { supra: "Operação Pixelry",         h1: "Seus Projetos"  },
-    "Arquivos": { supra: "Operação Pixelry",         h1: "Arquivos"       },
-    "Suporte":  { supra: "Estamos aqui para ajudar", h1: "Suporte"        },
+    "Ativos e Documentação": { supra: "Operação Pixelry",         h1: "Ativos e Documentação" },
+    "Central de Atendimento": { supra: "Estamos aqui para ajudar", h1: "Central de Atendimento" },
   };
 
-  const page = PAGE_TITLES[activeNav];
+  const page =
+    activeNav === NAV[0].label
+      ? { ...PAGE_TITLES[activeNav], h1: `Olá, ${clientName}` }
+      : PAGE_TITLES[activeNav];
 
-  const updateDeliveryStatus = (id, status) => {
+  const updateDeliveryStatus = async (id, status) => {
+    const previousDeliveries = deliveries;
+    setActionStatus({ id, status });
+    setDeliveriesError("");
     setDeliveries((current) =>
       current.map((delivery) =>
         delivery.id === id
@@ -885,6 +982,18 @@ export default function ClientPortal({ onLogout }) {
           : delivery
       )
     );
+    const { error } = await supabase
+      .from("deliveries")
+      .update({ status })
+      .eq("id", id);
+
+    if (error) {
+      setDeliveries(previousDeliveries);
+      setDeliveriesError("Não foi possível atualizar o status da entrega. Tente novamente.");
+      setActionStatus(null);
+      return;
+    }
+    setActionStatus(null);
     setSelectedDelivery(null);
     setActiveNav("Início");
   };
@@ -936,9 +1045,9 @@ export default function ClientPortal({ onLogout }) {
             fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 12, color: "#fff",
             flexShrink: 0, letterSpacing: 0.5,
             boxShadow: "0 0 14px rgba(128, 64, 245, 0.4)",
-          }}>EZ</div>
+          }}>{clientInitials || "CL"}</div>
           <div style={{ flex: 1, minWidth: 0 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>Ezer</div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{clientName}</div>
             <div style={{ fontSize: 11, color: C.textSub }}>Plano Premium</div>
           </div>
           <button
@@ -1022,20 +1131,20 @@ export default function ClientPortal({ onLogout }) {
                 boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
               }}>
                 <div className={styles.progressRingWrap}>
-                  <CircularProgress percent={65} className={styles.progressRing} />
+                  <CircularProgress percent={progressPercent} className={styles.progressRing} />
                   <div className={styles.progressPercentWrap}>
-                    <span className={styles.progressPercent} style={{ color: C.text }}>65%</span>
+                    <span className={styles.progressPercent} style={{ color: C.text }}>{progressPercent}%</span>
                   </div>
                 </div>
                 <div className={styles.progressTileText}>
                   <div className={styles.progressEyebrow} style={{ color: C.cyan }}>Fase Atual</div>
-                  <div className={styles.progressPhase} style={{ color: C.text }}>Desenvolvimento</div>
-                  <div className={styles.progressMeta} style={{ color: C.textSub }}>3 de 5 etapas concluídas</div>
+                  <div className={styles.progressPhase} style={{ color: C.text }}>{currentPhase}</div>
+                  <div className={styles.progressMeta} style={{ color: C.textSub }}>{approvedCount} de {deliveries.length} entregas aprovadas</div>
                 </div>
               </div>
-              <MetricCard label="Campanhas Ativas"   value="3"  sub="↑ 1 novo este mês"    accent={C.cyan}   />
-              <MetricCard label="Documentos Prontos" value="7"  sub="2 aguardando revisão"                   />
-              <MetricCard label="Próxima Entrega"    value="8d" sub="20 de Maio de 2026"    accent={C.purple} />
+              <MetricCard label="Entregas Ativas" value={String(activeCount)} sub={`${pendingCount} aguardando revisão`} accent={C.cyan} />
+              <MetricCard label="Documentos Prontos" value={String(approvedCount)} sub="Aprovados no portal" />
+              <MetricCard label="Próxima Entrega" value={nextDelivery ? nextDelivery.date : "--"} sub={nextDelivery ? nextDelivery.title : "Sem entregas agendadas"} accent={C.purple} />
             </div>
 
             <div className={styles.deliverySection}>
@@ -1057,7 +1166,7 @@ export default function ClientPortal({ onLogout }) {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setActiveNav("Arquivos")}
+                  onClick={() => setActiveNav("Ativos e Documentação")}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -1075,7 +1184,48 @@ export default function ClientPortal({ onLogout }) {
                 </button>
               </div>
               <div className={styles.deliveryStack} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {deliveries.map((d) => (
+                {loadingDeliveries && (
+                  <div className={styles.emptyState} style={{ minHeight: 180 }}>
+                    <Clock size={24} color={C.cyan} strokeWidth={1.5} />
+                    <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text }}>Carregando entregas</div>
+                    <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub }}>Buscando seus dados no Supabase.</div>
+                  </div>
+                )}
+
+                {!loadingDeliveries && deliveriesError && (
+                  <div className={styles.emptyState} style={{ minHeight: 180 }}>
+                    <XCircle size={24} color={C.red} strokeWidth={1.5} />
+                    <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text }}>Erro ao carregar</div>
+                    <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub }}>{deliveriesError}</div>
+                    <button
+                      type="button"
+                      onClick={loadDeliveries}
+                      style={{
+                        marginTop: 8,
+                        padding: "9px 18px",
+                        borderRadius: 10,
+                        border: `1px solid ${C.borderGlow}`,
+                        background: "rgba(128, 64, 245, 0.12)",
+                        color: C.text,
+                        fontFamily: FONT_BODY,
+                        fontSize: 12,
+                        cursor: "pointer",
+                      }}
+                    >
+                      Tentar novamente
+                    </button>
+                  </div>
+                )}
+
+                {!loadingDeliveries && !deliveriesError && deliveries.length === 0 && (
+                  <div className={styles.emptyState} style={{ minHeight: 180 }}>
+                    <FolderOpen size={24} color={C.purple} strokeWidth={1.5} />
+                    <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text }}>Nenhuma entrega por aqui</div>
+                    <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub }}>Quando a equipe publicar uma entrega para este cliente, ela aparecerá aqui.</div>
+                  </div>
+                )}
+
+                {!loadingDeliveries && !deliveriesError && deliveries.map((d) => (
                   <DeliveryRow key={d.id} item={d} onClick={setSelectedDelivery} />
                 ))}
               </div>
@@ -1084,8 +1234,8 @@ export default function ClientPortal({ onLogout }) {
         )}
 
         {activeNav === "Projetos" && <ProjectsView />}
-        {activeNav === "Arquivos" && <FilesView />}
-        {activeNav === "Suporte"  && <SupportView />}
+        {activeNav === "Ativos e Documentação" && <FilesView />}
+        {activeNav === "Central de Atendimento"  && <SupportView />}
 
       </main>
 
@@ -1094,6 +1244,7 @@ export default function ClientPortal({ onLogout }) {
         onClose={() => setSelectedDelivery(null)}
         onApprove={(id) => updateDeliveryStatus(id, "approved")}
         onRequestRevision={(id) => updateDeliveryStatus(id, "revision")}
+        actionStatus={actionStatus}
       />
       <nav className={styles.mobileBottomNav} aria-label="Navegação do portal">
         {NAV.map(({ icon: Icon, label }) => (

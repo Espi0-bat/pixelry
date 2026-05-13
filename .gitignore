@@ -1,7 +1,23 @@
-node_modules
-dist
-.DS_Store
+# Dependencies
+node_modules/
+
+# Build
+dist/
+dist-ssr/
 *.local
+.vite-dev*.log
+
+# Environment variables
 .env
 .env.*
 !.env.example
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo

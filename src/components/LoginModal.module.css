@@ -137,8 +137,22 @@
   filter: brightness(1.1);
 }
 
+.submitBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+  filter: none;
+}
+
 .submitBtn:active {
   transform: translateY(0);
+}
+
+.errorText {
+  margin: -6px 0 0;
+  color: #f43f5e;
+  font-size: 13px;
+  line-height: 1.45;
 }
 
 .closeBtn {
