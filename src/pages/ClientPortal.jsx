@@ -73,6 +73,74 @@ const TYPE_ICON = {
   Relatório: BarChart2,
 };
 
+const ICON_TONES = {
+  design: {
+    color: "#8040F5",
+    bg: "rgba(128, 64, 245, 0.12)",
+    bgHover: "rgba(128, 64, 245, 0.2)",
+    border: "rgba(128, 64, 245, 0.32)",
+    glow: "rgba(128, 64, 245, 0.42)",
+  },
+  document: {
+    color: "#00D8FF",
+    bg: "rgba(0, 216, 255, 0.1)",
+    bgHover: "rgba(0, 216, 255, 0.18)",
+    border: "rgba(0, 216, 255, 0.3)",
+    glow: "rgba(0, 216, 255, 0.38)",
+  },
+  report: {
+    color: "#10B981",
+    bg: "rgba(16, 185, 129, 0.1)",
+    bgHover: "rgba(16, 185, 129, 0.18)",
+    border: "rgba(16, 185, 129, 0.3)",
+    glow: "rgba(16, 185, 129, 0.36)",
+  },
+  warning: {
+    color: "#F59E0B",
+    bg: "rgba(245, 158, 11, 0.1)",
+    bgHover: "rgba(245, 158, 11, 0.18)",
+    border: "rgba(245, 158, 11, 0.32)",
+    glow: "rgba(245, 158, 11, 0.36)",
+  },
+  media: {
+    color: "#EC4899",
+    bg: "rgba(236, 72, 153, 0.1)",
+    bgHover: "rgba(236, 72, 153, 0.18)",
+    border: "rgba(236, 72, 153, 0.3)",
+    glow: "rgba(236, 72, 153, 0.35)",
+  },
+};
+
+function getIconTone(item = {}) {
+  const type = String(item.type || "").toLowerCase();
+  const name = String(item.name || item.title || "").toLowerCase();
+  const status = String(item.status || "").toLowerCase();
+  const signal = `${type} ${name}`;
+
+  if (status.includes("pending") || status.includes("revision") || status.includes("ajuste")) return ICON_TONES.warning;
+  if (signal.includes("relat") || signal.includes("trafego") || signal.includes("tráfego") || signal.includes("chart")) return ICON_TONES.report;
+  if (signal.includes("design") || signal.includes("fig") || signal.includes("psd") || signal.includes("sketch")) return ICON_TONES.design;
+  if (signal.includes("image") || signal.includes("logo") || signal.includes("zip") || signal.includes("pack")) return ICON_TONES.media;
+  return ICON_TONES.document;
+}
+
+function IconFrame({ icon: Icon, tone, hovered, size = 17 }) {
+  return (
+    <div
+      className={styles.semanticIconFrame}
+      data-active={hovered ? "true" : "false"}
+      style={{
+        "--icon-color": tone.color,
+        "--icon-bg": hovered ? tone.bgHover : tone.bg,
+        "--icon-border": tone.border,
+        "--icon-glow": tone.glow,
+      }}
+    >
+      <Icon size={size} strokeWidth={1.65} />
+    </div>
+  );
+}
+
 const STATUS_ALIASES = {
   pending: "pending",
   aguardando_revisao: "pending",
@@ -86,6 +154,9 @@ const STATUS_ALIASES = {
   em_producao: "production",
   in_production: "production",
 };
+
+const DELIVERY_SELECT_FIELDS = "id,title,created_at,type,status,description";
+const CLIENT_MUTABLE_STATUSES = new Set(["approved", "revision"]);
 
 function normalizeStatus(status) {
   return STATUS_ALIASES[String(status || "").toLowerCase()] || "production";
@@ -297,6 +368,7 @@ function DeliveryRow({ item, onClick }) {
   const [hovered, setHovered] = useState(false);
   const s   = STATUS[item.status] || STATUS.production;
   const Icon = TYPE_ICON[item.type] || FileText;
+  const tone = getIconTone(item);
 
   return (
     <div
@@ -307,22 +379,16 @@ function DeliveryRow({ item, onClick }) {
       style={{
         display: "flex", alignItems: "center", gap: 14,
         background: hovered ? C.cardHover : C.card,
-        border: `1px solid ${hovered ? C.borderGlow : C.border}`,
+        border: `1px solid ${hovered ? tone.border : C.border}`,
         borderRadius: 12,
         padding: "14px 18px",
         cursor: "pointer",
-        transition: "background 0.18s, border-color 0.18s",
+        transition: "background 0.18s, border-color 0.18s, box-shadow 0.18s, transform 0.18s",
+        boxShadow: hovered ? `0 16px 36px ${tone.glow}` : "none",
       }}
     >
       {/* Type icon */}
-      <div style={{
-        width: 38, height: 38, borderRadius: 9, flexShrink: 0,
-        background: hovered ? "rgba(128, 64, 245, 0.16)" : "rgba(128, 64, 245, 0.08)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        transition: "background 0.18s",
-      }}>
-        <Icon size={16} color={C.purple} strokeWidth={1.5} />
-      </div>
+      <IconFrame icon={Icon} tone={tone} hovered={hovered} size={16} />
 
       {/* Info */}
       <div style={{ flex: 1, minWidth: 0 }}>
@@ -696,6 +762,7 @@ function UploadZone({ uploads, setUploads }) {
 function FileRow({ f, onDownload }) {
   const [hov, setHov] = useState(false);
   const Icon = f.icon;
+  const tone = getIconTone(f);
   return (
     <div
       className={styles.fileTile}
@@ -713,20 +780,14 @@ function FileRow({ f, onDownload }) {
       style={{
         display: "flex", alignItems: "center", gap: 14,
         background: hov ? C.cardHover : C.card,
-        border: `1px solid ${hov ? C.borderGlow : C.border}`,
+        border: `1px solid ${hov ? tone.border : C.border}`,
         borderRadius: 13, padding: "14px 18px", cursor: "pointer",
         transition: "all 0.18s ease",
+        boxShadow: hov ? `0 16px 36px ${tone.glow}` : "none",
         backdropFilter: "blur(8px)", WebkitBackdropFilter: "blur(8px)",
       }}
     >
-      <div style={{
-        width: 40, height: 40, borderRadius: 10, flexShrink: 0,
-        background: hov ? "rgba(128, 64, 245, 0.18)" : "rgba(128, 64, 245, 0.08)",
-        display: "flex", alignItems: "center", justifyContent: "center",
-        transition: "background 0.18s",
-      }}>
-        <Icon size={17} color={C.purple} strokeWidth={1.5} />
-      </div>
+      <IconFrame icon={Icon} tone={tone} hovered={hov} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontFamily: FONT_BODY, fontWeight: 600, fontSize: 14, color: C.text, marginBottom: 3 }}>{f.name}</div>
         <div style={{ fontSize: 11, color: C.textSub, fontFamily: FONT_BODY }}>{f.type} · {f.size} · {f.date}</div>
@@ -935,7 +996,7 @@ export default function ClientPortal({ user, onLogout }) {
 
     const { data, error } = await supabase
       .from("deliveries")
-      .select("*");
+      .select(DELIVERY_SELECT_FIELDS);
 
     if (error) {
       setDeliveries([]);
@@ -965,22 +1026,31 @@ export default function ClientPortal({ user, onLogout }) {
       : PAGE_TITLES[activeNav];
 
   const updateDeliveryStatus = async (id, status) => {
+    const normalizedStatus = normalizeStatus(status);
+    const canUpdateStatus = CLIENT_MUTABLE_STATUSES.has(normalizedStatus);
+    const deliveryExists = deliveries.some((delivery) => delivery.id === id);
+
+    if (!canUpdateStatus || !deliveryExists) {
+      setDeliveriesError("Acao invalida para esta entrega.");
+      return;
+    }
+
     if (!isSupabaseConfigured || !supabase) {
       setDeliveriesError("O portal ainda não está conectado ao Supabase neste deploy.");
       return;
     }
 
     const previousDeliveries = deliveries;
-    setActionStatus({ id, status });
+    setActionStatus({ id, status: normalizedStatus });
     setDeliveriesError("");
     setDeliveries((current) =>
       current.map((delivery) =>
         delivery.id === id
           ? {
               ...delivery,
-              status,
+              status: normalizedStatus,
               description:
-                status === "approved"
+                normalizedStatus === "approved"
                   ? "Entrega aprovada pelo cliente no portal."
                   : "Ajuste solicitado pelo cliente no portal. Nossa equipe vai revisar os pontos enviados.",
             }
@@ -989,7 +1059,7 @@ export default function ClientPortal({ user, onLogout }) {
     );
     const { error } = await supabase
       .from("deliveries")
-      .update({ status })
+      .update({ status: normalizedStatus })
       .eq("id", id);
 
     if (error) {
