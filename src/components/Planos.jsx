@@ -6,50 +6,53 @@ import styles from './Planos.module.css'
 const PLANOS = [
   {
     nome: 'START',
-    desc: 'Sistema de aquisição inicial para negócios locais. Focado em validação e estruturação básica de presença digital.',
-    setup: 'R$ 1.497',
-    recorrencia: 'R$ 397/mês',
+    desc: 'Máquina de conversão rápida e direta. Ideal para profissionais e negócios que buscam validação através de uma infraestrutura digital robusta.',
+    setup: 'R$ 2.500,00',
+    recorrencia: 'R$ 250,00/mês',
     setupFeatures: [
-      'PIXELRY CORE (Base)',
-      'Integração direta WhatsApp',
-      'Configuração Rastreamento'
+      'Landing Page em React/Vite (01 página)',
+      'Design focado em conversão mobile',
+      'Tagueamento estrutural (Pixel e GA4)',
+      'Botão de WhatsApp inteligente'
     ],
     recorrenciaFeatures: [
-      'Hospedagem e Manutenção',
-      'Monitoramento de Rastreamento',
-      'Relatório de Performance'
+      'Cloud Hosting Premium de Alta Performance',
+      'Hub PIXELRY: Dashboard de Métricas Essenciais',
+      'Manutenção Preventiva e Suporte Técnico Especializado'
     ]
   },
   {
     nome: 'PRO',
-    desc: 'Máquina de aquisição previsível. A estrutura definitiva para negócios que precisam escalar a captação de leads e a agenda.',
-    setup: 'R$ 2.997',
-    recorrencia: 'R$ 497/mês',
+    desc: 'O padrão de agência premium. Engenharia avançada para clínicas médicas, estéticas e hotelaria que exigem escala, dados e autoridade.',
+    setup: 'R$ 3.800,00',
+    recorrencia: 'R$ 400,00/mês',
     setupFeatures: [
-      'PIXELRY CORE (Alta Conversão)',
-      'Setup de SEO e Google Meu Negócio',
-      'Rastreamento Avançado (Pixel/GA4)'
+      'Layout premium (Bento Grid e Parallax)',
+      'Design editorial exclusivo',
+      'Engenharia de Tagueamento (API Meta)',
+      'Setup do Ecossistema Logado'
     ],
     recorrenciaFeatures: [
-      'Leitura Contínua de Dados',
-      'Otimização de Conversão',
-      'Reunião Estratégica Mensal'
+      'Hub PIXELRY Pro: Portal do Cliente com Criptografia',
+      'Analytics Avançado: Dados e Conversões em Tempo Real',
+      'Gestão Centralizada de Demandas e Abertura de Chamados'
     ]
   },
   {
     nome: 'ELITE',
-    desc: 'Infraestrutura premium para clínicas e empresas consolidadas com alto volume de captação e escala constante.',
-    setup: 'R$ 4.997',
-    recorrencia: 'R$ 997/mês',
+    desc: 'A infraestrutura definitiva de Vendas. O ecossistema completo para operações de alto volume e consolidação de mercado.',
+    setup: 'R$ 5.000,00',
+    recorrencia: 'R$ 900,00/mês',
     setupFeatures: [
-      'Múltiplas LPs Estratégicas',
-      'Automações e Fluxos Dedicados',
-      'Criação de Painel de Dados'
+      'Toda a arquitetura do pacote PRO',
+      'Auditoria de leads e atendimento comercial',
+      'Desenvolvimento de Scripts de Vendas (WhatsApp)'
     ],
     recorrenciaFeatures: [
-      'Lapidação Contínua de Funil',
-      'Monitoramento Executivo',
-      'Acompanhamento Quinzenal/Prioritário'
+      'Hub PIXELRY Elite: O Ecossistema Definitivo',
+      'Data Room Privada e Auditoria de Tráfego/Leads',
+      'Engenharia de Elite com SLA de Atendimento Prioritário (< 24h)',
+      'Consultoria Estratégica Executiva (Reunião Mensal)'
     ]
   }
 ]
@@ -157,7 +160,7 @@ export default function Planos() {
                         </ul>
                       </div>
                       <div className={styles.featuresGroup}>
-                        <p className={styles.featureTitle}>NA MENSALIDADE:</p>
+                        <p className={styles.featureTitle}>ACOMPANHAMENTO MENSAL:</p>
                         <ul className={styles.features}>
                           {p.recorrenciaFeatures.map(f => (
                             <li key={f}>{f}</li>

@@ -4,7 +4,7 @@
   font-weight: 700;
   line-height: 1.15;
   letter-spacing: -0.02em;
-  margin-bottom: 72px;
+  margin-bottom: 100px;
   margin-top: 0;
 }
 
@@ -21,11 +21,13 @@
 .carouselCards {
   position: relative;
   width: 100%;
-  height: 850px; /* Increased to fix text overlap */
+  min-height: 850px;
+  padding-top: 24px;
+  box-sizing: border-box;
   display: flex;
   justify-content: center;
-  align-items: center;
-  touch-action: pan-y; /* Permite scroll vertical, previne refresh swipe */
+  align-items: flex-start;
+  touch-action: pan-y;
 }
 
 .cardCover {
@@ -150,22 +152,24 @@
 
 .valorItem {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 12px;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 16px;
 }
 
 .valorItem span {
-  font-size: 12px;
+  font-size: 10px;
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.12em;
+  margin-bottom: 2px;
 }
 
 .valorItem strong {
-  font-size: 18px;
+  font-size: 20px;
   color: var(--cyan);
   font-family: var(--font-mono);
+  white-space: nowrap;
 }
 
 .featuresWrapper {
@@ -277,7 +281,8 @@
 
 @media (max-width: 900px) {
   .carouselCards {
-    height: 900px;
+    min-height: 880px;
+    height: auto;
     perspective: 800px;
   }
   
@@ -307,7 +312,8 @@
 
 @media (max-width: 480px) {
   .carouselCards {
-    height: 950px;
+    min-height: 920px;
+    height: auto;
   }
   
   .cardCover {

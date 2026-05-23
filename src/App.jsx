@@ -106,12 +106,12 @@ export default function App() {
   }
 
   if (isPortal && !authReady) {
-    return <div style={{ minHeight: '100vh', background: 'var(--bg)' }}></div>
+    return <div style={{ minHeight: '100dvh', background: 'var(--bg)' }}></div>
   }
 
   if (isPortal && isAuthenticated) {
     return (
-      <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--bg)' }}></div>}>
+      <Suspense fallback={<div style={{ minHeight: '100dvh', background: 'var(--bg)' }}></div>}>
         <ClientPortal user={currentUser} onLogout={handlePortalLogout} />
       </Suspense>
     )
@@ -124,7 +124,7 @@ export default function App() {
         <Hero />
         <Problema />
         <Servicos />
-        <Suspense fallback={<div style={{ minHeight: '100vh', background: 'var(--bg)' }}></div>}>
+        <Suspense fallback={<div style={{ minHeight: '100dvh', background: 'var(--bg)' }}></div>}>
           <Core />
           <Processo />
           <Diferenciais />
