@@ -119,6 +119,30 @@ const PillNav = ({
     return () => window.removeEventListener('resize', onResize);
   }, [items, ease, initialLoadAnimation]);
 
+  // Close mobile menu when clicking outside
+  useEffect(() => {
+    if (!isMobileMenuOpen) return;
+
+    const handleClickOutside = (e) => {
+      const menu = mobileMenuRef.current;
+      const hamburger = hamburgerRef.current;
+      if (
+        menu && !menu.contains(e.target) &&
+        hamburger && !hamburger.contains(e.target)
+      ) {
+        closeMobileMenu();
+      }
+    };
+
+    document.addEventListener('touchstart', handleClickOutside, { passive: true });
+    document.addEventListener('mousedown', handleClickOutside);
+
+    return () => {
+      document.removeEventListener('touchstart', handleClickOutside);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isMobileMenuOpen]);
+
   const handleEnter = i => {
     const tl = tlRefs.current[i];
     if (!tl) return;

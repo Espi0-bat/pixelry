@@ -137,8 +137,10 @@ export default function Hero() {
         </p>
 
         <h1 className={styles.h1}>
-          Transformamos a presença digital<br />
-          de empresas em uma estrutura que<br />
+          Transformamos a presença digital{' '}
+          <br className={styles.brDesktop} />
+          de empresas em uma estrutura que{' '}
+          <br className={styles.brDesktop} />
           <span className="grad-text">gera clientes de forma previsível.</span>
         </h1>
 
@@ -172,7 +174,7 @@ export default function Hero() {
           </div>
         </div>
 
-        {/* Dashboard inline — visible only on mobile */}
+        {/* Dashboard inline — visible only on mobile */}
         <div className={styles.dashboardMobile} aria-hidden="true">
           <div className={styles.dashHeader}>
             <span className={styles.dashTitle}>Desempenho de Aquisição</span>
