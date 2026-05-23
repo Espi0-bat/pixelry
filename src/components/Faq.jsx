@@ -21,7 +21,7 @@ const FAQS = [
   },
   {
     q: 'Como funciona o processo de pagamento?',
-    a: 'Trabalhamos com parcelamento em etapas: uma entrada para iniciar o projeto e o restante na entrega. Para projetos maiores, estruturamos o pagamento em fases conforme as entregas. Tudo documentado antes de começar.',
+    a: 'Nosso modelo tem duas etapas. Primeiro, você investe na Taxa de Setup — o projeto completo: desenvolvimento, design, tagueamento e publicação. Após a entrega, entra o Acompanhamento Mensal: hosting premium, o Hub PIXELRY com seus dados em tempo real, suporte técnico e manutenção contínua. Tudo começa com uma conversa para definir qual plano faz sentido para o seu negócio.',
   },
   {
     q: 'E se eu não gostar do resultado?',
