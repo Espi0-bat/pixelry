@@ -5,5 +5,5 @@ import react from '@vitejs/plugin-react'
 // e.g. if repo is https://github.com/user/pixelry → base: '/pixelry/'
 export default defineConfig({
   plugins: [react()],
-  base: '/pixelry/',
+  base: '/',
 })
