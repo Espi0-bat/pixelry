@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import styles from './Nav.module.css'
 import logoImg from './images/pixelryicone.jpeg'
 import { WA_LINK_NAV as WA_LINK, WaIconNav as WaIcon } from './common/WhatsApp'
@@ -6,7 +7,8 @@ import PillNav from './PillNav'
 
 export default function Nav() {
   const [scrolled, setScrolled] = useState(false)
-  const [activeHref, setActiveHref] = useState('#')
+  const [activeHref, setActiveHref] = useState('/')
+  const location = useLocation()
 
   useEffect(() => {
     const onScroll = () => {
@@ -17,15 +19,16 @@ export default function Nav() {
   }, [])
 
   useEffect(() => {
-    const syncActiveHref = () => {
-      setActiveHref(window.location.hash || '#')
+    // Sync active state based on current path + hash
+    const path = location.pathname
+    const hash = location.hash
+
+    if (hash) {
+      setActiveHref('/' + hash)
+    } else {
+      setActiveHref(path)
     }
-
-    syncActiveHref()
-    window.addEventListener('hashchange', syncActiveHref)
-
-    return () => window.removeEventListener('hashchange', syncActiveHref)
-  }, [])
+  }, [location])
 
   return (
     <nav className={`${styles.nav} ${scrolled ? styles.scrolled : ''}`}>
@@ -34,11 +37,10 @@ export default function Nav() {
           logo={logoImg}
           logoAlt="PIXELRY"
           items={[
-            { label: 'Início', href: '#' },
-            { label: 'Serviços', href: '#servicos' },
-            { label: 'Planos', href: '#planos' },
-            { label: 'FAQ', href: '#faq' },
-            { label: 'Portal', href: '#portal' }
+            { label: 'Início',   href: '/' },
+            { label: 'Serviços', href: '/#servicos' },
+            { label: 'Planos',   href: '/#planos' },
+            { label: 'FAQ',      href: '/#faq' }
           ]}
           activeHref={activeHref}
           baseColor="#101022"
@@ -58,4 +60,3 @@ export default function Nav() {
     </nav>
   )
 }
-

@@ -93,6 +93,26 @@ a.navLink:hover { color: var(--text); }
   color: var(--text-faint);
 }
 
+.adminGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.adminLink {
+  color: var(--text-faint);
+  opacity: 0.4;
+  transition: opacity 0.2s, color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.adminLink:hover {
+  opacity: 1;
+  color: var(--text);
+}
+
 @media (max-width: 900px) {
   .footer { padding: 56px 24px 32px; }
   .top { grid-template-columns: 1fr 1fr; gap: 40px; }
