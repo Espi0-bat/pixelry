@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import { buildWhatsAppLink } from '../config/contact'
 import styles from './Footer.module.css'
 
@@ -35,6 +36,13 @@ export default function Footer() {
           <a href="#contato"  className={styles.navLink}>Contato</a>
         </nav>
 
+        {/* Legal */}
+        <nav className={styles.nav} aria-label="Legal navigation">
+          <p className={styles.navTitle}>Legal</p>
+          <Link to="/privacidade" className={styles.navLink}>Política de Privacidade</Link>
+          <Link to="/termos" className={styles.navLink}>Termos de Uso</Link>
+        </nav>
+
         {/* Contact */}
         <div className={styles.contact}>
           <p className={styles.navTitle}>Contato</p>
@@ -47,7 +55,10 @@ export default function Footer() {
       </div>
 
       <div className={styles.bottom}>
-        <span className={styles.copy}>© 2026 PIXELRY · Todos os direitos reservados</span>
+        <div className={styles.adminGroup}>
+
+          <span className={styles.copy}>© 2026 PIXELRY · Todos os direitos reservados</span>
+        </div>
         <span className={styles.copy}>Padrão sem concessão.</span>
       </div>
     </footer>
