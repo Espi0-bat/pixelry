@@ -3,6 +3,7 @@ import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { Home, Users, FolderUp, Activity, LogOut, Kanban } from 'lucide-react';
 import { supabase } from '../../config/supabase';
 import logoImg from '../../components/images/pixelryicone.jpeg';
+import AdminGlowEffects from '../components/AdminGlowEffects';
 import './AdminLayout.css';
 
 const DOT_SPACING = 40;
@@ -14,6 +15,9 @@ export default function AdminLayout({ user, onLogout }) {
   const canvasRef = useRef(null);
   const mouseRef  = useRef({ x: 0.5, y: 0.5 });
   const targetRef = useRef({ x: 0.5, y: 0.5 });
+  const theme = user?.email?.includes('erickvin49') ? 'gold' : 'obsidian';
+  const themeRef = useRef(theme);
+  themeRef.current = theme;
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -65,11 +69,16 @@ export default function AdminLayout({ user, onLogout }) {
           const t = 1 - dist / GLOW_RADIUS;
           alpha += t * 0.55;
           radius += t * 1.4;
-          const hue   = 265 - (dist / GLOW_RADIUS) * 75;
-          const light = 70  - (dist / GLOW_RADIUS) * 20;
-          ctx.fillStyle = `hsla(${hue}, 85%, ${light}%, ${Math.min(alpha, 0.85)})`;
+          const isGold = themeRef.current === 'gold';
+          const hue   = isGold ? 45 + (dist / GLOW_RADIUS) * 15 : 265 - (dist / GLOW_RADIUS) * 75;
+          const sat   = isGold ? 100 : 85;
+          const light = isGold ? 55 - (dist / GLOW_RADIUS) * 15 : 70 - (dist / GLOW_RADIUS) * 20;
+          ctx.fillStyle = `hsla(${hue}, ${sat}%, ${light}%, ${Math.min(alpha, 0.85)})`;
         } else {
-          ctx.fillStyle = `hsla(265, 60%, 65%, ${alpha})`;
+          const isGold = themeRef.current === 'gold';
+          ctx.fillStyle = isGold
+            ? `hsla(45, 90%, 52%, ${alpha})`
+            : `hsla(265, 60%, 65%, ${alpha})`;
         }
         ctx.beginPath();
         ctx.arc(d.x, d.y, radius, 0, Math.PI * 2);
@@ -107,8 +116,9 @@ export default function AdminLayout({ user, onLogout }) {
     : 'AD';
 
   return (
-    <div className="admin-layout">
+    <div className={`admin-layout theme-${theme}`}>
       <canvas ref={canvasRef} className="bg-canvas" aria-hidden="true" />
+      <AdminGlowEffects theme={theme} />
       <aside className="sidebar">
         <div className="sidebar-header">
           <NavLink to="/" title="Ir para o site principal">

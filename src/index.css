@@ -329,3 +329,35 @@ body {
   .btn-hero-cta  { width: 100%; justify-content: center; font-size: 13px; }
   .btn-secondary { width: 100%; justify-content: center; }
 }
+
+/* ─────────────────────────────────────────────
+   ADMIN THEMES — scoped to .admin-layout
+   ───────────────────────────────────────────── */
+
+/* CK — Tema Ouro */
+.theme-gold {
+  --bg:      #0a0804;
+  --bg2:     #130e05;
+  --bg3:     #1a1508;
+  --surface: #1e190a;
+  --border:         rgba(255, 215, 0, 0.07);
+  --border-bright:  rgba(255, 215, 0, 0.22);
+  --purple: #FFD700;
+  --cyan:   #FDB931;
+  --grad:       linear-gradient(135deg, #FFD700, #FDB931);
+  --grad-text:  linear-gradient(90deg, #FFF2A8, #FFD700);
+}
+
+/* moutinhoezer — Tema Obsidiana/Ametista */
+.theme-obsidian {
+  --bg:      #05020a;
+  --bg2:     #08040f;
+  --bg3:     #0b0614;
+  --surface: #0a0414;
+  --border:         rgba(157, 0, 255, 0.07);
+  --border-bright:  rgba(157, 0, 255, 0.22);
+  --purple: #9d00ff;
+  --cyan:   #b84dff;
+  --grad:       linear-gradient(135deg, #9d00ff, #5e00b3);
+  --grad-text:  linear-gradient(90deg, #b84dff, #9d00ff);
+}
