@@ -4,6 +4,7 @@ const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 export const ADMIN_EMAIL = import.meta.env.VITE_ADMIN_EMAIL || 'moutinhoezer@gmail.com'
+export const ADMIN_EMAILS = (import.meta.env.VITE_ADMIN_EMAILS || ADMIN_EMAIL).split(',').map(e => e.trim())
 export const STORAGE_BUCKET = 'deliveries'
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
 
