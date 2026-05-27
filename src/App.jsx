@@ -125,14 +125,12 @@ export default function App() {
         </Suspense>
       )
 
-  // Painel admin — mostra login se não autenticado, redireciona se e-mail errado
+  // Painel admin — mostra login se não autenticado ou se e-mail não é admin
   const adminElement = authLoading
     ? PORTAL_FALLBACK
-    : !user
+    : !user || !ADMIN_EMAILS.includes(user.email)
       ? <Suspense fallback={PORTAL_FALLBACK}><AdminLogin onLogin={usr => setUser(usr)} /></Suspense>
-      : !ADMIN_EMAILS.includes(user.email)
-        ? <Navigate to="/" replace />
-        : <Suspense fallback={PORTAL_FALLBACK}><AdminLayout user={user} onLogout={handleLogout} /></Suspense>
+      : <Suspense fallback={PORTAL_FALLBACK}><AdminLayout user={user} onLogout={handleLogout} /></Suspense>
 
   return (
     <>

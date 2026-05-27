@@ -1,11 +1,9 @@
-import { useRef, useState } from 'react';
-import { shatterElement } from '../utils/shatterEffect';
+import { useState } from 'react';
 import { isSupabaseConfigured, supabase, ADMIN_EMAILS } from '../../config/supabase';
 import logoImg from '../../components/images/pixelryicone.jpeg';
 import './AdminLogin.css';
 
 export default function AdminLogin({ onLogin }) {
-  const cardRef = useRef(null);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -38,27 +36,14 @@ export default function AdminLogin({ onLogin }) {
       return;
     }
 
-    await new Promise(r => setTimeout(r, 200));
-    if (cardRef.current) {
-      shatterElement(cardRef.current, {
-        particleSize: 10,
-        totalDuration: 1400,
-        flashDuration: 180,
-        onComplete: () => onLogin(data.user),
-      });
-    } else {
-      onLogin(data.user);
-    }
+    onLogin(data.user);
   };
 
   return (
     <div className="login-container">
       <div className="login-bg-grid"></div>
 
-      <div
-        className={`login-card animate-in${isLoggingIn ? ' login-card--shattering' : ''}`}
-        ref={cardRef}
-      >
+      <div className="login-card animate-in">
         <div className="login-header">
           <img src={logoImg} alt="Pixelry" className="login-logo" />
           <h1 className="login-title">Pixelry Admin</h1>

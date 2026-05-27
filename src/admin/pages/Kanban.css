@@ -375,3 +375,33 @@
 .kbtn-submit:hover {
   opacity: 0.88;
 }
+
+/* ── Mobile: kanban vira scroll horizontal com snap ── */
+@media (max-width: 768px) {
+  .kanban-board {
+    display: flex;
+    flex-direction: row;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 16px;
+    gap: 12px;
+  }
+
+  .kanban-col {
+    min-width: 85vw;
+    scroll-snap-align: center;
+    flex-shrink: 0;
+  }
+
+  .kanban-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .kanban-modal {
+    margin: 16px;
+    max-height: 90vh;
+    overflow-y: auto;
+  }
+}
