@@ -453,4 +453,25 @@
   .admin-layout.theme-obsidian .bg-canvas::after {
     font-size: 140px;
   }
+
+  /* Topbar compacta */
+  .topbar {
+    height: 60px;
+  }
+
+  /* Truncar email no topbar */
+  .topbar-user span {
+    max-width: 160px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 12px;
+  }
+
+  /* Avatar menor para dar mais espaço */
+  .topbar-user .avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
 }

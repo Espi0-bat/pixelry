@@ -156,3 +156,50 @@
   color: var(--text-faint);
   font-weight: 500;
 }
+
+@media (max-width: 768px) {
+  .dashboard-header h1 {
+    font-size: 22px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px;
+  }
+
+  .stat-card {
+    padding: 16px;
+    gap: 10px;
+  }
+
+  .stat-value {
+    font-size: 32px;
+  }
+
+  .recent-activity {
+    padding: 20px 16px;
+  }
+
+  .recent-activity h2 {
+    font-size: 16px;
+    margin-bottom: 16px;
+  }
+
+  .activity-item {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .activity-icon {
+    width: 36px;
+    height: 36px;
+  }
+
+  .activity-title {
+    font-size: 13px;
+  }
+
+  .activity-time {
+    display: none;
+  }
+}
