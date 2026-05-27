@@ -21,34 +21,34 @@ export default function AdminLogin({ onLogin }) {
       return;
     }
 
-    if (!ADMIN_EMAILS.includes(email)) {
-      setError('Acesso restrito à equipe Pixelry.');
-      return;
-    }
-
     setIsLoggingIn(true);
 
-    let authError = null;
-
     const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-    authError = signInError;
-    if (!signInError && data.user) {
-      await new Promise(r => setTimeout(r, 200));
-      if (cardRef.current) {
-        shatterElement(cardRef.current, {
-          particleSize: 10,
-          totalDuration: 1400,
-          flashDuration: 180,
-          onComplete: () => onLogin(data.user),
-        });
-      } else {
-        onLogin(data.user);
-      }
+
+    if (signInError) {
+      setError('E-mail ou senha incorretos.');
+      setIsLoggingIn(false);
       return;
     }
 
-    setError(authError?.message || 'Erro ao autenticar. Tente novamente.');
-    setIsLoggingIn(false);
+    if (!ADMIN_EMAILS.includes(data.user.email)) {
+      await supabase.auth.signOut();
+      setError('Acesso restrito à equipe Pixelry.');
+      setIsLoggingIn(false);
+      return;
+    }
+
+    await new Promise(r => setTimeout(r, 200));
+    if (cardRef.current) {
+      shatterElement(cardRef.current, {
+        particleSize: 10,
+        totalDuration: 1400,
+        flashDuration: 180,
+        onComplete: () => onLogin(data.user),
+      });
+    } else {
+      onLogin(data.user);
+    }
   };
 
   return (
