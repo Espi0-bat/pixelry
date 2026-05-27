@@ -149,3 +149,30 @@
   border-radius: 16px;
   border: 1px dashed var(--border-color);
 }
+
+@media (max-width: 768px) {
+  .clientes-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .search-wrapper {
+    width: 100%;
+  }
+
+  .cliente-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .btn-open-cliente {
+    width: 100%;
+    justify-content: center;
+  }
+}

@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { Home, Users, FolderUp, Activity, LogOut, Kanban } from 'lucide-react';
+import { Home, Users, FolderUp, Activity, LogOut, Kanban, Menu, X } from 'lucide-react';
 import { supabase } from '../../config/supabase';
 import logoImg from '../../components/images/pixelryicone.jpeg';
 import AdminGlowEffects from '../components/AdminGlowEffects';
@@ -15,6 +15,7 @@ export default function AdminLayout({ user, onLogout }) {
   const canvasRef = useRef(null);
   const mouseRef  = useRef({ x: 0.5, y: 0.5 });
   const targetRef = useRef({ x: 0.5, y: 0.5 });
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const theme = user?.email?.includes('erickvin49') ? 'gold' : 'obsidian';
   const themeRef = useRef(theme);
   themeRef.current = theme;
@@ -115,32 +116,39 @@ export default function AdminLayout({ user, onLogout }) {
     ? user.email.substring(0, 2).toUpperCase()
     : 'AD';
 
+  const closeMenu = () => setIsMobileMenuOpen(false);
+
   return (
     <div className={`admin-layout theme-${theme}`}>
       <canvas ref={canvasRef} className="bg-canvas" aria-hidden="true" />
       <AdminGlowEffects theme={theme} />
-      <aside className="sidebar">
+
+      {isMobileMenuOpen && (
+        <div className="mobile-overlay" onClick={closeMenu} />
+      )}
+
+      <aside className={`sidebar${isMobileMenuOpen ? ' open' : ''}`}>
         <div className="sidebar-header">
-          <NavLink to="/" title="Ir para o site principal">
+          <NavLink to="/" title="Ir para o site principal" onClick={closeMenu}>
             <img src={logoImg} alt="Pixelry Logo" className="logo-real" style={{ cursor: 'pointer' }} />
           </NavLink>
           <h2>Pixelry Admin</h2>
         </div>
 
         <nav className="sidebar-nav">
-          <NavLink to="/admin" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} end>
+          <NavLink to="/admin" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} end onClick={closeMenu}>
             <Home size={18} /><span>Dashboard</span>
           </NavLink>
-          <NavLink to="/admin/clientes" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'}>
+          <NavLink to="/admin/clientes" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
             <Users size={18} /><span>Clientes</span>
           </NavLink>
-          <NavLink to="/admin/entregas" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'}>
+          <NavLink to="/admin/entregas" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
             <FolderUp size={18} /><span>Entregas</span>
           </NavLink>
-          <NavLink to="/admin/status" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'}>
+          <NavLink to="/admin/status" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
             <Activity size={18} /><span>Status</span>
           </NavLink>
-          <NavLink to="/admin/kanban" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'}>
+          <NavLink to="/admin/kanban" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
             <Kanban size={18} /><span>Kanban</span>
           </NavLink>
         </nav>
@@ -155,8 +163,13 @@ export default function AdminLayout({ user, onLogout }) {
 
       <main className="main-content">
         <header className="topbar">
-          <div className="topbar-search">
-            <input type="text" placeholder="Buscar clientes ou projetos..." />
+          <div className="topbar-left">
+            <button className="hamburger-btn" onClick={() => setIsMobileMenuOpen(o => !o)} aria-label="Menu">
+              {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
+            </button>
+            <div className="topbar-search">
+              <input type="text" placeholder="Buscar clientes ou projetos..." />
+            </div>
           </div>
           <div className="topbar-user">
             <div className="avatar">{initials}</div>
