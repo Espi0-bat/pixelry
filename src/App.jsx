@@ -8,7 +8,7 @@ import Footer       from './components/Footer'
 import StickyCta    from './components/StickyCta'
 import CookieConsent from './components/CookieConsent'
 import LoginModal   from './components/LoginModal'
-import { isSupabaseConfigured, supabase, ADMIN_EMAIL } from './config/supabase'
+import { isSupabaseConfigured, supabase, ADMIN_EMAILS } from './config/supabase'
 
 // Lazy Loading para componentes abaixo da dobra (ganho de performance substancial de LCP e FCP)
 const Core = React.lazy(() => import('./components/Core'))
@@ -129,7 +129,7 @@ export default function App() {
     ? PORTAL_FALLBACK
     : !user
       ? <Suspense fallback={PORTAL_FALLBACK}><AdminLogin onLogin={usr => setUser(usr)} /></Suspense>
-      : user.email !== ADMIN_EMAIL
+      : !ADMIN_EMAILS.includes(user.email)
         ? <Navigate to="/" replace />
         : <Suspense fallback={PORTAL_FALLBACK}><AdminLayout user={user} onLogout={handleLogout} /></Suspense>
 

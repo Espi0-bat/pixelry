@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { shatterElement } from '../utils/shatterEffect';
-import { isSupabaseConfigured, supabase, ADMIN_EMAIL } from '../../config/supabase';
+import { isSupabaseConfigured, supabase, ADMIN_EMAILS } from '../../config/supabase';
 import logoImg from '../../components/images/pixelryicone.jpeg';
 import './AdminLogin.css';
 
@@ -21,7 +21,7 @@ export default function AdminLogin({ onLogin }) {
       return;
     }
 
-    if (email !== ADMIN_EMAIL) {
+    if (!ADMIN_EMAILS.includes(email)) {
       setError('Acesso restrito à equipe Pixelry.');
       return;
     }
