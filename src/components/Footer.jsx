@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { Lock } from 'lucide-react'
 import { buildWhatsAppLink } from '../config/contact'
 import styles from './Footer.module.css'
 
@@ -56,7 +57,9 @@ export default function Footer() {
 
       <div className={styles.bottom}>
         <div className={styles.adminGroup}>
-
+          <Link to="/admin" className={styles.adminLink} aria-hidden="true" tabIndex={-1}>
+            <Lock size={11} />
+          </Link>
           <span className={styles.copy}>© 2026 PIXELRY · Todos os direitos reservados</span>
         </div>
         <span className={styles.copy}>Padrão sem concessão.</span>
