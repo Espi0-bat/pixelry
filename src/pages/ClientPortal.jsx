@@ -59,12 +59,6 @@ const STATUS = {
   production: { label: "Em produção",        color: C.cyan,    bg: "rgba(0,216,255,0.07)",   border: "rgba(0,216,255,0.2)"    },
 };
 
-const PIXELRY_FILES = [
-  { id: 1, name: "Manual_da_Marca_v2.pdf",      type: "PDF",    size: "4.2 MB",  date: "08 Mai 2026", icon: FileText },
-  { id: 2, name: "Landing_Page_Desktop.fig",     type: "Design", size: "18.7 MB", date: "12 Mai 2026", icon: Palette  },
-  { id: 3, name: "Relatorio_Trafego_Abril.pdf",  type: "PDF",    size: "2.1 MB",  date: "30 Abr 2026", icon: BarChart2},
-  { id: 4, name: "Logo_Pack_Completo.zip",       type: "ZIP",    size: "9.8 MB",  date: "20 Abr 2026", icon: Image   },
-];
 
 const TYPE_ICON = {
   Design:    Palette,
@@ -155,8 +149,35 @@ const STATUS_ALIASES = {
   in_production: "production",
 };
 
-const DELIVERY_SELECT_FIELDS = "id,title,created_at,type,status,description";
+const DELIVERY_SELECT_FIELDS = "id,title,created_at,updated_at,due_date,type,status,description,file_url";
 const CLIENT_MUTABLE_STATUSES = new Set(["approved", "revision"]);
+
+function getFileTypeName(name) {
+  const ext = String(name || "").split(".").pop().toLowerCase();
+  if (["jpg","jpeg","png","gif","webp","svg"].includes(ext)) return "Imagem";
+  if (ext === "pdf") return "PDF";
+  if (["fig","psd","ai","sketch"].includes(ext)) return "Design";
+  if (ext === "zip") return "ZIP";
+  return "Documento";
+}
+
+function mapAsset(row) {
+  const typeLower = String(row.file_type || "").toLowerCase();
+  const nameLower = String(row.name || "").toLowerCase();
+  let icon = FileText;
+  if (typeLower.includes("design") || nameLower.includes(".fig") || nameLower.includes(".psd")) icon = Palette;
+  else if (typeLower.includes("relat") || typeLower.includes("report") || nameLower.includes("relat")) icon = BarChart2;
+  else if (["imagem","zip","media"].some(t => typeLower.includes(t)) || nameLower.includes(".zip")) icon = Image;
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.file_type || "Documento",
+    size: row.size || "—",
+    date: formatPortalDate(row.created_at),
+    icon,
+    url: row.url,
+  };
+}
 
 function normalizeStatus(status) {
   return STATUS_ALIASES[String(status || "").toLowerCase()] || "production";
@@ -199,24 +220,17 @@ function mapDelivery(row) {
 }
 
 function downloadPortalFile(file) {
-  const content = [
-    "PIXELRY - Portal do Cliente",
-    `Arquivo: ${file.name}`,
-    `Tipo: ${file.type}`,
-    `Tamanho: ${file.size}`,
-    `Data: ${file.date}`,
-    "",
-    "Este download simula o arquivo dentro do protótipo do portal.",
-  ].join("\n");
-  const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-  const url = URL.createObjectURL(blob);
+  if (file.url) {
+    window.open(file.url, "_blank", "noopener,noreferrer");
+    return;
+  }
+  // fallback para arquivos sem URL (não deve ocorrer em produção)
   const link = document.createElement("a");
-  link.href = url;
-  link.download = file.name.replace(/\.[^.]+$/, ".txt");
+  link.href = "#";
+  link.download = file.name;
   document.body.appendChild(link);
   link.click();
   link.remove();
-  URL.revokeObjectURL(url);
 }
 
 /* ─────────────────────────────────────────────
@@ -618,29 +632,58 @@ function Modal({ item, onClose, onApprove, onRequestRevision, actionStatus }) {
 /* ─────────────────────────────────────────────
    UPLOAD ZONE
 ───────────────────────────────────────────── */
-function UploadZone({ uploads, setUploads }) {
+function UploadZone({ uploads, setUploads, user }) {
   const [dragging, setDragging] = useState(false);
 
-  const processFiles = useCallback((files) => {
-    const newUploads = Array.from(files).map((f, i) => ({
+  const processFiles = useCallback(async (files) => {
+    if (!isSupabaseConfigured || !supabase || !user?.id) return;
+    const fileArray = Array.from(files);
+    const newUploads = fileArray.map((f, i) => ({
       id: Date.now() + i,
       name: f.name,
       size: (f.size / 1024 / 1024).toFixed(1) + " MB",
       progress: 0,
       done: false,
+      error: false,
     }));
     setUploads((prev) => [...prev, ...newUploads]);
-    newUploads.forEach((u) => {
+
+    for (let i = 0; i < fileArray.length; i++) {
+      const f = fileArray[i];
+      const entry = newUploads[i];
+      const path = `${user.id}/${Date.now()}_${f.name}`;
+
+      // Progresso otimista enquanto o upload ocorre
       let p = 0;
       const iv = setInterval(() => {
-        p += Math.random() * 18 + 8;
-        if (p >= 100) { p = 100; clearInterval(iv); }
-        setUploads((prev) =>
-          prev.map((x) => x.id === u.id ? { ...x, progress: Math.floor(p), done: p >= 100 } : x)
-        );
-      }, 200);
-    });
-  }, [setUploads]);
+        p = Math.min(p + Math.random() * 12 + 4, 85);
+        setUploads((prev) => prev.map((x) => x.id === entry.id ? { ...x, progress: Math.floor(p) } : x));
+      }, 300);
+
+      const { error: storageError } = await supabase.storage
+        .from("client-uploads")
+        .upload(path, f, { upsert: false });
+
+      clearInterval(iv);
+
+      if (storageError) {
+        setUploads((prev) => prev.map((x) => x.id === entry.id ? { ...x, progress: 0, error: true } : x));
+        continue;
+      }
+
+      const { data: { publicUrl } } = supabase.storage.from("client-uploads").getPublicUrl(path);
+
+      await supabase.from("client_files").insert({
+        client_id: user.id,
+        name: f.name,
+        type: getFileTypeName(f.name),
+        file_url: publicUrl,
+        size_label: (f.size / 1024 / 1024).toFixed(1) + " MB",
+      });
+
+      setUploads((prev) => prev.map((x) => x.id === entry.id ? { ...x, progress: 100, done: true } : x));
+    }
+  }, [setUploads, user]);
 
   const onDrop = useCallback((e) => {
     e.preventDefault(); setDragging(false);
@@ -810,8 +853,33 @@ function FileRow({ f, onDownload }) {
 /* ─────────────────────────────────────────────
    FILES VIEW
 ───────────────────────────────────────────── */
-function FilesView() {
+function FilesView({ user }) {
   const [uploads, setUploads] = useState([]);
+  const [assets, setAssets] = useState([]);
+  const [loadingAssets, setLoadingAssets] = useState(true);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase || !user?.id) {
+      setLoadingAssets(false);
+      return;
+    }
+    // Busca projetos do cliente, depois assets de cada projeto
+    supabase
+      .from("projects")
+      .select("id")
+      .eq("client_id", user.id)
+      .then(async ({ data: projects }) => {
+        if (!projects?.length) { setLoadingAssets(false); return; }
+        const projectIds = projects.map((p) => p.id);
+        const { data } = await supabase
+          .from("assets")
+          .select("id, name, file_type, size, url, created_at")
+          .in("project_id", projectIds)
+          .order("created_at", { ascending: false });
+        setAssets((data || []).map(mapAsset));
+        setLoadingAssets(false);
+      });
+  }, [user?.id]);
 
   return (
     <div className={styles.filesGrid}>
@@ -826,7 +894,13 @@ function FilesView() {
           </h2>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {PIXELRY_FILES.map((f) => <FileRow key={f.id} f={f} onDownload={downloadPortalFile} />)}
+          {loadingAssets && (
+            <div style={{ color: C.textSub, fontFamily: FONT_BODY, fontSize: 13 }}>Carregando arquivos...</div>
+          )}
+          {!loadingAssets && assets.length === 0 && (
+            <div style={{ color: C.textMuted, fontFamily: FONT_BODY, fontSize: 13 }}>Nenhum arquivo disponível ainda.</div>
+          )}
+          {!loadingAssets && assets.map((f) => <FileRow key={f.id} f={f} onDownload={downloadPortalFile} />)}
         </div>
       </div>
 
@@ -851,7 +925,7 @@ function FilesView() {
             Compartilhe materiais de referência, logos ou briefings com a equipe.
           </p>
         </div>
-        <UploadZone uploads={uploads} setUploads={setUploads} />
+        <UploadZone uploads={uploads} setUploads={setUploads} user={user} />
       </div>
     </div>
   );
@@ -887,8 +961,40 @@ function ProjectsView() {
 /* ─────────────────────────────────────────────
    SUPPORT VIEW (placeholder)
 ───────────────────────────────────────────── */
-function SupportView() {
+function SupportView({ user }) {
   const [msg, setMsg] = useState("");
+  const [messages, setMessages] = useState([]);
+  const [sending, setSending] = useState(false);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase || !user?.id) return;
+    supabase
+      .from("messages")
+      .select("id, content, from_client, created_at")
+      .eq("client_id", user.id)
+      .order("created_at", { ascending: true })
+      .then(({ data }) => setMessages(data || []));
+  }, [user?.id]);
+
+  const sendMessage = async () => {
+    const content = msg.trim();
+    if (!content || !user?.id || !isSupabaseConfigured || !supabase || sending) return;
+    setSending(true);
+    setMsg("");
+    const { error } = await supabase.from("messages").insert({
+      client_id: user.id,
+      content,
+      from_client: true,
+    });
+    if (!error) {
+      setMessages((prev) => [
+        ...prev,
+        { id: crypto.randomUUID(), content, from_client: true, created_at: new Date().toISOString() },
+      ]);
+    }
+    setSending(false);
+  };
+
   return (
     <div className={styles.supportView}>
       <div style={{ marginBottom: 24 }}>
@@ -896,6 +1002,30 @@ function SupportView() {
         <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 22, color: C.text, margin: 0, letterSpacing: "-0.01em" }}>Fale com a equipe</h2>
         <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub, marginTop: 8, lineHeight: 1.65 }}>Dúvidas, feedback ou solicitações — respondemos em até 24h.</p>
       </div>
+
+      {/* Histórico de mensagens */}
+      {messages.length > 0 && (
+        <div style={{
+          display: "flex", flexDirection: "column", gap: 10,
+          maxHeight: 320, overflowY: "auto",
+          marginBottom: 20, padding: "4px 2px",
+        }}>
+          {messages.map((m) => (
+            <div key={m.id} style={{
+              padding: "10px 14px", borderRadius: 12,
+              maxWidth: "78%",
+              alignSelf: m.from_client ? "flex-end" : "flex-start",
+              background: m.from_client ? "rgba(128,64,245,0.15)" : "rgba(20,20,48,0.6)",
+              border: `1px solid ${m.from_client ? "rgba(128,64,245,0.3)" : C.border}`,
+              fontFamily: FONT_BODY, fontSize: 13, color: C.text, lineHeight: 1.6,
+            }}>
+              {m.content}
+              <div style={{ fontSize: 10, color: C.textMuted, marginTop: 4 }}>{formatPortalDate(m.created_at)}</div>
+            </div>
+          ))}
+        </div>
+      )}
+
       <div style={{
         background: "rgba(20,20,48,0.5)",
         backdropFilter: "blur(16px)",
@@ -907,6 +1037,7 @@ function SupportView() {
         <textarea
           value={msg}
           onChange={(e) => setMsg(e.target.value)}
+          onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) sendMessage(); }}
           placeholder="Descreva sua dúvida ou solicitação..."
           rows={5}
           style={{
@@ -925,18 +1056,20 @@ function SupportView() {
         />
         <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
           <button
-            onClick={() => { alert("Mensagem enviada! Responderemos em breve."); setMsg(""); }}
+            onClick={sendMessage}
+            disabled={sending || !msg.trim()}
             style={{
               display: "flex", alignItems: "center", gap: 8,
               padding: "11px 24px", borderRadius: 10,
               background: C.grad,
               border: "none", color: "#fff",
               fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 13,
-              cursor: "pointer",
+              cursor: sending || !msg.trim() ? "not-allowed" : "pointer",
+              opacity: sending || !msg.trim() ? 0.6 : 1,
               boxShadow: "0 0 20px rgba(128, 64, 245, 0.3)",
             }}
           >
-            <Send size={14} /> Enviar mensagem
+            <Send size={14} /> {sending ? "Enviando..." : "Enviar mensagem"}
           </button>
         </div>
       </div>
@@ -954,7 +1087,21 @@ export default function ClientPortal({ user, onLogout }) {
   const [loadingDeliveries, setLoadingDeliveries] = useState(true);
   const [deliveriesError, setDeliveriesError] = useState("");
   const [actionStatus, setActionStatus] = useState(null);
+  const [profile,          setProfile]          = useState(null);
+
+  // Carrega perfil real da tabela profiles
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase || !user?.id) return;
+    supabase
+      .from("profiles")
+      .select("full_name, company_name, avatar_url")
+      .eq("id", user.id)
+      .single()
+      .then(({ data }) => { if (data) setProfile(data); });
+  }, [user?.id]);
+
   const clientName =
+    profile?.full_name ||
     user?.user_metadata?.name ||
     user?.user_metadata?.full_name ||
     user?.email?.split("@")[0] ||
@@ -996,7 +1143,9 @@ export default function ClientPortal({ user, onLogout }) {
 
     const { data, error } = await supabase
       .from("deliveries")
-      .select(DELIVERY_SELECT_FIELDS);
+      .select(DELIVERY_SELECT_FIELDS)
+      .eq("client_id", user.id)
+      .order("created_at", { ascending: false });
 
     if (error) {
       setDeliveries([]);
@@ -1068,6 +1217,17 @@ export default function ClientPortal({ user, onLogout }) {
       setActionStatus(null);
       return;
     }
+
+    // Log de auditoria
+    if (user?.id) {
+      const delivery = deliveries.find((d) => d.id === id);
+      supabase.from("portal_events").insert({
+        client_id: user.id,
+        event_type: normalizedStatus === "approved" ? "delivery_approved" : "revision_requested",
+        metadata: { delivery_id: id, title: delivery?.title },
+      });
+    }
+
     setActionStatus(null);
     setSelectedDelivery(null);
     setActiveNav("Início");
@@ -1309,8 +1469,8 @@ export default function ClientPortal({ user, onLogout }) {
         )}
 
         {activeNav === "Projetos" && <ProjectsView />}
-        {activeNav === "Ativos e Documentação" && <FilesView />}
-        {activeNav === "Central de Atendimento"  && <SupportView />}
+        {activeNav === "Ativos e Documentação" && <FilesView user={user} />}
+        {activeNav === "Central de Atendimento"  && <SupportView user={user} />}
 
       </main>
 
