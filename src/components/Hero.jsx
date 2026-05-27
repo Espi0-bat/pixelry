@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { Link } from 'react-router-dom'
 import styles from './Hero.module.css'
 import { WA_LINK_HERO as WA_LINK, WaIconHero as WaIcon } from './common/WhatsApp'
 
@@ -168,9 +169,9 @@ export default function Hero() {
             <a href="#servicos" className="btn-secondary" aria-label="Rolar para os serviços da Pixelry">
               Ver serviços ↓
             </a>
-            <a href="#portal" className="btn-secondary btn-client-area" aria-label="Abrir área do cliente Pixelry">
+            <Link to="/portal" className="btn-secondary btn-client-area" aria-label="Abrir área do cliente Pixelry">
               Área do Cliente
-            </a>
+            </Link>
           </div>
         </div>
 

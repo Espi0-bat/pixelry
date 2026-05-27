@@ -2,13 +2,14 @@ import { useEffect, useRef } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { Home, Users, FolderUp, Activity, LogOut, Kanban } from 'lucide-react';
 import { supabase } from '../../config/supabase';
+import logoImg from '../../components/images/pixelryicone.jpeg';
 import './AdminLayout.css';
 
 const DOT_SPACING = 40;
 const DOT_R = 1.4;
 const GLOW_RADIUS = 200;
 
-export default function AdminLayout({ user }) {
+export default function AdminLayout({ user, onLogout }) {
   const navigate = useNavigate();
   const canvasRef = useRef(null);
   const mouseRef  = useRef({ x: 0.5, y: 0.5 });
@@ -93,7 +94,11 @@ export default function AdminLayout({ user }) {
   }, []);
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
+    if (onLogout) {
+      await onLogout();
+    } else {
+      await supabase.auth.signOut();
+    }
     navigate('/admin');
   };
 
@@ -107,7 +112,7 @@ export default function AdminLayout({ user }) {
       <aside className="sidebar">
         <div className="sidebar-header">
           <NavLink to="/" title="Ir para o site principal">
-            <img src="/novalogo.jpg" alt="Pixelry Logo" className="logo-real" style={{ cursor: 'pointer' }} />
+            <img src={logoImg} alt="Pixelry Logo" className="logo-real" style={{ cursor: 'pointer' }} />
           </NavLink>
           <h2>Pixelry Admin</h2>
         </div>
