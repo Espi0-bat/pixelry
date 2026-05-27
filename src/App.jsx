@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react'
-import { Routes, Route, useLocation, Navigate } from 'react-router-dom'
+import { Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom'
 import Nav          from './components/Nav'
 import Hero         from './components/Hero'
 import Problema     from './components/Problema'
@@ -59,6 +59,7 @@ const PORTAL_FALLBACK = <div style={{ minHeight: '100dvh', background: 'var(--bg
 
 export default function App() {
   const location = useLocation()
+  const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
 
@@ -102,7 +103,7 @@ export default function App() {
     setUser(null)
   }
 
-  const isAdmin = location.pathname.startsWith('/admin')
+  const isDashboard = location.pathname.startsWith('/admin') || location.pathname.startsWith('/portal')
 
   // Portal do cliente (renomeado de /admin para /portal)
   const portalElement = authLoading
@@ -112,7 +113,7 @@ export default function App() {
         <div style={{ minHeight: '100dvh', background: 'var(--bg)' }}>
           <LoginModal
             isOpen={true}
-            onClose={() => {}}
+            onClose={() => navigate('/')}
             onLoginSuccess={(_session, usr) => setUser(usr)}
           />
         </div>
@@ -134,7 +135,7 @@ export default function App() {
 
   return (
     <>
-      {!isAdmin && <Nav />}
+      {!isDashboard && <Nav />}
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -166,9 +167,9 @@ export default function App() {
           </Route>
         </Routes>
       </main>
-      {!isAdmin && <Footer />}
-      {!isAdmin && <StickyCta />}
-      {!isAdmin && <CookieConsent />}
+      {!isDashboard && <Footer />}
+      {!isDashboard && <StickyCta />}
+      {!isDashboard && <CookieConsent />}
     </>
   )
 }

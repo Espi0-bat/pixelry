@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { shatterElement } from '../utils/shatterEffect';
-import { supabase, ADMIN_EMAIL } from '../../config/supabase';
+import { isSupabaseConfigured, supabase, ADMIN_EMAIL } from '../../config/supabase';
+import logoImg from '../../components/images/pixelryicone.jpeg';
 import './AdminLogin.css';
 
 export default function AdminLogin({ onLogin }) {
@@ -9,12 +10,16 @@ export default function AdminLogin({ onLogin }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [mode, setMode] = useState('login');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isLoggingIn) return;
     setError('');
+
+    if (!isSupabaseConfigured || !supabase) {
+      setError('O portal ainda não está conectado ao Supabase neste deploy.');
+      return;
+    }
 
     if (email !== ADMIN_EMAIL) {
       setError('Acesso restrito à equipe Pixelry.');
@@ -25,40 +30,21 @@ export default function AdminLogin({ onLogin }) {
 
     let authError = null;
 
-    if (mode === 'login') {
-      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
-      authError = signInError;
-      if (!signInError && data.user) {
-        await new Promise(r => setTimeout(r, 200));
-        if (cardRef.current) {
-          shatterElement(cardRef.current, {
-            particleSize: 10,
-            totalDuration: 1400,
-            flashDuration: 180,
-            onComplete: () => onLogin(data.user),
-          });
-        } else {
-          onLogin(data.user);
-        }
-        return;
+    const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password });
+    authError = signInError;
+    if (!signInError && data.user) {
+      await new Promise(r => setTimeout(r, 200));
+      if (cardRef.current) {
+        shatterElement(cardRef.current, {
+          particleSize: 10,
+          totalDuration: 1400,
+          flashDuration: 180,
+          onComplete: () => onLogin(data.user),
+        });
+      } else {
+        onLogin(data.user);
       }
-    } else {
-      const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
-      authError = signUpError;
-      if (!signUpError && data.user) {
-        await new Promise(r => setTimeout(r, 200));
-        if (cardRef.current) {
-          shatterElement(cardRef.current, {
-            particleSize: 10,
-            totalDuration: 1400,
-            flashDuration: 180,
-            onComplete: () => onLogin(data.user),
-          });
-        } else {
-          onLogin(data.user);
-        }
-        return;
-      }
+      return;
     }
 
     setError(authError?.message || 'Erro ao autenticar. Tente novamente.');
@@ -74,10 +60,10 @@ export default function AdminLogin({ onLogin }) {
         ref={cardRef}
       >
         <div className="login-header">
-          <img src="/novalogo.jpg" alt="Pixelry" className="login-logo" />
+          <img src={logoImg} alt="Pixelry" className="login-logo" />
           <h1 className="login-title">Pixelry Admin</h1>
           <p className="login-subtitle">
-            {mode === 'login' ? 'Acesso restrito à equipe' : 'Criar conta de administrador'}
+            Acesso restrito à equipe
           </p>
         </div>
 
@@ -132,28 +118,10 @@ export default function AdminLogin({ onLogin }) {
               <span className="login-button-dots">
                 <span></span><span></span><span></span>
               </span>
-            ) : mode === 'login' ? 'Entrar no Painel' : 'Criar conta e entrar'}
+            ) : 'Entrar no Painel'}
           </button>
         </form>
 
-        <button
-          type="button"
-          onClick={() => { setMode(m => m === 'login' ? 'register' : 'login'); setError(''); }}
-          style={{
-            marginTop: 20,
-            width: '100%',
-            background: 'transparent',
-            border: 'none',
-            color: 'rgba(255,255,255,0.35)',
-            fontSize: 12,
-            cursor: 'pointer',
-            fontFamily: 'DM Sans, sans-serif',
-          }}
-        >
-          {mode === 'login'
-            ? 'Primeira vez? Criar conta de administrador'
-            : 'Já tenho conta — fazer login'}
-        </button>
       </div>
     </div>
   );

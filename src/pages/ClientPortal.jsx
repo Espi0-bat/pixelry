@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Home,
   FolderOpen,
@@ -1081,6 +1082,7 @@ function SupportView({ user }) {
    MAIN COMPONENT
 ───────────────────────────────────────────── */
 export default function ClientPortal({ user, onLogout }) {
+  const navigate = useNavigate();
   const [activeNav,        setActiveNav]        = useState("Início");
   const [selectedDelivery, setSelectedDelivery] = useState(null);
   const [deliveries,       setDeliveries]       = useState([]);
@@ -1117,8 +1119,8 @@ export default function ClientPortal({ user, onLogout }) {
   const NAV = [
     { icon: Home,          label: "Início"   },
     { icon: FolderOpen,    label: "Projetos" },
-    { icon: Files,         label: "Ativos e Documentação" },
-    { icon: MessageCircle, label: "Central de Atendimento"  },
+    { icon: Files,         label: "Documentos" },
+    { icon: MessageCircle, label: "Atendimento"  },
   ];
 
   const pendingCount = deliveries.filter((d) => d.status === "pending").length;
@@ -1163,10 +1165,10 @@ export default function ClientPortal({ user, onLogout }) {
   }, [loadDeliveries]);
 
   const PAGE_TITLES = {
-    "Início":   { supra: "Bem-vindo de volta",      h1: "Olá, Ezer 👋"  },
+    "Início":   { supra: "Bem-vindo de volta",      h1: "Olá 👋"  },
     "Projetos": { supra: "Operação Pixelry",         h1: "Seus Projetos"  },
-    "Ativos e Documentação": { supra: "Operação Pixelry",         h1: "Ativos e Documentação" },
-    "Central de Atendimento": { supra: "Estamos aqui para ajudar", h1: "Central de Atendimento" },
+    "Documentos": { supra: "Operação Pixelry",         h1: "Ativos e Documentação" },
+    "Atendimento": { supra: "Estamos aqui para ajudar", h1: "Central de Atendimento" },
   };
 
   const page =
@@ -1260,7 +1262,7 @@ export default function ClientPortal({ user, onLogout }) {
         boxShadow: "4px 0 40px rgba(0,0,0,0.3)",
       }}>
         <div className={styles.sidebarBrand}>
-          <Logo onClick={onLogout} />
+          <Logo onClick={() => navigate('/')} />
         </div>
 
         <nav className={styles.sidebarNav} style={{ flex: 1, display: "flex", flexDirection: "column", gap: 3 }}>
@@ -1401,7 +1403,7 @@ export default function ClientPortal({ user, onLogout }) {
                 </div>
                 <button
                   type="button"
-                  onClick={() => setActiveNav("Ativos e Documentação")}
+                  onClick={() => setActiveNav("Documentos")}
                   style={{
                     display: "flex",
                     alignItems: "center",
@@ -1469,8 +1471,8 @@ export default function ClientPortal({ user, onLogout }) {
         )}
 
         {activeNav === "Projetos" && <ProjectsView />}
-        {activeNav === "Ativos e Documentação" && <FilesView user={user} />}
-        {activeNav === "Central de Atendimento"  && <SupportView user={user} />}
+        {activeNav === "Documentos" && <FilesView user={user} />}
+        {activeNav === "Atendimento"  && <SupportView user={user} />}
 
       </main>
 
