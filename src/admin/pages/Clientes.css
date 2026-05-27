@@ -151,10 +151,19 @@
 }
 
 @media (max-width: 768px) {
+  .clientes-container {
+    gap: 0;
+  }
+
   .clientes-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .clientes-header h1 {
+    font-size: 22px;
   }
 
   .search-input {
@@ -169,6 +178,26 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    padding: 16px;
+  }
+
+  .cliente-info {
+    gap: 14px;
+  }
+
+  .cliente-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 14px;
+  }
+
+  .cliente-details h3 {
+    font-size: 16px;
+  }
+
+  .cliente-stats {
+    flex-direction: column;
+    gap: 6px;
   }
 
   .btn-open-cliente {

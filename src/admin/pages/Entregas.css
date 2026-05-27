@@ -435,7 +435,12 @@
   .entregas-header {
     flex-direction: column;
     align-items: flex-start;
-    gap: 16px;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .entregas-header h1 {
+    font-size: 22px;
   }
 
   .btn-new-delivery {
@@ -443,9 +448,28 @@
     justify-content: center;
   }
 
+  /* Filter tabs com scroll horizontal */
+  .filter-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+
+  .filter-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Delivery item */
   .delivery-item {
     flex-wrap: wrap;
-    gap: 12px;
+    gap: 10px;
     padding: 14px 16px;
   }
 
@@ -454,16 +478,33 @@
     flex: 1 1 calc(100% - 64px);
   }
 
+  .delivery-title {
+    font-size: 14px;
+  }
+
   .status-badge {
     margin-left: 56px;
+    font-size: 11px;
+  }
+
+  /* Modal bottom sheet */
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal-content {
+    padding: 20px 18px 32px;
+    border-radius: 20px 20px 0 0;
+    max-height: 92vh;
+    border-bottom: none;
   }
 
   .form-row {
     grid-template-columns: 1fr;
   }
 
-  .modal-content {
-    padding: 20px 18px;
-    border-radius: 16px;
+  .upload-zone {
+    padding: 24px 16px;
   }
 }

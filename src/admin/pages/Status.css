@@ -307,3 +307,121 @@
   transform: translateY(-2px);
   box-shadow: 0 12px 32px rgba(128, 64, 245, 0.5);
 }
+
+@media (max-width: 768px) {
+  .status-header {
+    margin-bottom: 20px;
+  }
+
+  .status-header h1 {
+    font-size: 22px;
+  }
+
+  /* Summary cards: 3 colunas compactas */
+  .summary-cards {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+
+  .summary-card {
+    padding: 14px 10px;
+  }
+
+  .summary-label {
+    font-size: 10px;
+    margin-bottom: 8px;
+  }
+
+  .summary-value {
+    font-size: 28px;
+  }
+
+  .summary-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: none;
+  }
+
+  /* Tabs com scroll horizontal */
+  .status-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+    margin-bottom: 16px;
+  }
+
+  .status-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .status-tab {
+    white-space: nowrap;
+    flex-shrink: 0;
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  /* Status item: empilhar verticalmente */
+  .status-item {
+    padding: 16px;
+  }
+
+  .status-item-content {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .status-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+  }
+
+  .status-title-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .status-title {
+    font-size: 15px;
+  }
+
+  /* Botões de ação em linha, ocupando largura total */
+  .status-actions {
+    width: 100%;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .btn-action {
+    flex: 1;
+    justify-content: center;
+    padding: 10px 8px;
+    font-size: 12px;
+    min-height: 44px;
+  }
+
+  .badge-finished {
+    flex: 1;
+    justify-content: center;
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  /* Modais bottom sheet */
+  .modal-overlay {
+    padding: 0;
+    align-items: flex-end;
+  }
+
+  .modal-content {
+    border-radius: 20px 20px 0 0;
+    padding: 20px 18px 32px;
+    max-height: 90vh;
+  }
+}
