@@ -188,6 +188,23 @@ function mapAsset(row) {
   };
 }
 
+function mapClientFile(row) {
+  const nameLower = String(row.name || "").toLowerCase();
+  let icon = FileText;
+  if (nameLower.match(/\.(jpg|jpeg|png|gif|webp|svg)$/)) icon = Image;
+  else if (nameLower.match(/\.(fig|psd|ai|sketch)$/)) icon = Palette;
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type || "Documento",
+    size: row.size_label || "—",
+    date: formatPortalDate(row.created_at),
+    icon,
+    url: row.file_url,
+    fromClient: true,
+  };
+}
+
 function normalizeStatus(status) {
   return STATUS_ALIASES[String(status || "").toLowerCase()] || "production";
 }
@@ -777,7 +794,7 @@ function Modal({ item, onClose, onApprove, onRequestRevision, actionStatus }) {
 /* ─────────────────────────────────────────────
    UPLOAD ZONE
 ───────────────────────────────────────────── */
-function UploadZone({ uploads, setUploads, user }) {
+function UploadZone({ uploads, setUploads, user, onUploadComplete }) {
   const [dragging, setDragging] = useState(false);
 
   const processFiles = useCallback(async (files) => {
@@ -831,8 +848,9 @@ function UploadZone({ uploads, setUploads, user }) {
       });
 
       setUploads((prev) => prev.map((x) => x.id === entry.id ? { ...x, progress: 100, done: true } : x));
+      if (onUploadComplete) onUploadComplete();
     }
-  }, [setUploads, user]);
+  }, [setUploads, user, onUploadComplete]);
 
   const onDrop = useCallback((e) => {
     e.preventDefault(); setDragging(false);
@@ -1070,6 +1088,7 @@ const FILE_FILTERS = ["Todos", "Designs", "Imagens", "Relatórios", "Documentos"
 function FilesView({ user }) {
   const [uploads, setUploads] = useState([]);
   const [assets, setAssets] = useState([]);
+  const [clientFiles, setClientFiles] = useState([]);
   const [loadingAssets, setLoadingAssets] = useState(true);
   const [activeFilter, setActiveFilter] = useState("Todos");
   const [previewFile, setPreviewFile] = useState(null);
@@ -1097,7 +1116,21 @@ function FilesView({ user }) {
       });
   }, [user?.id]);
 
-  const filteredAssets = activeFilter === "Todos" ? assets : assets.filter(a => {
+  const fetchClientFiles = useCallback(() => {
+    if (!isSupabaseConfigured || !supabase || !user?.id) return;
+    supabase
+      .from("client_files")
+      .select("id, name, type, file_url, size_label, created_at")
+      .eq("client_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => setClientFiles((data || []).map(mapClientFile)));
+  }, [user?.id]);
+
+  useEffect(() => { fetchClientFiles(); }, [fetchClientFiles]);
+
+  const allFiles = [...assets, ...clientFiles];
+
+  const filteredAssets = activeFilter === "Todos" ? allFiles : allFiles.filter(a => {
     const t = String(a.type).toLowerCase();
     const n = String(a.name).toLowerCase();
     if (activeFilter === "Designs") return t.includes("design") || n.match(/\.(fig|psd|ai|sketch)$/);
@@ -1160,7 +1193,7 @@ function FilesView({ user }) {
             )}
             {!loadingAssets && filteredAssets.length === 0 && (
               <div style={{ color: C.textMuted, fontFamily: FONT_BODY, fontSize: 13 }}>
-                {assets.length === 0 ? "Nenhum arquivo disponível ainda." : "Nenhum arquivo nesta categoria."}
+                {allFiles.length === 0 ? "Nenhum arquivo disponível ainda." : "Nenhum arquivo nesta categoria."}
               </div>
             )}
             {!loadingAssets && filteredAssets.map((f) => (
@@ -1190,7 +1223,7 @@ function FilesView({ user }) {
               Compartilhe materiais de referência, logos ou briefings com a equipe.
             </p>
           </div>
-          <UploadZone uploads={uploads} setUploads={setUploads} user={user} />
+          <UploadZone uploads={uploads} setUploads={setUploads} user={user} onUploadComplete={fetchClientFiles} />
         </div>
       </div>
     </>
