@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Home,
@@ -22,7 +22,15 @@ import {
   Image,
   Paperclip,
   Send,
+  Eye,
+  Users,
+  TrendingUp,
+  ArrowRight,
+  Filter,
+  CheckSquare,
+  Circle,
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import pixelryLogo from "../components/images/pixelryicone.jpeg";
 import { isSupabaseConfigured, supabase } from "../config/supabase";
 import styles from "./ClientPortal.module.css";
@@ -349,8 +357,19 @@ function NavLink({ icon: Icon, label, active, onClick }) {
 
 /** Metric card */
 function MetricCard({ label, value, sub, accent }) {
+  const [hov, setHov] = useState(false);
   return (
-    <div className={styles.metricTile}>
+    <div
+      className={styles.metricTile}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        transition: "transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease",
+        transform: hov ? "translateY(-3px) scale(1.015)" : "none",
+        boxShadow: hov ? `0 20px 48px rgba(128,64,245,0.18)` : undefined,
+        borderColor: hov ? C.borderGlow : undefined,
+      }}
+    >
       <div style={{
         fontSize: 10, color: C.cyan,
         letterSpacing: 0.15, textTransform: "uppercase",
@@ -366,6 +385,7 @@ function MetricCard({ label, value, sub, accent }) {
         color: accent || C.text,
         lineHeight: 1,
         marginBottom: 6,
+        transition: "color 0.2s",
       }}>
         {value}
       </div>
@@ -374,6 +394,130 @@ function MetricCard({ label, value, sub, accent }) {
           {sub}
         </div>
       )}
+    </div>
+  );
+}
+
+/** Quick action button */
+function QuickActionBtn({ icon: Icon, label, color, onClick }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        display: "flex", flexDirection: "column", alignItems: "center", gap: 10,
+        padding: "18px 12px",
+        borderRadius: 14,
+        border: `1px solid ${hov ? color + "55" : C.border}`,
+        background: hov ? `${color}14` : C.card,
+        cursor: "pointer",
+        flex: 1,
+        transition: "all 0.18s ease",
+        transform: hov ? "translateY(-2px)" : "none",
+        boxShadow: hov ? `0 12px 32px ${color}28` : "none",
+      }}
+    >
+      <div style={{
+        width: 40, height: 40, borderRadius: 12,
+        background: hov ? `${color}22` : `${color}14`,
+        border: `1px solid ${color}30`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        transition: "all 0.18s ease",
+      }}>
+        <Icon size={18} color={color} strokeWidth={1.6} />
+      </div>
+      <span style={{
+        fontFamily: FONT_BODY, fontSize: 12, fontWeight: 600,
+        color: hov ? color : C.textSub,
+        transition: "color 0.18s",
+        textAlign: "center",
+      }}>{label}</span>
+    </button>
+  );
+}
+
+/** Project phase timeline */
+function ProjectTimeline({ deliveries }) {
+  const approved = deliveries.filter(d => d.status === "approved").length;
+  const total = deliveries.length;
+  const hasPending = deliveries.some(d => d.status === "pending");
+  const hasRevision = deliveries.some(d => d.status === "revision");
+
+  const STAGES = [
+    { label: "Briefing",       key: "briefing"    },
+    { label: "Design",         key: "design"      },
+    { label: "Aprovação",      key: "aprovacao"   },
+    { label: "Implementação",  key: "implementacao" },
+    { label: "Entrega",        key: "entrega"     },
+  ];
+
+  let activeStage = 0;
+  if (total === 0) activeStage = 0;
+  else if (hasPending || hasRevision) activeStage = 2;
+  else if (approved > 0 && approved < total) activeStage = 3;
+  else if (approved === total && total > 0) activeStage = 4;
+  else activeStage = 1;
+
+  return (
+    <div style={{
+      background: "rgba(20,20,48,0.5)",
+      backdropFilter: "blur(16px)",
+      WebkitBackdropFilter: "blur(16px)",
+      border: `1px solid ${C.border}`,
+      borderRadius: 16,
+      padding: "20px 24px",
+      marginBottom: 28,
+    }}>
+      <div style={{ marginBottom: 16, display: "flex", alignItems: "center", gap: 8 }}>
+        <TrendingUp size={14} color={C.cyan} strokeWidth={1.5} />
+        <span style={{ fontSize: 10, color: C.cyan, letterSpacing: 2, textTransform: "uppercase", fontFamily: FONT_MONO, fontWeight: 500 }}>
+          Progresso do Projeto
+        </span>
+      </div>
+      <div style={{ display: "flex", alignItems: "center", gap: 0 }}>
+        {STAGES.map((stage, idx) => {
+          const done = idx < activeStage;
+          const current = idx === activeStage;
+          return (
+            <div key={stage.key} style={{ display: "flex", alignItems: "center", flex: idx < STAGES.length - 1 ? 1 : undefined }}>
+              <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 6 }}>
+                <div style={{
+                  width: 32, height: 32, borderRadius: "50%",
+                  background: done ? C.grad : current ? "rgba(128,64,245,0.15)" : "rgba(255,255,255,0.04)",
+                  border: `2px solid ${done ? "transparent" : current ? C.purple : "rgba(255,255,255,0.1)"}`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: current ? `0 0 16px rgba(128,64,245,0.5)` : "none",
+                  flexShrink: 0,
+                  transition: "all 0.3s ease",
+                }}>
+                  {done
+                    ? <CheckCircle2 size={14} color="#fff" strokeWidth={2} />
+                    : current
+                      ? <Circle size={10} color={C.purple} strokeWidth={3} />
+                      : <Circle size={8} color="rgba(255,255,255,0.2)" strokeWidth={2} />
+                  }
+                </div>
+                <span style={{
+                  fontSize: 10, fontFamily: FONT_BODY, fontWeight: current ? 700 : 400,
+                  color: done ? C.success : current ? C.purple : C.textMuted,
+                  whiteSpace: "nowrap",
+                  transition: "color 0.3s",
+                }}>{stage.label}</span>
+              </div>
+              {idx < STAGES.length - 1 && (
+                <div style={{
+                  flex: 1, height: 2, marginBottom: 20,
+                  background: done ? C.grad : "rgba(255,255,255,0.06)",
+                  transition: "background 0.5s ease",
+                }} />
+              )}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -803,7 +947,7 @@ function UploadZone({ uploads, setUploads, user }) {
 /* ─────────────────────────────────────────────
    FILE ROW (needs its own component for hover state)
 ───────────────────────────────────────────── */
-function FileRow({ f, onDownload }) {
+function FileRow({ f, onDownload, isImage }) {
   const [hov, setHov] = useState(false);
   const Icon = f.icon;
   const tone = getIconTone(f);
@@ -839,13 +983,72 @@ function FileRow({ f, onDownload }) {
       <div style={{
         display: "flex", alignItems: "center", gap: 8,
         padding: "7px 14px", borderRadius: 20,
-        background: hov ? "rgba(0,216,255,0.1)" : "transparent",
-        border: `1px solid ${hov ? C.cyan : "transparent"}`,
-        color: hov ? C.cyan : C.textSub,
+        background: hov ? (isImage ? "rgba(128,64,245,0.12)" : "rgba(0,216,255,0.1)") : "transparent",
+        border: `1px solid ${hov ? (isImage ? C.purple : C.cyan) : "transparent"}`,
+        color: hov ? (isImage ? C.purple : C.cyan) : C.textSub,
         fontSize: 11, fontFamily: FONT_MONO, flexShrink: 0,
         transition: "all 0.18s ease",
       }}>
-        <Download size={12} strokeWidth={1.5} /> Baixar
+        {isImage ? <Eye size={12} strokeWidth={1.5} /> : <Download size={12} strokeWidth={1.5} />}
+        {isImage ? "Visualizar" : "Baixar"}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   IMAGE PREVIEW MODAL
+───────────────────────────────────────────── */
+function ImagePreviewModal({ file, onClose }) {
+  useEffect(() => {
+    if (!file) return;
+    const handler = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [file, onClose]);
+
+  if (!file) return null;
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, zIndex: 200,
+        background: "rgba(2,6,23,0.92)",
+        backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 24,
+      }}
+    >
+      <div onClick={e => e.stopPropagation()} style={{ maxWidth: 800, width: "100%", position: "relative" }}>
+        <button
+          type="button"
+          onClick={onClose}
+          style={{
+            position: "absolute", top: -44, right: 0,
+            background: "rgba(255,255,255,0.08)", border: `1px solid ${C.border}`,
+            borderRadius: 8, width: 34, height: 34,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            cursor: "pointer", color: C.textSub,
+          }}
+        >
+          <X size={16} />
+        </button>
+        <img
+          src={file.url}
+          alt={file.name}
+          style={{
+            width: "100%", maxHeight: "75vh",
+            objectFit: "contain",
+            borderRadius: 14,
+            border: `1px solid ${C.border}`,
+            boxShadow: "0 0 80px rgba(0,0,0,0.5)",
+          }}
+        />
+        <div style={{
+          marginTop: 12, textAlign: "center",
+          fontFamily: FONT_BODY, fontSize: 13, color: C.textSub,
+        }}>{file.name}</div>
       </div>
     </div>
   );
@@ -854,10 +1057,14 @@ function FileRow({ f, onDownload }) {
 /* ─────────────────────────────────────────────
    FILES VIEW
 ───────────────────────────────────────────── */
+const FILE_FILTERS = ["Todos", "Designs", "Imagens", "Relatórios", "Documentos"];
+
 function FilesView({ user }) {
   const [uploads, setUploads] = useState([]);
   const [assets, setAssets] = useState([]);
   const [loadingAssets, setLoadingAssets] = useState(true);
+  const [activeFilter, setActiveFilter] = useState("Todos");
+  const [previewFile, setPreviewFile] = useState(null);
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase || !user?.id) {
@@ -882,90 +1089,314 @@ function FilesView({ user }) {
       });
   }, [user?.id]);
 
-  return (
-    <div className={styles.filesGrid}>
-      {/* Left — Pixelry files */}
-      <div>
-        <div style={{ marginBottom: 20 }}>
-          <div style={{ fontSize: 10, color: C.cyan, letterSpacing: 2, textTransform: "uppercase", fontFamily: FONT_MONO, fontWeight: 500, marginBottom: 6 }}>
-            Operação Pixelry
-          </div>
-          <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 22, color: C.text, letterSpacing: "-0.01em", margin: 0 }}>
-            Documentos e Entregas
-          </h2>
-        </div>
-        <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-          {loadingAssets && (
-            <div style={{ color: C.textSub, fontFamily: FONT_BODY, fontSize: 13 }}>Carregando arquivos...</div>
-          )}
-          {!loadingAssets && assets.length === 0 && (
-            <div style={{ color: C.textMuted, fontFamily: FONT_BODY, fontSize: 13 }}>Nenhum arquivo disponível ainda.</div>
-          )}
-          {!loadingAssets && assets.map((f) => <FileRow key={f.id} f={f} onDownload={downloadPortalFile} />)}
-        </div>
-      </div>
+  const filteredAssets = activeFilter === "Todos" ? assets : assets.filter(a => {
+    const t = String(a.type).toLowerCase();
+    const n = String(a.name).toLowerCase();
+    if (activeFilter === "Designs") return t.includes("design") || n.match(/\.(fig|psd|ai|sketch)$/);
+    if (activeFilter === "Imagens") return t.includes("imagem") || n.match(/\.(jpg|jpeg|png|gif|webp|svg)$/);
+    if (activeFilter === "Relatórios") return t.includes("relat") || n.includes("relat");
+    if (activeFilter === "Documentos") return t.includes("pdf") || t.includes("doc") || t === "documento";
+    return true;
+  });
 
-      {/* Right — Upload */}
-      <div className={styles.uploadPanel} style={{
-        background: "rgba(20,20,48,0.5)",
-        backdropFilter: "blur(20px)",
-        WebkitBackdropFilter: "blur(20px)",
-        border: `1px solid ${C.border}`,
-        borderRadius: 18,
-        padding: "24px",
-        boxShadow: "0 0 60px rgba(128, 64, 245, 0.06)",
-      }}>
-        <div style={{ marginBottom: 18 }}>
-          <div style={{ fontSize: 10, color: C.cyan, letterSpacing: 2, textTransform: "uppercase", fontFamily: FONT_MONO, fontWeight: 500, marginBottom: 6 }}>
-            Enviar Material
+  const isImageFile = (f) => {
+    const name = String(f.name || "").toLowerCase();
+    return name.match(/\.(jpg|jpeg|png|gif|webp|svg)$/) || String(f.type || "").toLowerCase().includes("imagem");
+  };
+
+  const handleFileClick = (f) => {
+    if (isImageFile(f) && f.url) {
+      setPreviewFile(f);
+    } else {
+      downloadPortalFile(f);
+    }
+  };
+
+  return (
+    <>
+      <ImagePreviewModal file={previewFile} onClose={() => setPreviewFile(null)} />
+      <div className={styles.filesGrid}>
+        {/* Left — Pixelry files */}
+        <div>
+          <div style={{ marginBottom: 16 }}>
+            <div style={{ fontSize: 10, color: C.cyan, letterSpacing: 2, textTransform: "uppercase", fontFamily: FONT_MONO, fontWeight: 500, marginBottom: 6 }}>
+              Operação Pixelry
+            </div>
+            <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 22, color: C.text, letterSpacing: "-0.01em", margin: 0 }}>
+              Documentos e Entregas
+            </h2>
           </div>
-          <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text, margin: 0, letterSpacing: "-0.01em" }}>
-            Ativos e Documentação
-          </h2>
-          <p style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSub, marginTop: 6, lineHeight: 1.6 }}>
-            Compartilhe materiais de referência, logos ou briefings com a equipe.
-          </p>
+
+          {/* Filter pills */}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
+            {FILE_FILTERS.map(f => (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setActiveFilter(f)}
+                style={{
+                  padding: "5px 14px", borderRadius: 20,
+                  border: `1px solid ${activeFilter === f ? C.purple : C.border}`,
+                  background: activeFilter === f ? "rgba(128,64,245,0.12)" : "transparent",
+                  color: activeFilter === f ? C.purple : C.textSub,
+                  fontSize: 12, fontFamily: FONT_BODY, fontWeight: activeFilter === f ? 600 : 400,
+                  cursor: "pointer", transition: "all 0.15s",
+                }}
+              >{f}</button>
+            ))}
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            {loadingAssets && (
+              <div style={{ color: C.textSub, fontFamily: FONT_BODY, fontSize: 13 }}>Carregando arquivos...</div>
+            )}
+            {!loadingAssets && filteredAssets.length === 0 && (
+              <div style={{ color: C.textMuted, fontFamily: FONT_BODY, fontSize: 13 }}>
+                {assets.length === 0 ? "Nenhum arquivo disponível ainda." : "Nenhum arquivo nesta categoria."}
+              </div>
+            )}
+            {!loadingAssets && filteredAssets.map((f) => (
+              <FileRow key={f.id} f={f} onDownload={handleFileClick} isImage={isImageFile(f)} />
+            ))}
+          </div>
         </div>
-        <UploadZone uploads={uploads} setUploads={setUploads} user={user} />
+
+        {/* Right — Upload */}
+        <div className={styles.uploadPanel} style={{
+          background: "rgba(20,20,48,0.5)",
+          backdropFilter: "blur(20px)",
+          WebkitBackdropFilter: "blur(20px)",
+          border: `1px solid ${C.border}`,
+          borderRadius: 18,
+          padding: "24px",
+          boxShadow: "0 0 60px rgba(128, 64, 245, 0.06)",
+        }}>
+          <div style={{ marginBottom: 18 }}>
+            <div style={{ fontSize: 10, color: C.cyan, letterSpacing: 2, textTransform: "uppercase", fontFamily: FONT_MONO, fontWeight: 500, marginBottom: 6 }}>
+              Enviar Material
+            </div>
+            <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text, margin: 0, letterSpacing: "-0.01em" }}>
+              Ativos e Documentação
+            </h2>
+            <p style={{ fontFamily: FONT_BODY, fontSize: 12, color: C.textSub, marginTop: 6, lineHeight: 1.6 }}>
+              Compartilhe materiais de referência, logos ou briefings com a equipe.
+            </p>
+          </div>
+          <UploadZone uploads={uploads} setUploads={setUploads} user={user} />
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
 /* ─────────────────────────────────────────────
-   PROJECTS VIEW (placeholder)
+   PROJECTS VIEW (real implementation)
 ───────────────────────────────────────────── */
-function ProjectsView() {
+function ProjectsView({ user }) {
+  const [projects, setProjects] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [expandedId, setExpandedId] = useState(null);
+  const [projDeliveries, setProjDeliveries] = useState({});
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase || !user?.id) {
+      setLoading(false);
+      return;
+    }
+    supabase
+      .from("projects")
+      .select("id, title, status, created_at")
+      .eq("client_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        setProjects(data || []);
+        setLoading(false);
+      });
+  }, [user?.id]);
+
+  const toggleExpand = async (id) => {
+    if (expandedId === id) {
+      setExpandedId(null);
+      return;
+    }
+    setExpandedId(id);
+    if (!projDeliveries[id] && isSupabaseConfigured && supabase) {
+      const { data } = await supabase
+        .from("deliveries")
+        .select("id, title, status, type, due_date")
+        .eq("project_id", id)
+        .order("created_at", { ascending: false })
+        .limit(5);
+      setProjDeliveries(prev => ({ ...prev, [id]: data || [] }));
+    }
+  };
+
+  const projectStatus = (s) => {
+    const map = {
+      active: { label: "Ativo", color: C.cyan, bg: "rgba(0,216,255,0.08)", border: "rgba(0,216,255,0.2)" },
+      completed: { label: "Concluído", color: C.success, bg: "rgba(37,211,102,0.08)", border: "rgba(37,211,102,0.2)" },
+      paused: { label: "Pausado", color: C.amber, bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.2)" },
+    };
+    return map[String(s || "").toLowerCase()] || map.active;
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.emptyState} style={{ minHeight: 260 }}>
+        <Clock size={28} color={C.cyan} strokeWidth={1.5} />
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text }}>Carregando projetos</div>
+        <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub }}>Buscando seus dados...</div>
+      </div>
+    );
+  }
+
+  if (projects.length === 0) {
+    return (
+      <div className={styles.emptyState} style={{ minHeight: 260 }}>
+        <div style={{
+          width: 64, height: 64, borderRadius: "50%",
+          background: "rgba(128, 64, 245, 0.08)",
+          border: `1px solid rgba(128, 64, 245, 0.2)`,
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <FolderOpen size={26} color={C.purple} strokeWidth={1.2} />
+        </div>
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text }}>Nenhum projeto ainda</div>
+        <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub, textAlign: "center", maxWidth: 300, lineHeight: 1.65 }}>
+          Seus projetos ativos e histórico de trabalhos aparecerão aqui.
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={styles.emptyState}>
-      <div style={{
-        width: 64, height: 64, borderRadius: "50%",
-        background: "rgba(128, 64, 245, 0.08)",
-        border: `1px solid rgba(128, 64, 245, 0.2)`,
-        display: "flex", alignItems: "center", justifyContent: "center",
-      }}>
-        <FolderOpen size={26} color={C.purple} strokeWidth={1.2} />
-      </div>
-      <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text }}>Projetos</div>
-      <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub, textAlign: "center", maxWidth: 300, lineHeight: 1.65 }}>
-        Todos os seus projetos ativos e histórico de trabalhos realizados aparecerão aqui.
-      </div>
-      <div style={{
-        marginTop: 8, padding: "8px 20px", borderRadius: 20,
-        background: "rgba(128, 64, 245, 0.1)", border: `1px solid rgba(128, 64, 245, 0.25)`,
-        color: C.purple, fontSize: 12, fontFamily: FONT_MONO,
-      }}>Em breve</div>
+    <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+      {projects.map((proj) => {
+        const st = projectStatus(proj.status);
+        const isOpen = expandedId === proj.id;
+        const delivs = projDeliveries[proj.id] || [];
+        const approvedCount = delivs.filter(d => normalizeStatus(d.status) === "approved").length;
+        const progressPct = delivs.length ? Math.round((approvedCount / delivs.length) * 100) : 0;
+
+        return (
+          <div
+            key={proj.id}
+            style={{
+              background: C.card,
+              border: `1px solid ${isOpen ? C.borderGlow : C.border}`,
+              borderRadius: 16,
+              overflow: "hidden",
+              transition: "border-color 0.2s, box-shadow 0.2s",
+              boxShadow: isOpen ? `0 0 40px rgba(128,64,245,0.1)` : "none",
+            }}
+          >
+            {/* Card header */}
+            <button
+              type="button"
+              onClick={() => toggleExpand(proj.id)}
+              style={{
+                width: "100%", display: "flex", alignItems: "center", gap: 16,
+                padding: "18px 22px", background: "transparent", border: "none",
+                cursor: "pointer", textAlign: "left",
+              }}
+            >
+              <div style={{
+                width: 42, height: 42, borderRadius: 11, flexShrink: 0,
+                background: "rgba(128,64,245,0.1)",
+                border: `1px solid rgba(128,64,245,0.25)`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <FolderOpen size={18} color={C.purple} strokeWidth={1.5} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: FONT_BODY, fontWeight: 700, fontSize: 15, color: C.text, marginBottom: 4 }}>
+                  {proj.title || "Projeto sem nome"}
+                </div>
+                <div style={{ fontSize: 11, color: C.textSub, fontFamily: FONT_BODY }}>
+                  Criado em {formatPortalDate(proj.created_at)}
+                </div>
+              </div>
+              <div style={{
+                padding: "5px 12px", borderRadius: 20, flexShrink: 0,
+                background: st.bg, border: `1px solid ${st.border}`,
+                fontSize: 11, fontWeight: 600, color: st.color, fontFamily: FONT_BODY,
+              }}>{st.label}</div>
+              <ChevronRight
+                size={16} color={C.textSub} strokeWidth={1.5}
+                style={{ transform: isOpen ? "rotate(90deg)" : "none", transition: "transform 0.2s", flexShrink: 0 }}
+              />
+            </button>
+
+            {/* Progress bar */}
+            {delivs.length > 0 && (
+              <div style={{ padding: "0 22px 16px" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                  <span style={{ fontSize: 11, color: C.textSub, fontFamily: FONT_BODY }}>
+                    {approvedCount} de {delivs.length} entregas aprovadas
+                  </span>
+                  <span style={{ fontSize: 11, fontFamily: FONT_MONO, color: C.cyan }}>{progressPct}%</span>
+                </div>
+                <div style={{ height: 4, borderRadius: 4, background: "rgba(255,255,255,0.05)" }}>
+                  <div style={{
+                    height: "100%", borderRadius: 4, background: C.grad,
+                    width: `${progressPct}%`, transition: "width 0.6s ease",
+                  }} />
+                </div>
+              </div>
+            )}
+
+            {/* Expanded deliveries */}
+            {isOpen && (
+              <div style={{
+                borderTop: `1px solid ${C.border}`,
+                padding: "16px 22px",
+                display: "flex", flexDirection: "column", gap: 8,
+              }}>
+                {delivs.length === 0 ? (
+                  <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textMuted }}>
+                    Nenhuma entrega vinculada.
+                  </div>
+                ) : delivs.map((d) => {
+                  const s = STATUS[normalizeStatus(d.status)] || STATUS.production;
+                  const Icon = TYPE_ICON[d.type] || FileText;
+                  return (
+                    <div key={d.id} style={{
+                      display: "flex", alignItems: "center", gap: 12,
+                      padding: "10px 14px", borderRadius: 10,
+                      background: "rgba(255,255,255,0.03)",
+                      border: `1px solid ${C.border}`,
+                    }}>
+                      <Icon size={14} color={C.textSub} strokeWidth={1.5} />
+                      <span style={{ flex: 1, fontSize: 13, fontFamily: FONT_BODY, color: C.text }}>{d.title || "Entrega"}</span>
+                      <span style={{
+                        fontSize: 10.5, fontWeight: 500, color: s.color,
+                        padding: "3px 9px", borderRadius: 20,
+                        background: s.bg, border: `1px solid ${s.border}`,
+                        fontFamily: FONT_BODY,
+                      }}>{s.label}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }
 
 /* ─────────────────────────────────────────────
-   SUPPORT VIEW (placeholder)
+   SUPPORT VIEW
 ───────────────────────────────────────────── */
 function SupportView({ user }) {
   const [msg, setMsg] = useState("");
   const [messages, setMessages] = useState([]);
   const [sending, setSending] = useState(false);
+  const [attachName, setAttachName] = useState(null);
+  const [attachFile, setAttachFile] = useState(null);
+  const fileInputRef = useRef(null);
+  const messagesEndRef = useRef(null);
 
   useEffect(() => {
     if (!isSupabaseConfigured || !supabase || !user?.id) return;
@@ -977,38 +1408,86 @@ function SupportView({ user }) {
       .then(({ data }) => setMessages(data || []));
   }, [user?.id]);
 
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
+
   const sendMessage = async () => {
     const content = msg.trim();
-    if (!content || !user?.id || !isSupabaseConfigured || !supabase || sending) return;
+    if ((!content && !attachFile) || !user?.id || !isSupabaseConfigured || !supabase || sending) return;
     setSending(true);
+
+    let fileUrl = null;
+    if (attachFile) {
+      const path = `chat/${user.id}/${Date.now()}_${attachFile.name}`;
+      const { error: uploadErr } = await supabase.storage.from("client-uploads").upload(path, attachFile, { upsert: false });
+      if (!uploadErr) {
+        const { data: { publicUrl } } = supabase.storage.from("client-uploads").getPublicUrl(path);
+        fileUrl = publicUrl;
+      }
+    }
+
+    const fileLabel = attachFile ? `\n📎 Arquivo anexado: ${attachFile.name}${fileUrl ? `\n${fileUrl}` : ""}` : "";
+    const messageContent = (content + fileLabel).trim() || `[Arquivo: ${attachFile?.name}]`;
     setMsg("");
+    setAttachFile(null);
+    setAttachName(null);
+
     const { error } = await supabase.from("messages").insert({
       client_id: user.id,
-      content,
+      content: messageContent,
       from_client: true,
     });
     if (!error) {
       setMessages((prev) => [
         ...prev,
-        { id: crypto.randomUUID(), content, from_client: true, created_at: new Date().toISOString() },
+        { id: crypto.randomUUID(), content: messageContent, from_client: true, created_at: new Date().toISOString() },
       ]);
     }
     setSending(false);
   };
 
+  const onAttachChange = (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setAttachFile(f);
+    setAttachName(f.name);
+    e.target.value = "";
+  };
+
   return (
     <div className={styles.supportView}>
-      <div style={{ marginBottom: 24 }}>
+      {/* Header with team status */}
+      <div style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 10, color: C.cyan, letterSpacing: 2, textTransform: "uppercase", fontFamily: FONT_MONO, fontWeight: 500, marginBottom: 6 }}>Central de Atendimento</div>
-        <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 22, color: C.text, margin: 0, letterSpacing: "-0.01em" }}>Fale com a equipe</h2>
-        <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub, marginTop: 8, lineHeight: 1.65 }}>Dúvidas, feedback ou solicitações — respondemos em até 24h.</p>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 22, color: C.text, margin: 0, letterSpacing: "-0.01em" }}>Fale com a equipe</h2>
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8,
+            padding: "7px 14px", borderRadius: 20,
+            background: "rgba(37,211,102,0.08)",
+            border: "1px solid rgba(37,211,102,0.25)",
+          }}>
+            <div style={{
+              width: 7, height: 7, borderRadius: "50%",
+              background: C.success,
+              boxShadow: `0 0 8px ${C.success}`,
+              animation: "pulse 2s infinite",
+            }} />
+            <Users size={12} color={C.success} strokeWidth={1.8} />
+            <span style={{ fontSize: 11.5, fontFamily: FONT_BODY, color: C.success, fontWeight: 600 }}>
+              Equipe disponível · Resposta em até 24h
+            </span>
+          </div>
+        </div>
+        <p style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub, marginTop: 8, lineHeight: 1.65 }}>Dúvidas, feedback ou solicitações — estamos aqui para ajudar.</p>
       </div>
 
       {/* Histórico de mensagens */}
       {messages.length > 0 && (
         <div style={{
           display: "flex", flexDirection: "column", gap: 10,
-          maxHeight: 320, overflowY: "auto",
+          maxHeight: 340, overflowY: "auto",
           marginBottom: 20, padding: "4px 2px",
         }}>
           {messages.map((m) => (
@@ -1024,6 +1503,7 @@ function SupportView({ user }) {
               <div style={{ fontSize: 10, color: C.textMuted, marginTop: 4 }}>{formatPortalDate(m.created_at)}</div>
             </div>
           ))}
+          <div ref={messagesEndRef} />
         </div>
       )}
 
@@ -1033,14 +1513,30 @@ function SupportView({ user }) {
         WebkitBackdropFilter: "blur(16px)",
         border: `1px solid ${C.border}`,
         borderRadius: 16,
-        padding: 24,
+        padding: 20,
       }}>
+        {/* Attachment preview */}
+        {attachName && (
+          <div style={{
+            display: "flex", alignItems: "center", gap: 8,
+            padding: "8px 12px", borderRadius: 8, marginBottom: 10,
+            background: "rgba(128,64,245,0.08)",
+            border: "1px solid rgba(128,64,245,0.2)",
+          }}>
+            <Paperclip size={13} color={C.purple} strokeWidth={1.5} />
+            <span style={{ flex: 1, fontSize: 12, fontFamily: FONT_BODY, color: C.textSub, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{attachName}</span>
+            <button type="button" onClick={() => { setAttachFile(null); setAttachName(null); }} style={{ background: "none", border: "none", cursor: "pointer", color: C.textSub, padding: 2 }}>
+              <X size={13} />
+            </button>
+          </div>
+        )}
+
         <textarea
           value={msg}
           onChange={(e) => setMsg(e.target.value)}
           onKeyDown={(e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) sendMessage(); }}
           placeholder="Descreva sua dúvida ou solicitação..."
-          rows={5}
+          rows={4}
           style={{
             width: "100%", resize: "none",
             background: "rgba(255,255,255,0.04)",
@@ -1055,18 +1551,40 @@ function SupportView({ user }) {
             boxSizing: "border-box",
           }}
         />
-        <div style={{ marginTop: 12, display: "flex", justifyContent: "flex-end" }}>
+
+        <div style={{ marginTop: 10, display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {/* File attach button */}
+            <input ref={fileInputRef} type="file" style={{ display: "none" }} onChange={onAttachChange} />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              title="Anexar arquivo"
+              style={{
+                width: 36, height: 36, borderRadius: 9,
+                background: "rgba(255,255,255,0.04)",
+                border: `1px solid ${C.border}`,
+                display: "flex", alignItems: "center", justifyContent: "center",
+                cursor: "pointer", color: C.textSub,
+                transition: "all 0.15s",
+              }}
+            >
+              <Paperclip size={15} strokeWidth={1.5} />
+            </button>
+            <span style={{ fontSize: 11, color: C.textMuted, fontFamily: FONT_BODY }}>Ctrl+Enter para enviar</span>
+          </div>
+
           <button
             onClick={sendMessage}
-            disabled={sending || !msg.trim()}
+            disabled={sending || (!msg.trim() && !attachFile)}
             style={{
               display: "flex", alignItems: "center", gap: 8,
               padding: "11px 24px", borderRadius: 10,
               background: C.grad,
               border: "none", color: "#fff",
               fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 13,
-              cursor: sending || !msg.trim() ? "not-allowed" : "pointer",
-              opacity: sending || !msg.trim() ? 0.6 : 1,
+              cursor: sending || (!msg.trim() && !attachFile) ? "not-allowed" : "pointer",
+              opacity: sending || (!msg.trim() && !attachFile) ? 0.6 : 1,
               boxShadow: "0 0 20px rgba(128, 64, 245, 0.3)",
             }}
           >
@@ -1163,6 +1681,22 @@ export default function ClientPortal({ user, onLogout }) {
   useEffect(() => {
     loadDeliveries();
   }, [loadDeliveries]);
+
+  // Real-time: atualiza automaticamente quando o admin publica ou altera uma entrega
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase || !user?.id) return;
+
+    const channel = supabase
+      .channel(`deliveries:client:${user.id}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "deliveries", filter: `client_id=eq.${user.id}` },
+        () => { loadDeliveries(); }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [user?.id, loadDeliveries]);
 
   const PAGE_TITLES = {
     "Início":   { supra: "Bem-vindo de volta",      h1: "Olá 👋"  },
@@ -1357,122 +1891,131 @@ export default function ClientPortal({ user, onLogout }) {
         </div>
 
         {/* ── PER-TAB CONTENT ── */}
-        {activeNav === "Início" && (
-          <>
-            <div className={styles.metricGrid} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 14, marginBottom: 32 }}>
-              <div className={styles.progressTile} style={{
-                background: "rgba(20,20,48,0.6)",
-                backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
-                border: `1px solid ${C.border}`, borderRadius: 14,
-                padding: "22px 20px", display: "flex", alignItems: "center", gap: 18,
-                boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
-              }}>
-                <div className={styles.progressRingWrap}>
-                  <CircularProgress percent={progressPercent} className={styles.progressRing} />
-                  <div className={styles.progressPercentWrap}>
-                    <span className={styles.progressPercent} style={{ color: C.text }}>{progressPercent}%</span>
-                  </div>
-                </div>
-                <div className={styles.progressTileText}>
-                  <div className={styles.progressEyebrow} style={{ color: C.cyan }}>Fase Atual</div>
-                  <div className={styles.progressPhase} style={{ color: C.text }}>{currentPhase}</div>
-                  <div className={styles.progressMeta} style={{ color: C.textSub }}>{approvedCount} de {deliveries.length} entregas aprovadas</div>
-                </div>
-              </div>
-              <MetricCard label="Entregas Ativas" value={String(activeCount)} sub={`${pendingCount} aguardando revisão`} accent={C.cyan} />
-              <MetricCard label="Documentos Prontos" value={String(approvedCount)} sub="Aprovados no portal" />
-              <MetricCard label="Próxima Entrega" value={nextDelivery ? nextDelivery.date : "--"} sub={nextDelivery ? nextDelivery.title : "Sem entregas agendadas"} accent={C.purple} />
-            </div>
-
-            <div className={styles.deliverySection}>
-              <div className={styles.deliverySectionHeader} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, margin: 0, color: C.text, letterSpacing: "-0.01em" }}>
-                    Entregas &amp; Aprovações
-                  </h2>
-                  {pendingCount > 0 && (
-                    <div style={{
-                      background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.22)",
-                      color: C.amber, fontSize: 11, fontWeight: 500,
-                      padding: "3px 9px", borderRadius: 20, fontFamily: FONT_BODY,
-                      display: "flex", alignItems: "center", gap: 4,
-                    }}>
-                      <Clock size={11} /> {pendingCount} aguardando
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeNav}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.2, ease: "easeOut" }}
+          >
+            {activeNav === "Início" && (
+              <>
+                <div className={styles.metricGrid} style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: 14, marginBottom: 24 }}>
+                  <div className={styles.progressTile} style={{
+                    background: "rgba(20,20,48,0.6)",
+                    backdropFilter: "blur(16px)", WebkitBackdropFilter: "blur(16px)",
+                    border: `1px solid ${C.border}`, borderRadius: 14,
+                    padding: "22px 20px", display: "flex", alignItems: "center", gap: 18,
+                    boxShadow: "0 8px 32px rgba(0,0,0,0.2)",
+                  }}>
+                    <div className={styles.progressRingWrap}>
+                      <CircularProgress percent={progressPercent} className={styles.progressRing} />
+                      <div className={styles.progressPercentWrap}>
+                        <span className={styles.progressPercent} style={{ color: C.text }}>{progressPercent}%</span>
+                      </div>
                     </div>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setActiveNav("Documentos")}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 4,
-                    padding: 0,
-                    border: "none",
-                    background: "transparent",
-                    fontSize: 12,
-                    color: C.textSub,
-                    cursor: "pointer",
-                    fontFamily: FONT_BODY,
-                  }}
-                >
-                  Ver todas <Zap size={12} strokeWidth={1.5} />
-                </button>
-              </div>
-              <div className={styles.deliveryStack} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {loadingDeliveries && (
-                  <div className={styles.emptyState} style={{ minHeight: 180 }}>
-                    <Clock size={24} color={C.cyan} strokeWidth={1.5} />
-                    <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text }}>Carregando entregas</div>
-                    <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub }}>Buscando seus dados no Supabase.</div>
+                    <div className={styles.progressTileText}>
+                      <div className={styles.progressEyebrow} style={{ color: C.cyan }}>Fase Atual</div>
+                      <div className={styles.progressPhase} style={{ color: C.text }}>{currentPhase}</div>
+                      <div className={styles.progressMeta} style={{ color: C.textSub }}>{approvedCount} de {deliveries.length} entregas aprovadas</div>
+                    </div>
                   </div>
-                )}
+                  <MetricCard label="Entregas Ativas" value={String(activeCount)} sub={`${pendingCount} aguardando revisão`} accent={C.cyan} />
+                  <MetricCard label="Documentos Prontos" value={String(approvedCount)} sub="Aprovados no portal" />
+                  <MetricCard label="Próxima Entrega" value={nextDelivery ? nextDelivery.date : "--"} sub={nextDelivery ? nextDelivery.title : "Sem entregas agendadas"} accent={C.purple} />
+                </div>
 
-                {!loadingDeliveries && deliveriesError && (
-                  <div className={styles.emptyState} style={{ minHeight: 180 }}>
-                    <XCircle size={24} color={C.red} strokeWidth={1.5} />
-                    <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text }}>Erro ao carregar</div>
-                    <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub }}>{deliveriesError}</div>
+                {/* Quick Actions */}
+                <div style={{ marginBottom: 24 }}>
+                  <div style={{ fontSize: 10, color: C.cyan, letterSpacing: 2, textTransform: "uppercase", fontFamily: FONT_MONO, fontWeight: 500, marginBottom: 12 }}>
+                    Ações Rápidas
+                  </div>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <QuickActionBtn icon={CheckCircle2} label="Revisar Entregas" color={C.cyan}
+                      onClick={() => { if (firstPending) setSelectedDelivery(firstPending); }} />
+                    <QuickActionBtn icon={Upload} label="Novo Upload" color={C.purple}
+                      onClick={() => setActiveNav("Documentos")} />
+                    <QuickActionBtn icon={MessageCircle} label="Falar com Equipe" color={C.success}
+                      onClick={() => setActiveNav("Atendimento")} />
+                    <QuickActionBtn icon={FolderOpen} label="Ver Projetos" color={C.amber}
+                      onClick={() => setActiveNav("Projetos")} />
+                  </div>
+                </div>
+
+                {/* Project Timeline */}
+                {!loadingDeliveries && <ProjectTimeline deliveries={deliveries} />}
+
+                <div className={styles.deliverySection}>
+                  <div className={styles.deliverySectionHeader} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <h2 style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, margin: 0, color: C.text, letterSpacing: "-0.01em" }}>
+                        Entregas &amp; Aprovações
+                      </h2>
+                      {pendingCount > 0 && (
+                        <div style={{
+                          background: "rgba(245,158,11,0.1)", border: "1px solid rgba(245,158,11,0.22)",
+                          color: C.amber, fontSize: 11, fontWeight: 500,
+                          padding: "3px 9px", borderRadius: 20, fontFamily: FONT_BODY,
+                          display: "flex", alignItems: "center", gap: 4,
+                        }}>
+                          <Clock size={11} /> {pendingCount} aguardando
+                        </div>
+                      )}
+                    </div>
                     <button
                       type="button"
-                      onClick={loadDeliveries}
+                      onClick={() => setActiveNav("Documentos")}
                       style={{
-                        marginTop: 8,
-                        padding: "9px 18px",
-                        borderRadius: 10,
-                        border: `1px solid ${C.borderGlow}`,
-                        background: "rgba(128, 64, 245, 0.12)",
-                        color: C.text,
-                        fontFamily: FONT_BODY,
-                        fontSize: 12,
-                        cursor: "pointer",
+                        display: "flex", alignItems: "center", gap: 4,
+                        padding: 0, border: "none", background: "transparent",
+                        fontSize: 12, color: C.textSub, cursor: "pointer", fontFamily: FONT_BODY,
                       }}
                     >
-                      Tentar novamente
+                      Ver todas <Zap size={12} strokeWidth={1.5} />
                     </button>
                   </div>
-                )}
-
-                {!loadingDeliveries && !deliveriesError && deliveries.length === 0 && (
-                  <div className={styles.emptyState} style={{ minHeight: 180 }}>
-                    <FolderOpen size={24} color={C.purple} strokeWidth={1.5} />
-                    <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text }}>Nenhuma entrega por aqui</div>
-                    <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub }}>Quando a equipe publicar uma entrega para este cliente, ela aparecerá aqui.</div>
+                  <div className={styles.deliveryStack} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {loadingDeliveries && (
+                      <div className={styles.emptyState} style={{ minHeight: 180 }}>
+                        <Clock size={24} color={C.cyan} strokeWidth={1.5} />
+                        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text }}>Carregando entregas</div>
+                        <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub }}>Buscando seus dados no Supabase.</div>
+                      </div>
+                    )}
+                    {!loadingDeliveries && deliveriesError && (
+                      <div className={styles.emptyState} style={{ minHeight: 180 }}>
+                        <XCircle size={24} color={C.red} strokeWidth={1.5} />
+                        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text }}>Erro ao carregar</div>
+                        <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub }}>{deliveriesError}</div>
+                        <button type="button" onClick={loadDeliveries} style={{
+                          marginTop: 8, padding: "9px 18px", borderRadius: 10,
+                          border: `1px solid ${C.borderGlow}`,
+                          background: "rgba(128, 64, 245, 0.12)",
+                          color: C.text, fontFamily: FONT_BODY, fontSize: 12, cursor: "pointer",
+                        }}>Tentar novamente</button>
+                      </div>
+                    )}
+                    {!loadingDeliveries && !deliveriesError && deliveries.length === 0 && (
+                      <div className={styles.emptyState} style={{ minHeight: 180 }}>
+                        <FolderOpen size={24} color={C.purple} strokeWidth={1.5} />
+                        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text }}>Nenhuma entrega por aqui</div>
+                        <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub }}>Quando a equipe publicar uma entrega para este cliente, ela aparecerá aqui.</div>
+                      </div>
+                    )}
+                    {!loadingDeliveries && !deliveriesError && deliveries.map((d) => (
+                      <DeliveryRow key={d.id} item={d} onClick={setSelectedDelivery} />
+                    ))}
                   </div>
-                )}
+                </div>
+              </>
+            )}
 
-                {!loadingDeliveries && !deliveriesError && deliveries.map((d) => (
-                  <DeliveryRow key={d.id} item={d} onClick={setSelectedDelivery} />
-                ))}
-              </div>
-            </div>
-          </>
-        )}
-
-        {activeNav === "Projetos" && <ProjectsView />}
-        {activeNav === "Documentos" && <FilesView user={user} />}
-        {activeNav === "Atendimento"  && <SupportView user={user} />}
+            {activeNav === "Projetos" && <ProjectsView user={user} />}
+            {activeNav === "Documentos" && <FilesView user={user} />}
+            {activeNav === "Atendimento" && <SupportView user={user} />}
+          </motion.div>
+        </AnimatePresence>
 
       </main>
 

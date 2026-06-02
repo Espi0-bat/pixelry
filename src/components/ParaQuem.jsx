@@ -20,12 +20,12 @@ export default function ParaQuem() {
           <div className="reveal">
             <span className="label">PERFIL IDEAL</span>
             <h2 className={styles.h2}>
-              Para negócios com substância que ainda não têm a presença digital que merecem.
+              Para quem já é bom no que faz, mas o site não mostra isso.
             </h2>
             <p className={styles.sub}>
-              Se você tem clientes satisfeitos, um serviço de alto padrão e uma reputação
-              construída com consistência — mas sua presença digital ainda não comunica
-              esse nível — é exatamente esse gap que a PIXELRY resolve.
+              Você atende bem. Seus clientes voltam. Você recebe indicação.
+              Mas se alguém te pesquisar no Google agora — o que vai aparecer?
+              É isso que resolvemos.
             </p>
           </div>
 

@@ -134,20 +134,18 @@ export default function Hero() {
       <div className={styles.content}>
         <p className={styles.eyebrow}>
           <span className={styles.eyebrowDot} />
-          ESPECIALISTAS EM ESTRUTURAS DE AQUISIÇÃO PARA CLÍNICAS E NEGÓCIOS LOCAIS
+          PIXELRY · BRASÍLIA — DF
         </p>
 
         <h1 className={styles.h1}>
-          Transformamos a presença digital{' '}
+          Sua clínica atende bem.{' '}
           <br className={styles.brDesktop} />
-          de empresas em uma estrutura que{' '}
-          <br className={styles.brDesktop} />
-          <span className="grad-text">gera clientes de forma previsível.</span>
+          <span className="grad-text">Só que a agenda ainda tem buracos.</span>
         </h1>
 
         <p className={styles.sub}>
-          Cansado de uma presença digital fragmentada que não traz retorno? Implementamos o sistema 
-          técnico que organiza sua captação e enche sua agenda.
+          Construímos o sistema digital que muda isso — sem depender de sorte,
+          indicação ou mais posts.
         </p>
 
         <div className={styles.ctas}>

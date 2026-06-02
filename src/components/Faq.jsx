@@ -9,11 +9,11 @@ const FAQS = [
   },
   {
     q: 'Minha clínica já tem redes sociais. Por que precisaria disso?',
-    a: 'Redes sociais geram visibilidade, mas não controlam a jornada do cliente. Um sistema de aquisição captura esse tráfego, qualifica o lead e direciona diretamente para o fechamento — de forma rastreável e previsível. São camadas complementares, não concorrentes.',
+    a: 'Redes sociais geram visibilidade, mas não controlam a jornada do cliente. Um sistema de aquisição captura esse tráfego, qualifica o lead e direciona diretamente para o fechamento — com rastreamento real em cada etapa. São camadas complementares, não concorrentes.',
   },
   {
     q: 'Qual a diferença entre a PIXELRY e agências de marketing?',
-    a: 'Nós não somos uma agência focada apenas em estética visual ou gestão de redes sociais. Somos uma empresa de engenharia digital focada em aquisição de clientes. Em vez de vender "design", construímos o PIXELRY CORE: um sistema que integra atração, conversão e dados para garantir rastreabilidade nas suas vendas.',
+    a: 'Agência de marketing te vende post, stories e gestão de redes. A gente constrói o sistema que captura e converte o tráfego que você já tem — e o que vai chegar com os anúncios. São coisas diferentes. A maioria das agências não faz o que a gente faz.',
   },
   {
     q: 'Vou precisar entender de tecnologia para gerenciar meu site?',
