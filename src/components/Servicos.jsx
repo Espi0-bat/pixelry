@@ -5,7 +5,7 @@ const SERVICES = [
   {
     num: '01',
     title: 'PIXELRY CORE',
-    body: 'Nosso sistema integrado de aquisição. Construímos uma estrutura digital orientada à captação rápida — landing pages de alta performance, botões de ação e integração direta sem atritos para transformar intenção em negócio real no seu WhatsApp.',
+    body: 'A base de tudo. Uma landing page que não é só bonita — é construída para converter. Cada elemento tem função: o botão do WhatsApp está no lugar certo, o texto faz o lead entender por que você em 10 segundos, e o rastreamento diz exatamente de onde veio cada contato.',
     badge: 'ESTRUTURA PRINCIPAL',
     wide: false,
   },
@@ -41,8 +41,8 @@ export default function Servicos() {
         <div className="reveal">
           <span className="label">SOLUÇÕES</span>
           <h2 className={styles.h2}>
-            Cada entrega é projetada para gerar<br />
-            credibilidade, autoridade e resultado.
+            O que construímos.<br />
+            Por que funciona. Sem rodeios.
           </h2>
         </div>
 

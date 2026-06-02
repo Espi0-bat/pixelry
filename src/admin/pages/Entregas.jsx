@@ -1,8 +1,9 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import {
   Upload, FileText, Palette, Film, BarChart2, X, Check,
   Plus, ChevronDown, Clock, CheckCircle2, XCircle, Zap, Image, Paperclip
 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { supabase, STORAGE_BUCKET } from '../../config/supabase';
 import './Entregas.css';
 
@@ -56,6 +57,46 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '');
 }
 
+function DeliveryRow({ d, s, Icon, SIcon, index }) {
+  const [hov, setHov] = useState(false);
+  return (
+    <motion.div
+      className="delivery-item"
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -6 }}
+      transition={{ delay: index * 0.04, duration: 0.2 }}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      style={{
+        background: hov ? `${s.color}0a` : undefined,
+        borderColor: hov ? `${s.color}44` : undefined,
+        boxShadow: hov ? `0 8px 32px ${s.color}1a` : 'none',
+        transform: hov ? 'translateX(4px)' : 'none',
+        transition: 'background 0.18s, border-color 0.18s, box-shadow 0.18s, transform 0.18s',
+      }}
+    >
+      <div
+        className="delivery-icon"
+        style={{
+          background: hov ? `${s.color}20` : undefined,
+          color: hov ? s.color : undefined,
+          transition: 'background 0.18s, color 0.18s',
+        }}
+      >
+        <Icon size={20} strokeWidth={1.5} />
+      </div>
+      <div className="delivery-info">
+        <div className="delivery-title">{d.title}</div>
+        <div className="delivery-meta">{d.clientName} · {d.type} · {d.date}</div>
+      </div>
+      <div className="status-badge" style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.color }}>
+        <SIcon size={13} /> {s.label}
+      </div>
+    </motion.div>
+  );
+}
+
 export default function Entregas() {
   const [showModal, setShowModal]     = useState(false);
   const [uploads, setUploads]         = useState([]);
@@ -68,24 +109,45 @@ export default function Entregas() {
   const [submitting, setSubmitting]   = useState(false);
   const [uploadedFile, setUploadedFile] = useState(null);
 
+  const loadDeliveries = useCallback(async () => {
+    const [{ data: profilesData }, { data: deliveriesData }] = await Promise.all([
+      supabase.from('profiles').select('id, full_name, company_name, email').order('full_name'),
+      supabase
+        .from('deliveries')
+        .select('id, title, type, status, created_at, client_id, profiles(full_name, company_name)')
+        .order('created_at', { ascending: false }),
+    ]);
+    setClients(profilesData || []);
+    setDeliveries((deliveriesData || []).map(d => ({
+      ...d,
+      clientName: d.profiles?.company_name || d.profiles?.full_name || '—',
+      date: formatDate(d.created_at),
+    })));
+    setLoading(false);
+  }, []);
+
   useEffect(() => {
-    async function load() {
-      const [{ data: profilesData }, { data: deliveriesData }] = await Promise.all([
-        supabase.from('profiles').select('id, full_name, company_name, email').order('full_name'),
-        supabase
-          .from('deliveries')
-          .select('id, title, type, status, created_at, client_id, profiles(full_name, company_name)')
-          .order('created_at', { ascending: false }),
-      ]);
-      setClients(profilesData || []);
-      setDeliveries((deliveriesData || []).map(d => ({
-        ...d,
-        clientName: d.profiles?.company_name || d.profiles?.full_name || '—',
-        date: formatDate(d.created_at),
-      })));
-      setLoading(false);
-    }
-    load();
+    loadDeliveries();
+  }, [loadDeliveries]);
+
+  // Real-time: atualiza quando cliente aprova ou solicita ajuste
+  useEffect(() => {
+    const channel = supabase
+      .channel('admin:deliveries')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'deliveries' },
+        (payload) => {
+          setDeliveries(prev => prev.map(d =>
+            d.id === payload.new.id
+              ? { ...d, status: payload.new.status }
+              : d
+          ));
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const processFiles = useCallback((files) => {
@@ -184,25 +246,24 @@ export default function Entregas() {
 
       <div className="deliveries-list">
         {loading && <div style={{ color: 'var(--text-secondary)', fontSize: 13, padding: '12px 0' }}>Carregando entregas...</div>}
-        {filtered.map((d, i) => {
-          const s = statusMap[d.status] || statusMap.production;
-          const Icon = typeIcon(d.type);
-          const SIcon = s.icon;
-          return (
-            <div key={d.id} className="delivery-item animate-in" style={{ animationDelay: `${i * 0.05}s` }}>
-              <div className="delivery-icon"><Icon size={20} strokeWidth={1.5} /></div>
-              <div className="delivery-info">
-                <div className="delivery-title">{d.title}</div>
-                <div className="delivery-meta">{d.clientName} · {d.type} · {d.date}</div>
-              </div>
-              <div className="status-badge" style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.color }}>
-                <SIcon size={13} /> {s.label}
-              </div>
-            </div>
-          );
-        })}
+        <AnimatePresence>
+          {filtered.map((d, i) => {
+            const s = statusMap[d.status] || statusMap.production;
+            const Icon = typeIcon(d.type);
+            const SIcon = s.icon;
+            return (
+              <DeliveryRow key={d.id} d={d} s={s} Icon={Icon} SIcon={SIcon} index={i} />
+            );
+          })}
+        </AnimatePresence>
         {!loading && filtered.length === 0 && (
-          <div className="empty-deliveries animate-in">Nenhuma entrega encontrada.</div>
+          <motion.div
+            className="empty-deliveries"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+          >
+            Nenhuma entrega encontrada.
+          </motion.div>
         )}
       </div>
 
@@ -273,19 +334,34 @@ export default function Entregas() {
 
               <div className="form-group">
                 <label className="form-label">Arquivo</label>
-                <div
+                <motion.div
                   onDragOver={e => { e.preventDefault(); setDragging(true); }}
                   onDragLeave={() => setDragging(false)}
                   onDrop={e => { e.preventDefault(); setDragging(false); processFiles(e.dataTransfer.files); }}
                   onClick={() => document.getElementById('admin-file-input').click()}
                   className={`upload-zone ${dragging ? 'dragging' : ''}`}
+                  animate={{
+                    borderColor: dragging ? 'rgba(0,216,255,0.7)' : 'rgba(128,64,245,0.4)',
+                    background: dragging ? 'rgba(0,216,255,0.06)' : 'rgba(128,64,245,0.03)',
+                    boxShadow: dragging ? '0 0 48px rgba(0,216,255,0.15), inset 0 0 30px rgba(0,216,255,0.05)' : 'none',
+                    scale: dragging ? 1.01 : 1,
+                  }}
+                  transition={{ duration: 0.2 }}
                 >
                   <input id="admin-file-input" type="file" style={{ display: 'none' }}
                     onChange={e => processFiles(e.target.files)} />
-                  <div className="upload-icon"><Upload size={24} /></div>
-                  <div className="upload-text">{dragging ? 'Solte aqui!' : 'Arraste um arquivo ou clique'}</div>
+                  <motion.div
+                    className="upload-icon"
+                    animate={{ scale: dragging ? 1.2 : 1, rotate: dragging ? 15 : 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <Upload size={24} color={dragging ? '#00D8FF' : undefined} />
+                  </motion.div>
+                  <div className="upload-text" style={{ color: dragging ? '#00D8FF' : undefined }}>
+                    {dragging ? 'Solte aqui!' : 'Arraste um arquivo ou clique'}
+                  </div>
                   <div className="upload-hint">PDF, Figma, ZIP, Imagens, Vídeos — Máx. 50 MB</div>
-                </div>
+                </motion.div>
 
                 {uploads.length > 0 && (
                   <div className="upload-progress-list">

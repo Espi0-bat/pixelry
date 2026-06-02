@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { Home, Users, FolderUp, Activity, LogOut, Kanban, Menu, X } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../config/supabase';
 import logoImg from '../../components/images/pixelryicone.jpeg';
 import AdminGlowEffects from '../components/AdminGlowEffects';
@@ -12,6 +13,7 @@ const GLOW_RADIUS = 200;
 
 export default function AdminLayout({ user, onLogout }) {
   const navigate = useNavigate();
+  const location = useLocation();
   const canvasRef = useRef(null);
   const mouseRef  = useRef({ x: 0.5, y: 0.5 });
   const targetRef = useRef({ x: 0.5, y: 0.5 });
@@ -179,7 +181,18 @@ export default function AdminLayout({ user, onLogout }) {
           </div>
         </header>
         <div className="content-area">
-          <Outlet />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+              style={{ height: '100%' }}
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
     </div>

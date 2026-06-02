@@ -33,7 +33,7 @@ export default function CtaFinal() {
 
           <p className={styles.sub}>
             Diagnóstico gratuito. Sem compromisso.<br />
-            Se houver fit estratégico entre os dois lados, construímos juntos.
+            Se fizer sentido para os dois lados, a gente começa.
           </p>
 
           <div className={styles.waBlock}>

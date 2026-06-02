@@ -6,7 +6,7 @@ import styles from './Planos.module.css'
 const PLANOS = [
   {
     nome: 'START',
-    desc: 'Máquina de conversão rápida e direta. Ideal para profissionais e negócios que buscam validação através de uma infraestrutura digital robusta.',
+    desc: 'Para quem precisa de uma presença digital séria e rápida. Estrutura de conversão pronta, com rastreamento e WhatsApp integrado. Sem enrolação.',
     setup: 'R$ 2.500,00',
     recorrencia: 'R$ 250,00/mês',
     setupFeatures: [
@@ -23,7 +23,7 @@ const PLANOS = [
   },
   {
     nome: 'PRO',
-    desc: 'O padrão de agência premium. Engenharia avançada para clínicas médicas, estéticas e hotelaria que exigem escala, dados e autoridade.',
+    desc: 'Para clínicas e negócios que já existem e precisam de um sistema de alto nível. Design editorial, dados avançados e um portal exclusivo para seus clientes.',
     setup: 'R$ 3.800,00',
     recorrencia: 'R$ 400,00/mês',
     setupFeatures: [
@@ -40,7 +40,7 @@ const PLANOS = [
   },
   {
     nome: 'ELITE',
-    desc: 'A infraestrutura definitiva de Vendas. O ecossistema completo para operações de alto volume e consolidação de mercado.',
+    desc: 'Para operações que precisam de mais do que um site. Scripts de venda, auditoria de leads e consultoria mensal inclusos.',
     setup: 'R$ 5.000,00',
     recorrencia: 'R$ 900,00/mês',
     setupFeatures: [
@@ -113,8 +113,8 @@ export default function Planos() {
         <div className="reveal" style={{ textAlign: 'center' }}>
           <span className="label" style={{ justifyContent: 'center' }}>ENGENHARIA E PRECIFICAÇÃO</span>
           <h2 className={styles.h2}>
-            Planos estruturados para gerar<br />
-            previsibilidade no seu negócio.
+            O que construímos.<br />
+            Por que funciona. Sem rodeios.
           </h2>
         </div>
 

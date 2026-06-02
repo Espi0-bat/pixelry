@@ -3,8 +3,8 @@ import styles from './Diferenciais.module.css'
 
 const ITEMS = [
   {
-    title: 'Especialização, não generalismo',
-    body: 'Atendemos exclusivamente negócios locais que precisam de presença digital com padrão premium. Essa escolha deliberada nos permite entregar com profundidade o que agências generalistas entregam superficialmente.',
+    title: 'Especializados, não generalistas',
+    body: 'Só atendemos negócios locais de serviço. Não tentamos fazer de tudo — então o que fazemos, fazemos bem.',
     wide: false,
   },
   {
@@ -13,8 +13,8 @@ const ITEMS = [
     wide: false,
   },
   {
-    title: 'Processo sem ambiguidade',
-    body: 'Etapas claras, prazos reais, comunicação direta. Nenhum jargão de agência. Nenhuma reunião sem propósito. Você sabe exatamente em que estágio seu projeto está em cada momento.',
+    title: 'Processo sem surpresa',
+    body: 'Você sabe o que acontece em cada semana. Nenhuma entrega "surpresa". Nenhum prazo que some. Comunicamos o que está acontecendo porque você pagou para saber.',
     wide: false,
   },
   {
@@ -23,8 +23,8 @@ const ITEMS = [
     wide: false,
   },
   {
-    title: 'Parcerias selecionadas, não volume',
-    body: 'Mantemos um atendimento restrito e criterioso. Cada cliente passa por um diagnóstico detalhado antes da proposta. Não trabalhamos com metas de volume — nosso foco está no fit estratégico entre nossa engenharia e o seu negócio.',
+    title: 'Não trabalhamos com todo mundo',
+    body: 'Antes de fechar qualquer projeto, fazemos um diagnóstico. Se não fizer sentido para os dois lados, a gente fala abertamente. Sem pressão.',
     wide: true,
   },
 ]
@@ -38,8 +38,8 @@ export default function Diferenciais() {
         <div className="reveal">
           <span className="label">POSICIONAMENTO</span>
           <h2 className={styles.h2}>
-            Não somos a agência que faz tudo.<br />
-            Somos a estrutura que traz previsibilidade.
+            Trabalhamos com poucos clientes.<br />
+            De propósito.
           </h2>
         </div>
 
