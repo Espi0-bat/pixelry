@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ChevronLeft, Plus, Download, UploadCloud, Send,
@@ -22,6 +22,32 @@ const EMPTY_CONTACT = {
 
 const OPTIONAL_FIELDS = ['whatsapp', 'instagram', 'tiktok', 'linkedin', 'facebook', 'site'];
 
+// Componente isolado para o input do chat — evita re-render da página inteira ao digitar
+const ChatInput = React.memo(function ChatInput({ onSend, disabled }) {
+  const [value, setValue] = useState('');
+  const handleSend = () => {
+    const content = value.trim();
+    if (!content || disabled) return;
+    setValue('');
+    onSend(content);
+  };
+  return (
+    <div className="chat-input-area">
+      <input
+        type="text"
+        placeholder="Digite uma mensagem para o cliente..."
+        className="chat-input"
+        value={value}
+        onChange={e => setValue(e.target.value)}
+        onKeyDown={e => { if (e.key === 'Enter') handleSend(); }}
+        disabled={disabled}
+      />
+      <button className="btn-primary btn-send" onClick={handleSend} disabled={disabled || !value.trim()}>
+        <Send size={18} />
+      </button>
+    </div>
+  );
+});
 
 export default function ClienteDetalhes() {
   const { id } = useParams();
@@ -48,9 +74,9 @@ export default function ClienteDetalhes() {
   const [driveLinkForm, setDriveLinkForm] = useState({ label: '', url: '' });
   const [savingDriveLink, setSavingDriveLink] = useState(false);
 
-  const [chatMsg, setChatMsg] = useState('');
   const [sendingMsg, setSendingMsg] = useState(false);
   const chatBottomRef = useRef(null);
+
 
   useEffect(() => {
     async function load() {
@@ -160,11 +186,9 @@ export default function ClienteDetalhes() {
     setEditMode(false);
   };
 
-  const sendMessage = async () => {
-    const content = chatMsg.trim();
+  const sendMessage = useCallback(async (content) => {
     if (!content || sendingMsg) return;
     setSendingMsg(true);
-    setChatMsg('');
     const { data } = await supabase
       .from('messages')
       .insert({ client_id: id, content, from_client: false })
@@ -172,7 +196,7 @@ export default function ClienteDetalhes() {
       .single();
     if (data) setMessages(prev => [...prev, data]);
     setSendingMsg(false);
-  };
+  }, [id, sendingMsg]);
 
   const addDriveLink = async () => {
     if (!driveLinkForm.url.trim()) return;
@@ -372,20 +396,7 @@ export default function ClienteDetalhes() {
         ))}
         <div ref={chatBottomRef} />
       </div>
-      <div className="chat-input-area">
-        <input
-          type="text"
-          placeholder="Digite uma mensagem para o cliente..."
-          className="chat-input"
-          value={chatMsg}
-          onChange={e => setChatMsg(e.target.value)}
-          onKeyDown={e => { if (e.key === 'Enter') sendMessage(); }}
-          disabled={sendingMsg}
-        />
-        <button className="btn-primary btn-send" onClick={sendMessage} disabled={sendingMsg || !chatMsg.trim()}>
-          <Send size={18} />
-        </button>
-      </div>
+      <ChatInput onSend={sendMessage} disabled={sendingMsg} />
     </div>
   );
 

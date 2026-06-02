@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import {
   Upload, FileText, Palette, Film, BarChart2, X, Check,
   Plus, ChevronDown, Clock, CheckCircle2, XCircle, Zap, Image, Paperclip
@@ -57,7 +57,7 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '');
 }
 
-function DeliveryRow({ d, s, Icon, SIcon, index }) {
+const DeliveryRow = React.memo(function DeliveryRow({ d, s, Icon, SIcon, index }) {
   const [hov, setHov] = useState(false);
   return (
     <motion.div
@@ -65,7 +65,7 @@ function DeliveryRow({ d, s, Icon, SIcon, index }) {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -6 }}
-      transition={{ delay: index * 0.04, duration: 0.2 }}
+      transition={{ delay: 0, duration: 0.18 }}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
@@ -95,7 +95,7 @@ function DeliveryRow({ d, s, Icon, SIcon, index }) {
       </div>
     </motion.div>
   );
-}
+});
 
 export default function Entregas() {
   const [showModal, setShowModal]     = useState(false);

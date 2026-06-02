@@ -92,6 +92,7 @@
   height: 100%;
   z-index: 0;
   pointer-events: none;
+  will-change: transform;
 }
 
 
@@ -108,8 +109,8 @@
 .theme-gold .sidebar,
 .theme-obsidian .sidebar {
   background: var(--sidebar-glass);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-right: var(--neon-border);
   box-shadow: var(--neon-glow);
 }
@@ -260,9 +261,9 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 32px;
-  background: rgba(12, 12, 28, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: rgba(12, 12, 28, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border);
   z-index: 5;
 }

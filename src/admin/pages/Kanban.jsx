@@ -1,5 +1,6 @@
-import { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Plus, X, Calendar, User, Briefcase, Flag, ChevronDown } from 'lucide-react';
+import { supabase } from '../../config/supabase';
 import './Kanban.css';
 
 const COLUMNS = [
@@ -16,53 +17,132 @@ const PRIORITY_MAP = {
   low:    { label: 'Baixa', color: '#10b981', bg: 'rgba(16,185,129,0.12)' },
 };
 
-const initialTasks = [
-  { id: 1, title: 'Landing Page Casarão dos Pireneus', client: 'Casarão dos Pireneus', type: 'Landing Page',  assignee: 'Ana',    priority: 'high',   due: '2025-06-10', status: 'design'  },
-  { id: 2, title: 'Posts Instagram — Junho',           client: 'Boutique Zen',         type: 'Social Media', assignee: 'Carlos', priority: 'medium', due: '2025-06-01', status: 'copy'    },
-  { id: 3, title: 'Identidade Visual Completa',        client: 'Studio K',             type: 'Branding',     assignee: 'Ana',    priority: 'high',   due: '2025-06-20', status: 'backlog' },
-  { id: 4, title: 'Email Marketing — Campanha Verão',  client: 'Casarão dos Pireneus', type: 'E-mail',       assignee: 'Marcos', priority: 'low',    due: '2025-06-15', status: 'review'  },
-  { id: 5, title: 'Redesign do Site',                  client: 'Studio K',             type: 'Website',      assignee: 'Carlos', priority: 'high',   due: '2025-05-30', status: 'done'    },
-  { id: 6, title: 'Vídeo Institucional — Roteiro',     client: 'Boutique Zen',         type: 'Vídeo',        assignee: 'Marcos', priority: 'medium', due: '2025-06-25', status: 'backlog' },
-];
-
 const EMPTY_FORM = { title: '', client: '', type: '', assignee: '', priority: 'medium', due: '' };
 
 export default function Kanban() {
-  const [tasks, setTasks]       = useState(initialTasks);
+  const [tasks, setTasks]       = useState([]);
   const [modal, setModal]       = useState(false);
   const [form, setForm]         = useState(EMPTY_FORM);
   const [dragOver, setDragOver] = useState(null);
+  const [loading, setLoading]   = useState(true);
+  const [saving, setSaving]     = useState(false);
   const dragId = useRef(null);
 
-  function handleDragStart(id) {
-    dragId.current = id;
-  }
+  // ── Carrega tarefas do Supabase ──────────────────────────────────────────
+  useEffect(() => {
+    async function load() {
+      const { data, error } = await supabase
+        .from('kanban_tasks')
+        .select('*')
+        .order('created_at', { ascending: true });
 
-  function handleDrop(colId) {
+      if (error) {
+        console.error('Kanban load error:', error);
+        setLoading(false);
+        return;
+      }
+      setTasks(data || []);
+      setLoading(false);
+    }
+    load();
+  }, []);
+
+  // ── Realtime: sincroniza mudanças feitas por outros admins ───────────────
+  useEffect(() => {
+    const channel = supabase
+      .channel('admin:kanban')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'kanban_tasks' },
+        (payload) => {
+          if (payload.eventType === 'INSERT') {
+            setTasks(prev => [...prev, payload.new]);
+          } else if (payload.eventType === 'UPDATE') {
+            setTasks(prev => prev.map(t => t.id === payload.new.id ? payload.new : t));
+          } else if (payload.eventType === 'DELETE') {
+            setTasks(prev => prev.filter(t => t.id !== payload.old.id));
+          }
+        }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  // ── Drag & Drop — atualiza status no Supabase ────────────────────────────
+  const handleDragStart = useCallback((id) => {
+    dragId.current = id;
+  }, []);
+
+  const handleDrop = useCallback(async (colId) => {
     if (dragId.current == null) return;
-    setTasks(prev => prev.map(t => t.id === dragId.current ? { ...t, status: colId } : t));
+    const taskId = dragId.current;
     dragId.current = null;
     setDragOver(null);
-  }
 
-  function handleAddTask() {
-    if (!form.title.trim()) return;
-    setTasks(prev => [...prev, { ...form, id: Date.now(), status: 'backlog' }]);
+    // Optimistic update
+    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: colId } : t));
+
+    await supabase
+      .from('kanban_tasks')
+      .update({ status: colId })
+      .eq('id', taskId);
+  }, []);
+
+  // ── Adicionar tarefa ─────────────────────────────────────────────────────
+  const handleAddTask = useCallback(async () => {
+    if (!form.title.trim() || saving) return;
+    setSaving(true);
+
+    const { data, error } = await supabase
+      .from('kanban_tasks')
+      .insert({
+        title:    form.title.trim(),
+        client:   form.client.trim(),
+        type:     form.type.trim(),
+        assignee: form.assignee.trim(),
+        priority: form.priority,
+        due:      form.due || null,
+        status:   'backlog',
+      })
+      .select()
+      .single();
+
+    if (!error && data) {
+      setTasks(prev => [...prev, data]);
+    }
     setModal(false);
     setForm(EMPTY_FORM);
-  }
+    setSaving(false);
+  }, [form, saving]);
 
-  function handleMoveCard(taskId, direction) {
+  // ── Mover card entre colunas ─────────────────────────────────────────────
+  const handleMoveCard = useCallback(async (taskId, direction) => {
     const colIds = COLUMNS.map(c => c.id);
+    let nextStatus = null;
+
     setTasks(prev => prev.map(t => {
       if (t.id !== taskId) return t;
       const idx = colIds.indexOf(t.status);
       const next = colIds[idx + direction];
-      return next ? { ...t, status: next } : t;
+      if (next) { nextStatus = next; return { ...t, status: next }; }
+      return t;
     }));
-  }
 
-  const totalByCol = col => tasks.filter(t => t.status === col).length;
+    if (nextStatus) {
+      await supabase
+        .from('kanban_tasks')
+        .update({ status: nextStatus })
+        .eq('id', taskId);
+    }
+  }, []);
+
+  // ── Deletar card ─────────────────────────────────────────────────────────
+  const handleDeleteTask = useCallback(async (taskId) => {
+    setTasks(prev => prev.filter(t => t.id !== taskId));
+    await supabase.from('kanban_tasks').delete().eq('id', taskId);
+  }, []);
+
+  const totalByCol = (col) => tasks.filter(t => t.status === col).length;
 
   return (
     <div className="kanban-page">
@@ -77,69 +157,83 @@ export default function Kanban() {
         </button>
       </div>
 
-      <div className="kanban-board">
-        {COLUMNS.map(col => (
-          <div
-            key={col.id}
-            className={`kanban-col${dragOver === col.id ? ' kanban-col--over' : ''}`}
-            style={{ '--col-color': col.color }}
-            onDragOver={e => { e.preventDefault(); setDragOver(col.id); }}
-            onDragLeave={() => setDragOver(null)}
-            onDrop={() => handleDrop(col.id)}
-          >
-            <div className="kanban-col-header">
-              <span className="kanban-col-dot" />
-              <span className="kanban-col-label">{col.label}</span>
-              <span className="kanban-col-count">{totalByCol(col.id)}</span>
-            </div>
+      {loading ? (
+        <div style={{ color: 'var(--text-secondary)', fontSize: 13, padding: '32px 0' }}>
+          Carregando tarefas...
+        </div>
+      ) : (
+        <div className="kanban-board">
+          {COLUMNS.map(col => (
+            <div
+              key={col.id}
+              className={`kanban-col${dragOver === col.id ? ' kanban-col--over' : ''}`}
+              style={{ '--col-color': col.color }}
+              onDragOver={e => { e.preventDefault(); setDragOver(col.id); }}
+              onDragLeave={() => setDragOver(null)}
+              onDrop={() => handleDrop(col.id)}
+            >
+              <div className="kanban-col-header">
+                <span className="kanban-col-dot" />
+                <span className="kanban-col-label">{col.label}</span>
+                <span className="kanban-col-count">{totalByCol(col.id)}</span>
+              </div>
 
-            <div className="kanban-cards">
-              {tasks.filter(t => t.status === col.id).map(task => {
-                const p = PRIORITY_MAP[task.priority];
-                const colIdx = COLUMNS.findIndex(c => c.id === col.id);
-                return (
-                  <div
-                    key={task.id}
-                    className="kanban-card"
-                    draggable
-                    onDragStart={() => handleDragStart(task.id)}
-                    onDragEnd={() => setDragOver(null)}
-                  >
-                    <div className="kcard-top">
-                      <span className="kcard-type">{task.type}</span>
-                      <span className="kcard-priority" style={{ color: p.color, background: p.bg }}>
-                        <Flag size={10} />
-                        {p.label}
-                      </span>
-                    </div>
+              <div className="kanban-cards">
+                {tasks.filter(t => t.status === col.id).map(task => {
+                  const p = PRIORITY_MAP[task.priority] || PRIORITY_MAP.medium;
+                  const colIdx = COLUMNS.findIndex(c => c.id === col.id);
+                  return (
+                    <div
+                      key={task.id}
+                      className="kanban-card"
+                      draggable
+                      onDragStart={() => handleDragStart(task.id)}
+                      onDragEnd={() => setDragOver(null)}
+                    >
+                      <div className="kcard-top">
+                        <span className="kcard-type">{task.type}</span>
+                        <span className="kcard-priority" style={{ color: p.color, background: p.bg }}>
+                          <Flag size={10} />
+                          {p.label}
+                        </span>
+                      </div>
 
-                    <p className="kcard-title">{task.title}</p>
+                      <p className="kcard-title">{task.title}</p>
 
-                    <div className="kcard-meta">
-                      <span><Briefcase size={12} />{task.client}</span>
-                      <span><User size={12} />{task.assignee}</span>
-                      {task.due && <span><Calendar size={12} />{task.due}</span>}
-                    </div>
+                      <div className="kcard-meta">
+                        {task.client && <span><Briefcase size={12} />{task.client}</span>}
+                        {task.assignee && <span><User size={12} />{task.assignee}</span>}
+                        {task.due && <span><Calendar size={12} />{task.due}</span>}
+                      </div>
 
-                    <div className="kcard-actions">
-                      {colIdx > 0 && (
-                        <button className="kcard-move kcard-move--left" title="Voltar" onClick={() => handleMoveCard(task.id, -1)}>
-                          <ChevronDown size={13} style={{ transform: 'rotate(90deg)' }} />
+                      <div className="kcard-actions">
+                        {colIdx > 0 && (
+                          <button className="kcard-move kcard-move--left" title="Voltar" onClick={() => handleMoveCard(task.id, -1)}>
+                            <ChevronDown size={13} style={{ transform: 'rotate(90deg)' }} />
+                          </button>
+                        )}
+                        {colIdx < COLUMNS.length - 1 && (
+                          <button className="kcard-move kcard-move--right" title="Avançar" onClick={() => handleMoveCard(task.id, 1)}>
+                            <ChevronDown size={13} style={{ transform: 'rotate(-90deg)' }} />
+                          </button>
+                        )}
+                        <button
+                          className="kcard-move"
+                          title="Excluir tarefa"
+                          onClick={() => handleDeleteTask(task.id)}
+                          style={{ marginLeft: 'auto', color: 'rgba(244,63,94,0.6)' }}
+                        >
+                          <X size={13} />
                         </button>
-                      )}
-                      {colIdx < COLUMNS.length - 1 && (
-                        <button className="kcard-move kcard-move--right" title="Avançar" onClick={() => handleMoveCard(task.id, 1)}>
-                          <ChevronDown size={13} style={{ transform: 'rotate(-90deg)' }} />
-                        </button>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {modal && (
         <div className="kanban-overlay" onClick={() => setModal(false)}>
@@ -186,7 +280,9 @@ export default function Kanban() {
 
             <div className="kanban-modal-footer">
               <button className="kbtn-cancel" onClick={() => setModal(false)}>Cancelar</button>
-              <button className="kbtn-submit" onClick={handleAddTask}>Criar Tarefa</button>
+              <button className="kbtn-submit" onClick={handleAddTask} disabled={saving || !form.title.trim()}>
+                {saving ? 'Salvando...' : 'Criar Tarefa'}
+              </button>
             </div>
           </div>
         </div>

@@ -1,11 +1,11 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ChevronRight, CheckCircle, Clock, UserPlus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../config/supabase';
 import './Clientes.css';
 
-function ClientCard({ client, onOpen }) {
+const ClientCard = React.memo(function ClientCard({ client, onOpen }) {
   const [hov, setHov] = useState(false);
   const initials = client.name.substring(0, 2).toUpperCase();
 
@@ -63,7 +63,7 @@ function ClientCard({ client, onOpen }) {
       </button>
     </motion.div>
   );
-}
+});
 
 export default function Clientes() {
   const navigate = useNavigate();
