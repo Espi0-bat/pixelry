@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Users, Clock, CheckCircle2, Zap, FileText, MessageSquare } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { supabase } from '../../config/supabase';
@@ -14,7 +14,7 @@ function formatRelative(isoString) {
   return `Há ${Math.floor(h / 24)}d`;
 }
 
-function StatCard({ title, value, sub, iconBg, iconColor, Icon, glowColor, loading }) {
+const StatCard = React.memo(function StatCard({ title, value, sub, iconBg, iconColor, Icon, glowColor, loading }) {
   const [hov, setHov] = useState(false);
   return (
     <motion.div
@@ -52,7 +52,7 @@ function StatCard({ title, value, sub, iconBg, iconColor, Icon, glowColor, loadi
       <div style={{ fontSize: 13, color: 'var(--text-secondary)' }}>{sub}</div>
     </motion.div>
   );
-}
+});
 
 export default function Dashboard() {
   const [stats, setStats] = useState({ clients: 0, pending: 0, approved: 0 });
@@ -182,7 +182,7 @@ export default function Dashboard() {
                   className="activity-item"
                   initial={{ opacity: 0, x: -12 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: idx * 0.06, duration: 0.25 }}
+                  transition={{ delay: 0, duration: 0.2 }}
                   style={{ position: 'relative', zIndex: 1 }}
                 >
                   <div style={{ position: 'relative', flexShrink: 0 }}>

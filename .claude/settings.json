@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"c:\\\\Users\\\\gmont\\\\OneDrive\\\\Documentos\\\\GitHub\\\\pixelry-admin\" /b /a)",
+      "Bash(git commit -m ' *)"
+    ]
+  }
+}

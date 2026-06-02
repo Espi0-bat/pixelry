@@ -30,22 +30,42 @@ export default function Status() {
 
   useEffect(() => {
     async function load() {
+      // Query principal limpa — sem JOIN pesado de messages
       const { data } = await supabase
         .from('deliveries')
-        .select('id, title, type, status, updated_at, client_id, profiles(full_name, company_name), messages(content, from_client, created_at)')
+        .select('id, title, type, status, updated_at, client_id, profiles(full_name, company_name)')
         .order('updated_at', { ascending: false });
 
-      setDeliveries((data || []).map(d => {
-        const lastClientMsg = (d.messages || [])
-          .filter(m => m.from_client)
-          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))[0];
-        return {
-          ...d,
-          clientName: d.profiles?.company_name || d.profiles?.full_name || '—',
-          updatedAt: formatDate(d.updated_at),
-          clientNote: d.status === 'revision' && lastClientMsg ? lastClientMsg.content : null,
-        };
-      }));
+      const deliveriesRaw = data || [];
+
+      // Busca separada: só a última mensagem do cliente para entregas em revisão
+      const revisionIds = deliveriesRaw
+        .filter(d => d.status === 'revision')
+        .map(d => d.id);
+
+      let clientNoteMap = {};
+      if (revisionIds.length > 0) {
+        const { data: msgs } = await supabase
+          .from('messages')
+          .select('client_id, content, created_at')
+          .eq('from_client', true)
+          .in('client_id', deliveriesRaw.filter(d => d.status === 'revision').map(d => d.client_id))
+          .order('created_at', { ascending: false });
+
+        // Mapeia client_id -> última mensagem (primeira do resultado, já ordenado desc)
+        for (const m of (msgs || [])) {
+          if (!clientNoteMap[m.client_id]) {
+            clientNoteMap[m.client_id] = m.content;
+          }
+        }
+      }
+
+      setDeliveries(deliveriesRaw.map(d => ({
+        ...d,
+        clientName: d.profiles?.company_name || d.profiles?.full_name || '—',
+        updatedAt: formatDate(d.updated_at),
+        clientNote: d.status === 'revision' ? (clientNoteMap[d.client_id] ?? null) : null,
+      })));
       setLoading(false);
     }
     load();

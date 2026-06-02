@@ -9,7 +9,9 @@ import './AdminLayout.css';
 
 const DOT_SPACING = 40;
 const DOT_R = 1.4;
-const GLOW_RADIUS = 200;
+const GLOW_RADIUS = 160;
+const TARGET_FPS = 30;
+const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
 export default function AdminLayout({ user, onLogout }) {
   const navigate = useNavigate();
@@ -41,6 +43,8 @@ export default function AdminLayout({ user, onLogout }) {
     let dots = [];
     let time = 0;
     let rafId;
+    let lastFrameTime = 0;
+    let paused = false;
 
     function buildDots(W, H) {
       dots = [];
@@ -54,7 +58,13 @@ export default function AdminLayout({ user, onLogout }) {
       }
     }
 
-    function draw() {
+    function draw(timestamp) {
+      rafId = requestAnimationFrame(draw);
+      if (paused) return;
+      // Throttle to TARGET_FPS
+      if (timestamp - lastFrameTime < FRAME_INTERVAL) return;
+      lastFrameTime = timestamp;
+
       const W = canvas.width;
       const H = canvas.height;
       time += 0.010;
@@ -87,7 +97,6 @@ export default function AdminLayout({ user, onLogout }) {
         ctx.arc(d.x, d.y, radius, 0, Math.PI * 2);
         ctx.fill();
       }
-      rafId = requestAnimationFrame(draw);
     }
 
     function resize() {
@@ -98,11 +107,20 @@ export default function AdminLayout({ user, onLogout }) {
       buildDots(W, H);
     }
 
+    function handleVisibility() {
+      paused = document.hidden;
+    }
+
+    document.addEventListener('visibilitychange', handleVisibility);
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
     resize();
     rafId = requestAnimationFrame(draw);
-    return () => { ro.disconnect(); cancelAnimationFrame(rafId); };
+    return () => {
+      ro.disconnect();
+      cancelAnimationFrame(rafId);
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
   }, []);
 
   const handleLogout = async () => {
