@@ -7,7 +7,8 @@
 
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
+    <meta name="color-scheme" content="dark" />
+
     <!-- SEO Básico -->
     <title>PIXELRY — Engenharia Digital e Aquisição de Clientes</title>
     <meta name="description" content="PIXELRY — Empresa de engenharia digital em Brasília. Construímos sistemas previsíveis de aquisição de clientes para clínicas e negócios locais que precisam encher a agenda." />
@@ -20,7 +21,10 @@
     <meta property="og:title" content="PIXELRY — Engenharia Digital e Aquisição de Clientes" />
     <meta property="og:description" content="Transformamos a presença digital de clínicas e empresas locais em uma estrutura que gera clientes de forma previsível." />
     <meta property="og:image" content="https://www.pixelry.com.br/pixelryicone.jpeg" />
-    
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:locale" content="pt_BR" />
+
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="PIXELRY — Engenharia Digital" />
@@ -30,6 +34,7 @@
     <meta name="theme-color" content="#070710" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="icon" href="/favicon.ico" />
+    <link rel="manifest" href="/manifest.json" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -37,22 +42,114 @@
       rel="stylesheet"
     />
 
-    <!-- LocalBusiness Schema (JSON-LD) -->
+    <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "LocalBusiness",
-      "name": "PIXELRY",
-      "image": "https://www.pixelry.com.br/pixelryicone.jpeg",
-      "url": "https://www.pixelry.com.br",
-      "telephone": "+556193720900",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Brasília",
-        "addressRegion": "DF",
-        "addressCountry": "BR"
-      },
-      "description": "Engenharia Digital e Aquisição de Clientes para Clínicas e Negócios Locais em Brasília."
+      "@graph": [
+        {
+          "@type": ["LocalBusiness", "ProfessionalService"],
+          "@id": "https://www.pixelry.com.br/#organization",
+          "name": "PIXELRY",
+          "image": "https://www.pixelry.com.br/pixelryicone.jpeg",
+          "logo": "https://www.pixelry.com.br/pixelryicone.jpeg",
+          "url": "https://www.pixelry.com.br",
+          "telephone": "+556193720900",
+          "email": "pixelry.contato@gmail.com",
+          "address": {
+            "@type": "PostalAddress",
+            "addressLocality": "Brasília",
+            "addressRegion": "DF",
+            "addressCountry": "BR"
+          },
+          "description": "Engenharia Digital e Aquisição de Clientes para Clínicas e Negócios Locais em Brasília.",
+          "priceRange": "R$ 2.500 — R$ 5.000",
+          "areaServed": {
+            "@type": "City",
+            "name": "Brasília"
+          },
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Planos PIXELRY",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "name": "Plano START",
+                "description": "Presença digital séria e rápida. Landing Page em React, rastreamento técnico (Pixel/GA4) e WhatsApp integrado.",
+                "price": "2500.00",
+                "priceCurrency": "BRL"
+              },
+              {
+                "@type": "Offer",
+                "name": "Plano PRO",
+                "description": "Sistema de alto nível com design editorial, dados avançados, API Meta e portal exclusivo para clientes.",
+                "price": "3800.00",
+                "priceCurrency": "BRL"
+              },
+              {
+                "@type": "Offer",
+                "name": "Plano ELITE",
+                "description": "Arquitetura PRO completa com auditoria de leads, scripts de venda e consultoria estratégica mensal.",
+                "price": "5000.00",
+                "priceCurrency": "BRL"
+              }
+            ]
+          }
+        },
+        {
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "@type": "Question",
+              "name": "O que exatamente é um sistema de aquisição de clientes?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Não é apenas um site. É uma estrutura integrada: página de alta conversão, integração com WhatsApp, rastreamento técnico (GA4/Pixel), SEO local e — quando validado — mídia paga. Cada peça trabalha em conjunto para transformar intenção de busca em agendamento real na sua agenda."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Minha clínica já tem redes sociais. Por que precisaria disso?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Redes sociais geram visibilidade, mas não controlam a jornada do cliente. Um sistema de aquisição captura esse tráfego, qualifica o lead e direciona diretamente para o fechamento — com rastreamento real em cada etapa. São camadas complementares, não concorrentes."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Qual a diferença entre a PIXELRY e agências de marketing?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Agência de marketing te vende post, stories e gestão de redes. A gente constrói o sistema que captura e converte o tráfego que você já tem — e o que vai chegar com os anúncios. São coisas diferentes. A maioria das agências não faz o que a gente faz."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Vou precisar entender de tecnologia para gerenciar meu site?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Não. Entregamos o projeto funcional, treinamos você (ou sua equipe) nas partes que precisam de atualização rotineira e permanecemos disponíveis para suporte. O objetivo é que você gerencie o conteúdo sem depender de nós para cada pequena mudança."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Como funciona o processo de pagamento?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Nosso modelo tem duas etapas. Primeiro, você investe na Taxa de Setup — o projeto completo: desenvolvimento, design, tagueamento e publicação. Após a entrega, entra o Acompanhamento Mensal: hosting premium, o Hub PIXELRY com seus dados em tempo real, suporte técnico e manutenção contínua."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "E se eu não gostar do resultado?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Todo projeto tem rodadas de revisão definidas no contrato. Trabalhamos com aprovação etapa por etapa justamente para evitar surpresas no final. Se algo não estiver alinhado com o que foi acordado, ajustamos sem custo adicional."
+              }
+            }
+          ]
+        }
+      ]
     }
     </script>
   </head>
