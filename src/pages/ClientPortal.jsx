@@ -807,12 +807,16 @@ function UploadZone({ uploads, setUploads, user }) {
 
       const { error: storageError } = await supabase.storage
         .from("client-uploads")
-        .upload(path, f, { upsert: false });
+        .upload(path, f, {
+          upsert: false,
+          contentType: f.type || "application/octet-stream",
+        });
 
       clearInterval(iv);
 
       if (storageError) {
-        setUploads((prev) => prev.map((x) => x.id === entry.id ? { ...x, progress: 0, error: true } : x));
+        console.error("[Upload] Falha no storage:", storageError.message);
+        setUploads((prev) => prev.map((x) => x.id === entry.id ? { ...x, progress: 0, error: true, errorMsg: storageError.message } : x));
         continue;
       }
 
@@ -899,17 +903,17 @@ function UploadZone({ uploads, setUploads, user }) {
             return (
               <div key={u.id} style={{
                 background: C.card,
-                border: `1px solid ${u.done ? "rgba(37,211,102,0.25)" : C.border}`,
+                border: `1px solid ${u.error ? "rgba(239,68,68,0.35)" : u.done ? "rgba(37,211,102,0.25)" : C.border}`,
                 borderRadius: 12,
                 padding: "12px 14px",
                 display: "flex", alignItems: "center", gap: 12,
               }}>
                 <div style={{
                   width: 34, height: 34, borderRadius: 8, flexShrink: 0,
-                  background: u.done ? "rgba(37,211,102,0.1)" : "rgba(128, 64, 245, 0.1)",
+                  background: u.error ? "rgba(239,68,68,0.1)" : u.done ? "rgba(37,211,102,0.1)" : "rgba(128, 64, 245, 0.1)",
                   display: "flex", alignItems: "center", justifyContent: "center",
                 }}>
-                  <Icon size={15} color={u.done ? C.success : C.purple} strokeWidth={1.5} />
+                  <Icon size={15} color={u.error ? "#ef4444" : u.done ? C.success : C.purple} strokeWidth={1.5} />
                 </div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{
@@ -917,7 +921,11 @@ function UploadZone({ uploads, setUploads, user }) {
                     color: C.text, marginBottom: 4,
                     whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
                   }}>{u.name}</div>
-                  {!u.done ? (
+                  {u.error ? (
+                    <div style={{ fontSize: 11, color: "#ef4444", fontFamily: FONT_MONO }}>
+                      ✕ Falha no envio — tente novamente
+                    </div>
+                  ) : !u.done ? (
                     <div style={{ background: "rgba(255,255,255,0.06)", borderRadius: 4, height: 4 }}>
                       <div style={{
                         height: "100%", borderRadius: 4,
@@ -930,7 +938,7 @@ function UploadZone({ uploads, setUploads, user }) {
                     <div style={{ fontSize: 11, color: C.success, fontFamily: FONT_MONO }}>✓ Enviado — {u.size}</div>
                   )}
                 </div>
-                {!u.done && (
+                {!u.done && !u.error && (
                   <div style={{ fontSize: 11, fontFamily: FONT_MONO, color: C.textSub, flexShrink: 0 }}>
                     {u.progress}%
                   </div>
