@@ -2,6 +2,7 @@ import React, { Suspense, useEffect, useState } from 'react'
 import { Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom'
 import Nav          from './components/Nav'
 import Hero         from './components/Hero'
+import Marquee      from './components/Marquee'
 import Problema     from './components/Problema'
 import Servicos     from './components/Servicos'
 import Footer       from './components/Footer'
@@ -19,6 +20,8 @@ const Cases = React.lazy(() => import('./components/Cases'))
 const ParaQuem = React.lazy(() => import('./components/ParaQuem'))
 const Manifesto = React.lazy(() => import('./components/Manifesto'))
 const Planos = React.lazy(() => import('./components/Planos'))
+const Numeros = React.lazy(() => import('./components/Numeros'))
+const BrasilMap = React.lazy(() => import('./components/BrasilMap'))
 const Faq = React.lazy(() => import('./components/Faq'))
 const CtaFinal = React.lazy(() => import('./components/CtaFinal'))
 const PoliticaPrivacidade = React.lazy(() => import('./pages/PoliticaPrivacidade'))
@@ -38,15 +41,18 @@ const Kanban          = React.lazy(() => import('./admin/pages/Kanban'))
 const Home = () => (
   <>
     <Hero />
+    <Marquee />
     <Problema />
     <Servicos />
     <Suspense fallback={<div style={{ minHeight: '100dvh', background: 'var(--bg)' }}></div>}>
       <Core />
       <Processo />
+      <BrasilMap />
       <Diferenciais />
       <Showcase />
       <Cases />
       <ParaQuem />
+      <Numeros />
       <Manifesto />
       <Planos />
       <Faq />

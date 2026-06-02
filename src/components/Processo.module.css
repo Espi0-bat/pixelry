@@ -130,7 +130,47 @@
 
 @media (max-width: 900px) {
   .inner { padding: 80px 20px; }
-  .list { grid-template-columns: 1fr; }
+
+  .list {
+    grid-template-columns: 1fr;
+    position: relative;
+    padding-left: 22px;
+  }
+
+  /* Vertical connector line */
+  .list::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 28px;
+    bottom: 28px;
+    width: 1px;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      var(--border) 8%,
+      var(--border) 92%,
+      transparent
+    );
+  }
+
+  /* Connector node per step */
+  .step {
+    position: relative;
+  }
+
+  .step::before {
+    content: '';
+    position: absolute;
+    left: -26px;
+    top: 36px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 8px rgba(0, 216, 255, 0.55);
+  }
+
   .step:nth-child(odd) { padding-right: 0; border-right: none; }
   .step:nth-child(even) { padding-left: 0; }
   .step:nth-last-child(-n+2) { border-bottom: 1px solid var(--border); }

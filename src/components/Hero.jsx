@@ -11,6 +11,7 @@ export default function Hero() {
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const ctx = canvas.getContext('2d')
     const DOT_SPACING = 40
     const DOT_R = 1.4
@@ -170,6 +171,17 @@ export default function Hero() {
             <Link to="/portal" className="btn-secondary btn-client-area" aria-label="Abrir área do cliente Pixelry">
               Área do Cliente
             </Link>
+          </div>
+
+          <div className={styles.socialProof}>
+            <div className={styles.avatars}>
+              <span className={styles.avatar}>C</span>
+              <span className={styles.avatar}>M</span>
+              <span className={styles.avatar}>D</span>
+            </div>
+            <span className={styles.socialText}>
+              3 clínicas iniciaram diagnóstico essa semana
+            </span>
           </div>
         </div>
 

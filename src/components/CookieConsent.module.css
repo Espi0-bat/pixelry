@@ -21,13 +21,13 @@
   padding: 24px;
   width: 100%;
   max-width: 800px;
-  color: var(--text-primary, #fff);
+  color: var(--text);
   pointer-events: auto;
   box-shadow: 0 24px 48px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.05) inset;
   display: flex;
   flex-direction: column;
   gap: 16px;
-  font-family: var(--font-sans);
+  font-family: var(--font-body);
 }
 
 .header {
@@ -43,7 +43,7 @@
 }
 
 .icon {
-  color: var(--accent, #6366f1);
+  color: var(--purple);
 }
 
 .title {
@@ -55,7 +55,7 @@
 .closeBtn {
   background: transparent;
   border: none;
-  color: var(--text-secondary, #a0a0a0);
+  color: var(--text-dim);
   cursor: pointer;
   padding: 8px;
   border-radius: 50%;
@@ -73,12 +73,12 @@
 .description {
   font-size: 0.95rem;
   line-height: 1.6;
-  color: var(--text-secondary, #a0a0a0);
+  color: var(--text-dim);
   margin: 0;
 }
 
 .link {
-  color: var(--accent, #6366f1);
+  color: var(--purple);
   text-decoration: underline;
   text-decoration-color: transparent;
   text-underline-offset: 4px;
@@ -86,7 +86,7 @@
 }
 
 .link:hover {
-  text-decoration-color: var(--accent, #6366f1);
+  text-decoration-color: var(--purple);
 }
 
 /* Detalhes */
@@ -139,7 +139,7 @@
 
 .preferenceDesc {
   font-size: 0.85rem;
-  color: var(--text-secondary, #a0a0a0);
+  color: var(--text-dim);
   margin: 0;
   line-height: 1.5;
 }
@@ -184,11 +184,11 @@
 }
 
 .toggleInput:checked + .toggleLabel {
-  background-color: var(--accent, #6366f1);
+  background-color: var(--purple);
 }
 
 .toggleInput:focus + .toggleLabel {
-  box-shadow: 0 0 1px var(--accent, #6366f1);
+  box-shadow: 0 0 1px var(--purple);
 }
 
 .toggleInput:checked + .toggleLabel:before {
@@ -213,7 +213,7 @@
 .detailsBtn {
   background: transparent;
   border: none;
-  color: var(--text-secondary, #a0a0a0);
+  color: var(--text-dim);
   font-size: 0.9rem;
   cursor: pointer;
   display: flex;

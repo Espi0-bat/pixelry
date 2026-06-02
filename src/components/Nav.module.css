@@ -44,7 +44,7 @@
   color: var(--bg);
   background: var(--grad);
   border: 1px solid transparent;
-  border-radius: 6px;
+  border-radius: 100px;
   padding: 10px 24px;
   text-decoration: none;
   text-transform: uppercase;
