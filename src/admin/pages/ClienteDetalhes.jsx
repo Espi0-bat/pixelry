@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   ChevronLeft, Plus, Download, UploadCloud, Send,
   Mail, Phone, Globe, AtSign, User, StickyNote, Pencil, Save, X,
-  Music2, Briefcase, Users,
+  Music2, Briefcase, Users, Link2, HardDrive, FileText, Image, File, Trash2,
 } from 'lucide-react';
 import { supabase } from '../../config/supabase';
 import './ClienteDetalhes.css';
@@ -42,6 +42,12 @@ export default function ClienteDetalhes() {
   const [pendingEnabled, setPendingEnabled] = useState({});
   const [savingContact, setSavingContact] = useState(false);
 
+  const [clientFiles, setClientFiles] = useState([]);
+  const [loadingFiles, setLoadingFiles] = useState(false);
+  const [driveLinks, setDriveLinks] = useState([]);
+  const [driveLinkForm, setDriveLinkForm] = useState({ label: '', url: '' });
+  const [savingDriveLink, setSavingDriveLink] = useState(false);
+
   const [chatMsg, setChatMsg] = useState('');
   const [sendingMsg, setSendingMsg] = useState(false);
   const chatBottomRef = useRef(null);
@@ -73,6 +79,7 @@ export default function ClienteDetalhes() {
         const enabled = OPTIONAL_FIELDS.reduce((acc, f) => ({ ...acc, [f]: !!(contact[f]) }), {});
         setEnabledFields(enabled);
         setPendingEnabled(enabled);
+        setDriveLinks(ci.drive_links || []);
       }
       setLoadingClient(false);
     }
@@ -88,6 +95,17 @@ export default function ClienteDetalhes() {
       .eq('client_id', id)
       .order('created_at', { ascending: false })
       .then(({ data }) => { setDeliveries(data || []); setLoadingDeliveries(false); });
+  }, [activeTab, id]);
+
+  useEffect(() => {
+    if (activeTab !== 'documentos') return;
+    setLoadingFiles(true);
+    supabase
+      .from('client_files')
+      .select('id, name, type, file_url, size_label, created_at')
+      .eq('client_id', id)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => { setClientFiles(data || []); setLoadingFiles(false); });
   }, [activeTab, id]);
 
   useEffect(() => {
@@ -115,7 +133,7 @@ export default function ClienteDetalhes() {
     };
     await supabase
       .from('profiles')
-      .update({ contact_info: newContact })
+      .update({ contact_info: { ...newContact, drive_links: driveLinks } })
       .eq('id', id);
     setContactData(newContact);
     setEmailsRaw(updatedEmails.join('\n'));
@@ -154,6 +172,38 @@ export default function ClienteDetalhes() {
       .single();
     if (data) setMessages(prev => [...prev, data]);
     setSendingMsg(false);
+  };
+
+  const addDriveLink = async () => {
+    if (!driveLinkForm.url.trim()) return;
+    setSavingDriveLink(true);
+    const newLinks = [...driveLinks, { id: Date.now(), label: driveLinkForm.label.trim() || driveLinkForm.url.trim(), url: driveLinkForm.url.trim() }];
+    const ci = client?.contact_info || {};
+    await supabase.from('profiles').update({ contact_info: { ...ci, drive_links: newLinks } }).eq('id', id);
+    setDriveLinks(newLinks);
+    setDriveLinkForm({ label: '', url: '' });
+    setSavingDriveLink(false);
+  };
+
+  const removeDriveLink = async (linkId) => {
+    const newLinks = driveLinks.filter(l => l.id !== linkId);
+    const ci = client?.contact_info || {};
+    await supabase.from('profiles').update({ contact_info: { ...ci, drive_links: newLinks } }).eq('id', id);
+    setDriveLinks(newLinks);
+  };
+
+  const getFileIcon = (name) => {
+    const ext = (name || '').split('.').pop().toLowerCase();
+    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return Image;
+    if (['pdf', 'doc', 'docx', 'txt'].includes(ext)) return FileText;
+    return File;
+  };
+
+  const getDriveLinkMeta = (url) => {
+    if (url.includes('drive.google')) return { icon: HardDrive, color: '#4285F4' };
+    if (url.includes('dropbox')) return { icon: HardDrive, color: '#0061FF' };
+    if (url.includes('notion')) return { icon: StickyNote, color: '#fff' };
+    return { icon: Link2, color: 'var(--primary-color)' };
   };
 
   const handleNewDelivery = () => navigate('/admin/entregas');
@@ -270,13 +320,33 @@ export default function ClienteDetalhes() {
 
   const renderDocumentos = () => (
     <div className="tab-pane animate-in">
-      <div className="upload-area">
-        <UploadCloud size={32} className="upload-icon" />
-        <p>Contratos e documentos internos do cliente</p>
-      </div>
-      <p style={{ fontSize: 12, color: 'var(--text-secondary)', marginTop: 12 }}>
-        Use a página Entregas para enviar arquivos ao cliente.
-      </p>
+      <h3 className="docs-section-title">Arquivos Enviados pelo Cliente</h3>
+      {loadingFiles ? (
+        <p style={{ color: 'var(--text-secondary)', fontSize: 13 }}>Carregando arquivos...</p>
+      ) : clientFiles.length === 0 ? (
+        <div className="upload-area">
+          <UploadCloud size={32} className="upload-icon" />
+          <p>Nenhum arquivo enviado pelo cliente ainda.</p>
+        </div>
+      ) : (
+        <div className="docs-list">
+          {clientFiles.map(f => {
+            const Icon = getFileIcon(f.name);
+            return (
+              <div key={f.id} className="doc-item">
+                <div className="doc-icon"><Icon size={22} /></div>
+                <div className="doc-info">
+                  <h4>{f.name}</h4>
+                  <span>{f.type}{f.size_label ? ` · ${f.size_label}` : ''} · {new Date(f.created_at).toLocaleDateString('pt-BR')}</span>
+                </div>
+                <button className="btn-icon" title="Abrir arquivo" onClick={() => window.open(f.file_url, '_blank')}>
+                  <Download size={16} />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 
@@ -437,6 +507,52 @@ export default function ClienteDetalhes() {
             ) : <span className="info-notas">{contactData.notas || '—'}</span>}
           </div>
         </div>
+      </div>
+
+      {/* Links de Pastas */}
+      <div className="info-card-header" style={{ marginTop: 40 }}>
+        <h3>Links de Pastas</h3>
+      </div>
+      {driveLinks.length > 0 && (
+        <div className="drive-links-list">
+          {driveLinks.map(link => {
+            const { icon: DIcon, color } = getDriveLinkMeta(link.url);
+            return (
+              <div key={link.id} className="drive-link-item">
+                <div className="drive-link-icon" style={{ color }}>
+                  <DIcon size={20} />
+                </div>
+                <a href={link.url} target="_blank" rel="noreferrer" className="drive-link-label">
+                  {link.label}
+                </a>
+                <button className="btn-icon" style={{ width: 32, height: 32 }} title="Remover" onClick={() => removeDriveLink(link.id)}>
+                  <Trash2 size={14} />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {driveLinks.length === 0 && (
+        <p style={{ color: 'var(--text-secondary)', fontSize: 13, marginBottom: 16 }}>Nenhum link adicionado.</p>
+      )}
+      <div className="drive-link-form">
+        <input
+          className="info-input"
+          placeholder="Nome (ex: Fotos do Projeto)"
+          value={driveLinkForm.label}
+          onChange={e => setDriveLinkForm(p => ({ ...p, label: e.target.value }))}
+        />
+        <input
+          className="info-input"
+          placeholder="URL (ex: https://drive.google.com/...)"
+          value={driveLinkForm.url}
+          onChange={e => setDriveLinkForm(p => ({ ...p, url: e.target.value }))}
+          onKeyDown={e => { if (e.key === 'Enter') addDriveLink(); }}
+        />
+        <button className="btn-primary" onClick={addDriveLink} disabled={savingDriveLink || !driveLinkForm.url.trim()}>
+          <Plus size={15} /> {savingDriveLink ? 'Salvando...' : 'Adicionar'}
+        </button>
       </div>
     </div>
   );
