@@ -1,7 +1,18 @@
 import React from 'react';
+import { Helmet } from 'react-helmet-async';
 
 export default function TermosUso() {
   return (
+    <>
+      <Helmet>
+        <title>Termos de Uso — PIXELRY</title>
+        <meta name="description" content="Termos de uso do site PIXELRY. Condições gerais de acesso, direitos autorais e responsabilidades." />
+        <meta name="robots" content="noindex, follow" />
+        <meta property="og:title" content="Termos de Uso — PIXELRY" />
+        <meta property="og:description" content="Termos e condições de uso do site e serviços da PIXELRY." />
+        <meta property="og:url" content="https://www.pixelry.com.br/termos" />
+        <link rel="canonical" href="https://www.pixelry.com.br/termos" />
+      </Helmet>
     <div style={{
       maxWidth: '800px',
       margin: '0 auto',
@@ -13,7 +24,7 @@ export default function TermosUso() {
       <h1 style={{ fontSize: '2.5rem', marginBottom: '24px', fontWeight: 'bold' }}>Termos de Uso</h1>
       
       <p style={{ marginBottom: '16px', color: 'var(--text-secondary, #a0a0a0)' }}>
-        Última atualização: [Data de hoje]
+        Última atualização: 02 de junho de 2026
       </p>
 
       <h2 style={{ fontSize: '1.5rem', marginTop: '32px', marginBottom: '16px' }}>1. Termos</h2>
@@ -53,5 +64,6 @@ export default function TermosUso() {
         Estes termos e condições são regidos e interpretados de acordo com as leis do Brasil e você se submete irrevogavelmente à jurisdição exclusiva dos tribunais naquele estado ou localidade.
       </p>
     </div>
+    </>
   );
 }

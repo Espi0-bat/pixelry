@@ -1,0 +1,23 @@
+{
+  "name": "PIXELRY — Engenharia Digital e Aquisição de Clientes",
+  "short_name": "PIXELRY",
+  "description": "Empresa de engenharia digital em Brasília. Construímos sistemas previsíveis de aquisição de clientes para clínicas e negócios locais.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#070710",
+  "theme_color": "#070710",
+  "scope": "/",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}

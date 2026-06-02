@@ -1,7 +1,17 @@
-import React from 'react';
+import { Helmet } from 'react-helmet-async';
 
 export default function PoliticaPrivacidade() {
   return (
+    <>
+      <Helmet>
+        <title>Política de Privacidade — PIXELRY</title>
+        <meta name="description" content="Política de privacidade da PIXELRY. Saiba como coletamos, usamos e protegemos seus dados pessoais de acordo com a LGPD." />
+        <meta name="robots" content="noindex, follow" />
+        <meta property="og:title" content="Política de Privacidade — PIXELRY" />
+        <meta property="og:description" content="Política de privacidade da PIXELRY conforme a Lei Geral de Proteção de Dados (LGPD)." />
+        <meta property="og:url" content="https://www.pixelry.com.br/privacidade" />
+        <link rel="canonical" href="https://www.pixelry.com.br/privacidade" />
+      </Helmet>
     <div style={{
       maxWidth: '800px',
       margin: '0 auto',
@@ -13,7 +23,7 @@ export default function PoliticaPrivacidade() {
       <h1 style={{ fontSize: '2.5rem', marginBottom: '24px', fontWeight: 'bold' }}>Política de Privacidade</h1>
       
       <p style={{ marginBottom: '16px', color: 'var(--text-secondary, #a0a0a0)' }}>
-        Última atualização: [Data de hoje]
+        Última atualização: 02 de junho de 2026
       </p>
 
       <p style={{ marginBottom: '24px' }}>
@@ -53,8 +63,9 @@ export default function PoliticaPrivacidade() {
 
       <h2 style={{ fontSize: '1.5rem', marginTop: '32px', marginBottom: '16px' }}>5. Contato</h2>
       <p style={{ marginBottom: '24px' }}>
-        Se você tiver alguma dúvida sobre como lidamos com dados do usuário e informações pessoais, entre em contato conosco através do e-mail: <strong>[SEU E-MAIL AQUI]</strong>.
+        Se você tiver alguma dúvida sobre como lidamos com dados do usuário e informações pessoais, entre em contato conosco através do e-mail: <strong>pixelry.contato@gmail.com</strong>.
       </p>
     </div>
+    </>
   );
 }
