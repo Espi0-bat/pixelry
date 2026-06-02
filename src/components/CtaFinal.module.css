@@ -2,6 +2,9 @@
   position: relative;
   overflow: hidden;
   text-align: center;
+  background:
+    radial-gradient(ellipse at 15% 50%, rgba(128, 64, 245, 0.09) 0%, transparent 60%),
+    radial-gradient(ellipse at 85% 50%, rgba(0, 216, 255, 0.06) 0%, transparent 60%);
 }
 
 .bgGeo {

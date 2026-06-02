@@ -1,0 +1,195 @@
+.section {
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--bg2);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--section-pad);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+}
+
+/* ─── Left copy ─── */
+.text {}
+
+.h2 {
+  font-family: var(--font-display);
+  font-size: clamp(26px, 3vw, 46px);
+  font-weight: 700;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  margin-bottom: 20px;
+}
+
+.sub {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.85;
+  font-weight: 300;
+  max-width: 380px;
+  margin-bottom: 32px;
+}
+
+.cityList {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.cityItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
+.cityDot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cyan);
+  flex-shrink: 0;
+  box-shadow: 0 0 5px rgba(0, 216, 255, 0.6);
+}
+
+/* ─── Map container ─── */
+.mapWrap {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.svg {
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+  filter: drop-shadow(0 0 48px rgba(128, 64, 245, 0.12));
+}
+
+/* ─── Brazil outline — draw-in animation ─── */
+.outline {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.1);
+  stroke-width: 1.5;
+  stroke-dasharray: 3200;
+  stroke-dashoffset: 3200;
+  transition: stroke-dashoffset 2.2s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+}
+
+.svgVisible .outline {
+  stroke-dashoffset: 0;
+}
+
+.fill {
+  fill: rgba(128, 64, 245, 0.035);
+}
+
+/* ─── Connection spokes ─── */
+.spoke {
+  stroke: rgba(0, 216, 255, 0.22);
+  stroke-width: 0.7;
+  stroke-dasharray: 3 4;
+  opacity: 0;
+  transition: opacity 0.4s ease var(--delay, 0.8s);
+}
+
+.svgVisible .spoke {
+  opacity: 1;
+}
+
+/* ─── City dots ─── */
+.cityGroup {
+  opacity: 0;
+  transition: opacity 0.35s ease var(--delay, 0.9s);
+}
+
+.svgVisible .cityGroup {
+  opacity: 1;
+}
+
+.cityPulse {
+  transform-origin: center;
+  animation: cityPulseAnim 2.8s ease-in-out infinite;
+}
+
+@keyframes cityPulseAnim {
+  0%, 100% { r: 6; opacity: 0.45; }
+  50%       { r: 11; opacity: 0.08; }
+}
+
+/* ─── Hub (Brasília) ─── */
+.hubGroup {
+  opacity: 0;
+  transition: opacity 0.5s ease 1.8s;
+}
+
+.hubVisible {
+  opacity: 1;
+}
+
+.hubRingOuter {
+  transform-origin: 332px 304px;
+  animation: hubPulseOuter 3.2s ease-in-out infinite;
+}
+
+.hubRingInner {
+  transform-origin: 332px 304px;
+  animation: hubPulseInner 3.2s ease-in-out infinite 0.6s;
+}
+
+@keyframes hubPulseOuter {
+  0%, 100% { transform: scale(1);    opacity: 0.45; }
+  50%       { transform: scale(1.5); opacity: 0.08; }
+}
+
+@keyframes hubPulseInner {
+  0%, 100% { transform: scale(1);    opacity: 0.75; }
+  50%       { transform: scale(1.4); opacity: 0.15; }
+}
+
+.hubLabel {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.12em;
+  fill: rgba(255, 255, 255, 0.4);
+  text-transform: uppercase;
+}
+
+/* ─── Responsive ─── */
+@media (max-width: 900px) {
+  .inner {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: var(--section-pad-mobile);
+  }
+  .mapWrap { order: -1; }
+  .svg { max-width: 340px; }
+  .sub { max-width: 100%; }
+}
+
+@media (max-width: 480px) {
+  .svg { max-width: 300px; }
+  .cityList { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .outline  { transition: none; }
+  .spoke    { transition: none; opacity: 1; }
+  .cityGroup { transition: none; opacity: 1; }
+  .hubGroup  { transition: none; opacity: 1; }
+  .cityPulse,
+  .hubRingOuter,
+  .hubRingInner { animation: none; }
+}

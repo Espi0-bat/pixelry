@@ -24,7 +24,7 @@ export default function StickyCta() {
   if (!visible) return null
 
   return (
-    <div className="sticky-cta" aria-label="Contato rápido" style={{ animation: 'fadeUp 0.4s ease' }}>
+    <div className="sticky-cta" aria-label="Contato rápido" style={{ animation: 'fadeInUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards' }}>
       <a 
         href={WA_LINK} 
         target="_blank" 

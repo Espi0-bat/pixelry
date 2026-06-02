@@ -130,11 +130,13 @@ export default function Planos() {
               const isDestaque = i === activeIndex;
 
               return (
-                 // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
-                <div 
-                  key={p.nome} 
+                <button
+                  key={p.nome}
+                  type="button"
                   className={`${styles.cardCover} ${positionClass}`}
                   onClick={() => setActiveIndex(i)}
+                  aria-pressed={i === activeIndex}
+                  aria-label={`Ver plano ${p.nome}`}
                 >
                   <div className={`${styles.card} ${isDestaque ? styles.destaque : ''}`}>
                     {p.nome === 'PRO' && <div className={styles.badge}>MAIS RECOMENDADO</div>}
@@ -179,7 +181,7 @@ export default function Planos() {
                       </a>
                     )}
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>

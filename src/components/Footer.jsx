@@ -34,7 +34,7 @@ export default function Footer() {
           <p className={styles.navTitle}>Navegação</p>
           <a href="#servicos" className={styles.navLink}>Serviços</a>
           <a href="#processo" className={styles.navLink}>Processo</a>
-          <a href="#contato"  className={styles.navLink}>Contato</a>
+          <a href={WA_LINK} target="_blank" rel="noreferrer" className={styles.navLink}>Contato</a>
         </nav>
 
         {/* Legal */}
