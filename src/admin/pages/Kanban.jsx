@@ -79,13 +79,23 @@ export default function Kanban() {
     dragId.current = null;
     setDragOver(null);
 
-    // Optimistic update
-    setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: colId } : t));
+    // Guarda status anterior para rollback
+    let prevStatus = null;
+    setTasks(prev => prev.map(t => {
+      if (t.id !== taskId) return t;
+      prevStatus = t.status;
+      return { ...t, status: colId };
+    }));
 
-    await supabase
+    const { error } = await supabase
       .from('kanban_tasks')
       .update({ status: colId })
       .eq('id', taskId);
+
+    if (error) {
+      console.error('Kanban drop error:', error);
+      setTasks(prev => prev.map(t => t.id === taskId ? { ...t, status: prevStatus } : t));
+    }
   }, []);
 
   // ── Adicionar tarefa ─────────────────────────────────────────────────────
@@ -93,7 +103,7 @@ export default function Kanban() {
     if (!form.title.trim() || saving) return;
     setSaving(true);
 
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('kanban_tasks')
       .insert({
         title:    form.title.trim(),
@@ -103,13 +113,9 @@ export default function Kanban() {
         priority: form.priority,
         due:      form.due || null,
         status:   'backlog',
-      })
-      .select()
-      .single();
+      });
 
-    if (!error && data) {
-      setTasks(prev => [...prev, data]);
-    }
+    if (error) console.error('Kanban insert error:', error);
     setModal(false);
     setForm(EMPTY_FORM);
     setSaving(false);
@@ -138,6 +144,7 @@ export default function Kanban() {
 
   // ── Deletar card ─────────────────────────────────────────────────────────
   const handleDeleteTask = useCallback(async (taskId) => {
+    if (!window.confirm('Excluir esta tarefa? A ação não pode ser desfeita.')) return;
     setTasks(prev => prev.filter(t => t.id !== taskId));
     await supabase.from('kanban_tasks').delete().eq('id', taskId);
   }, []);
@@ -265,11 +272,20 @@ export default function Kanban() {
               <div className="kform-grid">
                 <div className="kform-row">
                   <label className="kform-label">Prioridade</label>
-                  <select className="kform-input" value={form.priority} onChange={e => setForm(f => ({ ...f, priority: e.target.value }))}>
-                    <option value="low">Baixa</option>
-                    <option value="medium">Média</option>
-                    <option value="high">Alta</option>
-                  </select>
+                  <div className="kpriority-selector">
+                    {Object.entries(PRIORITY_MAP).map(([key, p]) => (
+                      <button
+                        key={key}
+                        type="button"
+                        className={`kpriority-opt${form.priority === key ? ' kpriority-opt--active' : ''}`}
+                        style={{ '--p-color': p.color, '--p-bg': p.bg }}
+                        onClick={() => setForm(f => ({ ...f, priority: key }))}
+                      >
+                        <Flag size={11} />
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
                 </div>
                 <div className="kform-row">
                   <label className="kform-label">Prazo</label>

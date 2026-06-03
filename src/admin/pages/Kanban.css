@@ -335,6 +335,42 @@
   color: var(--text-faint);
 }
 
+/* Priority selector */
+.kpriority-selector {
+  display: flex;
+  gap: 8px;
+}
+
+.kpriority-opt {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 8px 6px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.kpriority-opt:hover {
+  border-color: var(--p-color);
+  color: var(--p-color);
+  background: var(--p-bg);
+}
+
+.kpriority-opt--active {
+  border-color: var(--p-color);
+  color: var(--p-color);
+  background: var(--p-bg);
+}
+
 .kanban-modal-footer {
   display: flex;
   justify-content: flex-end;
