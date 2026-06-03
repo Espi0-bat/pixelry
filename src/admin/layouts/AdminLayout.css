@@ -33,6 +33,23 @@
   --nav-glow-color: rgba(184,77,255,0.8);
 }
 
+.admin-layout.theme-rose {
+  --admin-bg-image: url('/assets/rose-bg.png');
+  --neon-glow: 0 0 8px #ff6bbd, 0 0 18px #ff6bbd, 0 0 40px #e0448a, 0 0 80px rgba(255,107,189,0.3);
+  --neon-border: 1.5px solid rgba(255,192,220,0.6);
+  --glass-bg: rgba(8, 2, 6, 0.84);
+  --glass-border: rgba(255,107,189,0.2);
+  --neon-color: #ff6bbd;
+  --text-primary: #ff6bbd;
+  --watermark-content: '✦';
+  --watermark-color: rgba(255,107,189,0.07);
+  --sidebar-glass: rgba(7, 1, 5, 0.90);
+  --active-item-bg: linear-gradient(90deg, rgba(255,107,189,0.15), rgba(224,68,138,0.05));
+  --active-item-border: rgba(255,107,189,0.35);
+  --active-item-color: #ff6bbd;
+  --nav-glow-color: rgba(255,107,189,0.8);
+}
+
 .admin-layout {
   display: flex;
   height: 100vh;
@@ -55,7 +72,8 @@
 
 /* ── Themed background image ── */
 .admin-layout.theme-gold::before,
-.admin-layout.theme-obsidian::before {
+.admin-layout.theme-obsidian::before,
+.admin-layout.theme-rose::before {
   content: '';
   position: absolute;
   inset: 0;
@@ -70,7 +88,8 @@
 
 /* ── Dark overlay to ensure readability ── */
 .admin-layout.theme-gold::after,
-.admin-layout.theme-obsidian::after {
+.admin-layout.theme-obsidian::after,
+.admin-layout.theme-rose::after {
   content: '';
   position: absolute;
   inset: 0;
