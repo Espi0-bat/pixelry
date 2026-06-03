@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Plus, X, Calendar, User, Briefcase, Flag, ChevronDown } from 'lucide-react';
+import { Plus, X, Calendar, User, Briefcase, Flag, ChevronDown, Clock } from 'lucide-react';
 import { supabase } from '../../config/supabase';
 import './Kanban.css';
 
@@ -18,6 +18,31 @@ const PRIORITY_MAP = {
 };
 
 const EMPTY_FORM = { title: '', client: '', type: '', assignee: '', priority: 'medium', due: '' };
+
+const PRIORITY_RANK = { high: 3, medium: 2, low: 1 };
+
+function getEffectivePriority(task) {
+  if (!task.due) return { priority: task.priority, autoEscalated: false };
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daysLeft = Math.floor((new Date(task.due + 'T00:00:00') - today) / 86400000);
+  let minPriority = task.priority;
+  if (daysLeft <= 2) minPriority = 'high';
+  else if (daysLeft <= 5 && task.priority === 'low') minPriority = 'medium';
+  return { priority: minPriority, autoEscalated: PRIORITY_RANK[minPriority] > PRIORITY_RANK[task.priority] };
+}
+
+function formatDue(due) {
+  if (!due) return null;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const daysLeft = Math.floor((new Date(due + 'T00:00:00') - today) / 86400000);
+  if (daysLeft < 0)  return { text: `Vencido (${Math.abs(daysLeft)}d)`, level: 'overdue' };
+  if (daysLeft === 0) return { text: 'Hoje!', level: 'critical' };
+  if (daysLeft === 1) return { text: 'Amanhã', level: 'critical' };
+  if (daysLeft <= 5)  return { text: `${daysLeft} dias`, level: 'warning' };
+  return { text: due, level: null };
+}
 
 export default function Kanban() {
   const [tasks, setTasks]       = useState([]);
@@ -187,20 +212,26 @@ export default function Kanban() {
 
               <div className="kanban-cards">
                 {tasks.filter(t => t.status === col.id).map(task => {
-                  const p = PRIORITY_MAP[task.priority] || PRIORITY_MAP.medium;
+                  const { priority: effPriority, autoEscalated } = getEffectivePriority(task);
+                  const p = PRIORITY_MAP[effPriority] || PRIORITY_MAP.medium;
+                  const due = formatDue(task.due);
                   const colIdx = COLUMNS.findIndex(c => c.id === col.id);
                   return (
                     <div
                       key={task.id}
-                      className="kanban-card"
+                      className={`kanban-card${due?.level === 'overdue' ? ' kanban-card--overdue' : ''}`}
                       draggable
                       onDragStart={() => handleDragStart(task.id)}
                       onDragEnd={() => setDragOver(null)}
                     >
                       <div className="kcard-top">
                         <span className="kcard-type">{task.type}</span>
-                        <span className="kcard-priority" style={{ color: p.color, background: p.bg }}>
-                          <Flag size={10} />
+                        <span
+                          className={`kcard-priority${autoEscalated ? ' kcard-priority--escalated' : ''}`}
+                          style={{ color: p.color, background: p.bg }}
+                          title={autoEscalated ? `Escalada automaticamente pelo prazo (prioridade original: ${PRIORITY_MAP[task.priority]?.label})` : undefined}
+                        >
+                          {autoEscalated ? <Clock size={10} /> : <Flag size={10} />}
                           {p.label}
                         </span>
                       </div>
@@ -210,7 +241,12 @@ export default function Kanban() {
                       <div className="kcard-meta">
                         {task.client && <span><Briefcase size={12} />{task.client}</span>}
                         {task.assignee && <span><User size={12} />{task.assignee}</span>}
-                        {task.due && <span><Calendar size={12} />{task.due}</span>}
+                        {task.due && (
+                          <span className={due?.level ? `kcard-due--${due.level}` : ''}>
+                            <Calendar size={12} />
+                            {due?.text || task.due}
+                          </span>
+                        )}
                       </div>
 
                       <div className="kcard-actions">
