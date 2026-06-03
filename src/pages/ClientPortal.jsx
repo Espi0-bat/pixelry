@@ -1786,7 +1786,8 @@ export default function ClientPortal({ user, onLogout }) {
     const { error } = await supabase
       .from("deliveries")
       .update({ status: normalizedStatus })
-      .eq("id", id);
+      .eq("id", id)
+      .eq("client_id", user.id);
 
     if (error) {
       setDeliveries(previousDeliveries);

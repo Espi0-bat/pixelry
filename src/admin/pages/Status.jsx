@@ -39,17 +39,17 @@ export default function Status() {
       const deliveriesRaw = data || [];
 
       // Busca separada: só a última mensagem do cliente para entregas em revisão
-      const revisionIds = deliveriesRaw
+      const revisionClientIds = deliveriesRaw
         .filter(d => d.status === 'revision')
-        .map(d => d.id);
+        .map(d => d.client_id);
 
       let clientNoteMap = {};
-      if (revisionIds.length > 0) {
+      if (revisionClientIds.length > 0) {
         const { data: msgs } = await supabase
           .from('messages')
           .select('client_id, content, created_at')
           .eq('from_client', true)
-          .in('client_id', deliveriesRaw.filter(d => d.status === 'revision').map(d => d.client_id))
+          .in('client_id', revisionClientIds)
           .order('created_at', { ascending: false });
 
         // Mapeia client_id -> última mensagem (primeira do resultado, já ordenado desc)
@@ -69,6 +69,24 @@ export default function Status() {
       setLoading(false);
     }
     load();
+
+    // Realtime: atualiza status quando cliente age no portal
+    const channel = supabase
+      .channel('admin:status:deliveries')
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'deliveries' },
+        (payload) => {
+          setDeliveries(prev => prev.map(d =>
+            d.id === payload.new.id
+              ? { ...d, status: payload.new.status, updatedAt: formatDate(payload.new.updated_at) }
+              : d
+          ));
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   const updateStatus = async (id, nextStatus) => {
