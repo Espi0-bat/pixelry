@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, ChevronRight, CheckCircle, Clock, UserPlus } from 'lucide-react';
+import { Search, ChevronRight, CheckCircle, Clock, UserPlus, X, Send, Building2, Mail, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase } from '../../config/supabase';
+import { supabase, ADMIN_EMAILS } from '../../config/supabase';
 import './Clientes.css';
 
 const ClientCard = React.memo(function ClientCard({ client, onOpen }) {
@@ -70,42 +70,73 @@ export default function Clientes() {
   const [searchTerm, setSearchTerm] = useState('');
   const [clients, setClients] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showModal, setShowModal] = useState(false);
+  const [form, setForm] = useState({ full_name: '', company_name: '', email: '' });
+  const [saving, setSaving] = useState(false);
+  const [toast, setToast] = useState(null);
 
-  useEffect(() => {
-    async function load() {
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('id, full_name, company_name, email')
-        .order('full_name', { ascending: true });
+  async function loadClients() {
+    const { data: profiles } = await supabase
+      .from('profiles')
+      .select('id, full_name, company_name, email')
+      .not('email', 'in', `(${ADMIN_EMAILS.join(',')})`)
+      .order('full_name', { ascending: true });
 
-      if (!profiles?.length) { setLoading(false); return; }
+    if (!profiles?.length) { setLoading(false); return; }
 
-      const ids = profiles.map(p => p.id);
+    const ids = profiles.map(p => p.id);
 
-      const { data: deliveryCounts } = await supabase
-        .from('deliveries')
-        .select('client_id, status')
-        .in('client_id', ids);
+    const { data: deliveryCounts } = await supabase
+      .from('deliveries')
+      .select('client_id, status')
+      .in('client_id', ids);
 
-      const countMap = {};
-      for (const d of deliveryCounts || []) {
-        if (!countMap[d.client_id]) countMap[d.client_id] = { total: 0, pending: 0 };
-        countMap[d.client_id].total++;
-        if (d.status === 'pending') countMap[d.client_id].pending++;
-      }
-
-      setClients(profiles.map(p => ({
-        id: p.id,
-        name: p.company_name || p.full_name || p.email || 'Sem nome',
-        email: p.email || '',
-        activeProjects: countMap[p.id]?.total ?? 0,
-        pendingDeliveries: countMap[p.id]?.pending ?? 0,
-        status: 'Ativo',
-      })));
-      setLoading(false);
+    const countMap = {};
+    for (const d of deliveryCounts || []) {
+      if (!countMap[d.client_id]) countMap[d.client_id] = { total: 0, pending: 0 };
+      countMap[d.client_id].total++;
+      if (d.status === 'pending') countMap[d.client_id].pending++;
     }
-    load();
-  }, []);
+
+    setClients(profiles.map(p => ({
+      id: p.id,
+      name: p.company_name || p.full_name || p.email || 'Sem nome',
+      email: p.email || '',
+      activeProjects: countMap[p.id]?.total ?? 0,
+      pendingDeliveries: countMap[p.id]?.pending ?? 0,
+      status: 'Ativo',
+    })));
+    setLoading(false);
+  }
+
+  useEffect(() => { loadClients(); }, []);
+
+  function showToast(msg, type = 'success') {
+    setToast({ msg, type });
+    setTimeout(() => setToast(null), 4000);
+  }
+
+  async function handleInvite(e) {
+    e.preventDefault();
+    if (!form.email.trim()) return;
+    setSaving(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const { data, error } = await supabase.functions.invoke('create-client', {
+        body: form,
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (error || data?.error) throw new Error(data?.error || error.message);
+      showToast(`Convite enviado para ${form.email}`);
+      setShowModal(false);
+      setForm({ full_name: '', company_name: '', email: '' });
+      await loadClients();
+    } catch (err) {
+      showToast(err.message || 'Erro ao enviar convite', 'error');
+    } finally {
+      setSaving(false);
+    }
+  }
 
   const filtered = clients.filter(c =>
     c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -114,21 +145,42 @@ export default function Clientes() {
 
   return (
     <div className="clientes-container">
+      {/* Toast */}
+      <AnimatePresence>
+        {toast && (
+          <motion.div
+            className={`invite-toast ${toast.type}`}
+            initial={{ opacity: 0, y: -16 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -16 }}
+          >
+            {toast.type === 'success' ? <CheckCircle size={16} /> : <X size={16} />}
+            {toast.msg}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="clientes-header">
         <div>
           <h1>Gerenciar Clientes</h1>
           <p>Selecione um cliente para visualizar ou enviar entregas.</p>
         </div>
 
-        <div className="search-wrapper">
-          <Search size={18} className="search-icon" />
-          <input
-            type="text"
-            placeholder="Buscar cliente..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
+        <div className="clientes-header-actions">
+          <button className="btn-novo-cliente" onClick={() => setShowModal(true)}>
+            <UserPlus size={16} />
+            Novo Cliente
+          </button>
+          <div className="search-wrapper">
+            <Search size={18} className="search-icon" />
+            <input
+              type="text"
+              placeholder="Buscar cliente..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
         </div>
       </div>
 
@@ -160,12 +212,98 @@ export default function Clientes() {
               <UserPlus size={32} style={{ marginBottom: 12, opacity: 0.4 }} />
               <div>{searchTerm ? 'Nenhum cliente encontrado.' : 'Nenhum cliente cadastrado ainda.'}</div>
               <div style={{ fontSize: 12, marginTop: 6 }}>
-                {!searchTerm && 'Clientes aparecem aqui após criarem conta no portal.'}
+                {!searchTerm && 'Clique em "Novo Cliente" para cadastrar o primeiro.'}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* Modal Novo Cliente */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            className="modal-overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
+          >
+            <motion.div
+              className="modal-card"
+              initial={{ opacity: 0, scale: 0.94, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.94, y: 20 }}
+              transition={{ type: 'spring', stiffness: 300, damping: 28 }}
+            >
+              <div className="modal-header">
+                <div className="modal-title-wrap">
+                  <div className="modal-icon-bg">
+                    <UserPlus size={20} />
+                  </div>
+                  <div>
+                    <h2>Novo Cliente</h2>
+                    <p>Um email de convite será enviado automaticamente.</p>
+                  </div>
+                </div>
+                <button className="modal-close" onClick={() => setShowModal(false)}>
+                  <X size={18} />
+                </button>
+              </div>
+
+              <form className="modal-form" onSubmit={handleInvite}>
+                <div className="modal-field">
+                  <label><User size={14} /> Nome</label>
+                  <input
+                    type="text"
+                    placeholder="Nome do responsável"
+                    value={form.full_name}
+                    onChange={(e) => setForm(f => ({ ...f, full_name: e.target.value }))}
+                  />
+                </div>
+                <div className="modal-field">
+                  <label><Building2 size={14} /> Empresa</label>
+                  <input
+                    type="text"
+                    placeholder="Nome da empresa"
+                    value={form.company_name}
+                    onChange={(e) => setForm(f => ({ ...f, company_name: e.target.value }))}
+                  />
+                </div>
+                <div className="modal-field">
+                  <label><Mail size={14} /> Email <span className="required">*</span></label>
+                  <input
+                    type="email"
+                    placeholder="email@empresa.com"
+                    value={form.email}
+                    onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
+                    required
+                  />
+                </div>
+
+                <div className="modal-actions">
+                  <button type="button" className="btn-cancel" onClick={() => setShowModal(false)} disabled={saving}>
+                    Cancelar
+                  </button>
+                  <button type="submit" className="btn-invite" disabled={saving || !form.email.trim()}>
+                    {saving ? (
+                      <>
+                        <span className="spinner" />
+                        Enviando...
+                      </>
+                    ) : (
+                      <>
+                        <Send size={15} />
+                        Enviar Convite
+                      </>
+                    )}
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
