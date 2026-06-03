@@ -40,6 +40,12 @@
   overflow: hidden;
   background-color: var(--bg);
   position: relative;
+
+  /* Aliases usados pelas páginas admin */
+  --text-secondary: var(--text-dim);
+  --surface-color:  var(--surface);
+  --border-color:   var(--border);
+  --primary-color:  var(--purple);
 }
 
 /* ── Themed background image ── */
