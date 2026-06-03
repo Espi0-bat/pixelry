@@ -13,9 +13,15 @@ const OBSIDIAN_ORBS = [
   { w: 240, h: 240, top: '20%', left: '68%', color: 'rgba(184,77,255,0.07)' },
 ];
 
+const ROSE_ORBS = [
+  { w: 500, h: 500, top: '3%',  left: '6%',  color: 'rgba(255,107,189,0.14)' },
+  { w: 340, h: 340, top: '54%', left: '56%', color: 'rgba(224,68,138,0.11)' },
+  { w: 220, h: 220, top: '22%', left: '70%', color: 'rgba(255,182,220,0.08)' },
+];
+
 export default function AdminGlowEffects({ theme }) {
   const containerRef = useRef(null);
-  const orbs = theme === 'gold' ? GOLD_ORBS : OBSIDIAN_ORBS;
+  const orbs = theme === 'gold' ? GOLD_ORBS : theme === 'rose' ? ROSE_ORBS : OBSIDIAN_ORBS;
 
   useEffect(() => {
     const container = containerRef.current;

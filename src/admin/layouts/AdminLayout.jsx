@@ -20,7 +20,9 @@ export default function AdminLayout({ user, onLogout }) {
   const mouseRef  = useRef({ x: 0.5, y: 0.5 });
   const targetRef = useRef({ x: 0.5, y: 0.5 });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const theme = user?.email?.includes('erickvin49') ? 'gold' : 'obsidian';
+  const theme = user?.email?.includes('erickvin49') ? 'gold'
+    : user?.email?.includes('sofiagramelich') ? 'rose'
+    : 'obsidian';
   const themeRef = useRef(theme);
   themeRef.current = theme;
 
@@ -82,15 +84,19 @@ export default function AdminLayout({ user, onLogout }) {
           const t = 1 - dist / GLOW_RADIUS;
           alpha += t * 0.55;
           radius += t * 1.4;
-          const isGold = themeRef.current === 'gold';
-          const hue   = isGold ? 45 + (dist / GLOW_RADIUS) * 15 : 265 - (dist / GLOW_RADIUS) * 75;
-          const sat   = isGold ? 100 : 85;
-          const light = isGold ? 55 - (dist / GLOW_RADIUS) * 15 : 70 - (dist / GLOW_RADIUS) * 20;
+          const th = themeRef.current;
+          const hue = th === 'gold' ? 45 + (dist / GLOW_RADIUS) * 15
+            : th === 'rose' ? 330 - (dist / GLOW_RADIUS) * 20
+            : 265 - (dist / GLOW_RADIUS) * 75;
+          const sat   = th === 'gold' ? 100 : 85;
+          const light = th === 'gold' ? 55 - (dist / GLOW_RADIUS) * 15 : 70 - (dist / GLOW_RADIUS) * 20;
           ctx.fillStyle = `hsla(${hue}, ${sat}%, ${light}%, ${Math.min(alpha, 0.85)})`;
         } else {
-          const isGold = themeRef.current === 'gold';
-          ctx.fillStyle = isGold
+          const th = themeRef.current;
+          ctx.fillStyle = th === 'gold'
             ? `hsla(45, 90%, 52%, ${alpha})`
+            : th === 'rose'
+            ? `hsla(330, 80%, 70%, ${alpha})`
             : `hsla(265, 60%, 65%, ${alpha})`;
         }
         ctx.beginPath();
