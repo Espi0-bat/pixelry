@@ -412,6 +412,39 @@
   opacity: 0.88;
 }
 
+/* Deadline urgency */
+.kanban-card--overdue {
+  border-color: rgba(244, 63, 94, 0.45);
+  background: rgba(244, 63, 94, 0.04);
+}
+
+.kanban-card--overdue:hover {
+  border-color: rgba(244, 63, 94, 0.7);
+}
+
+.kcard-priority--escalated {
+  animation: priorityPulse 2s ease-in-out infinite;
+}
+
+@keyframes priorityPulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.65; }
+}
+
+.kcard-due--overdue {
+  color: #f43f5e !important;
+  font-weight: 600;
+}
+
+.kcard-due--critical {
+  color: #f59e0b !important;
+  font-weight: 600;
+}
+
+.kcard-due--warning {
+  color: #f59e0b !important;
+}
+
 /* ── Mobile: kanban vira scroll horizontal com snap ── */
 @media (max-width: 768px) {
   .kanban-page {
