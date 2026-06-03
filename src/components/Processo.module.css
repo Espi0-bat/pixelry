@@ -55,17 +55,26 @@
 .letterGhost {
   display: block;
   font-family: var(--font-display);
-  font-size: 56px;
-  font-weight: 800;
-  color: rgba(128, 64, 245, 0.10);
+  font-size: 72px;
+  font-weight: 900;
+  background: linear-gradient(135deg, rgba(128, 64, 245, 0.55), rgba(0, 216, 255, 0.45));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  filter: drop-shadow(0 0 18px rgba(128, 64, 245, 0.35)) drop-shadow(0 0 6px rgba(0, 216, 255, 0.2));
   letter-spacing: -0.05em;
   line-height: 1;
   pointer-events: none;
   user-select: none;
-  transition: color 0.3s;
+  transition: filter 0.35s ease, background 0.35s ease;
   margin-top: 4px;
 }
-.step:hover .letterGhost { color: rgba(0, 216, 255, 0.1); }
+.step:hover .letterGhost {
+  background: linear-gradient(135deg, rgba(160, 100, 255, 0.8), rgba(0, 216, 255, 0.75));
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 0 24px rgba(128, 64, 245, 0.6)) drop-shadow(0 0 10px rgba(0, 216, 255, 0.4));
+}
 
 .step:nth-child(odd) {
   padding-right: 64px;
