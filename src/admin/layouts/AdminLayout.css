@@ -46,6 +46,11 @@
   --surface-color:  var(--surface);
   --border-color:   var(--border);
   --primary-color:  var(--purple);
+  --primary-hover:  #a065ff;
+  --primary-glow:   rgba(128, 64, 245, 0.25);
+  --success-color:  #10b981;
+  --warning-color:  #f59e0b;
+  --danger-color:   #f43f5e;
 }
 
 /* ── Themed background image ── */
