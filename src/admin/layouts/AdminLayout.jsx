@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { Home, Users, FolderUp, Activity, LogOut, Kanban, Menu, X, Target } from 'lucide-react';
+import { Home, Users, FolderUp, Activity, LogOut, Kanban, Menu, X, Target, UserCircle2, MessageSquare, FileArchive } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../config/supabase';
 import logoImg from '../../components/images/pixelryicone.jpeg';
 import AdminGlowEffects from '../components/AdminGlowEffects';
+import ProfilePanel from '../components/ProfilePanel';
 import './AdminLayout.css';
 
 const DOT_SPACING = 40;
@@ -13,6 +14,12 @@ const GLOW_RADIUS = 160;
 const TARGET_FPS = 30;
 const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
+function getRoleFromEmail(email = '') {
+  if (email.includes('moutinhoezer') || email.includes('erickvin49')) return 'admin';
+  if (email.includes('sofiagramelich')) return 'employee';
+  return 'admin';
+}
+
 export default function AdminLayout({ user, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
@@ -20,6 +27,9 @@ export default function AdminLayout({ user, onLogout }) {
   const mouseRef  = useRef({ x: 0.5, y: 0.5 });
   const targetRef = useRef({ x: 0.5, y: 0.5 });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [avatarUrl, setAvatarUrl] = useState(null);
+  const [userRole, setUserRole] = useState(() => getRoleFromEmail(user?.email));
+  const [userProfile, setUserProfile] = useState(null);
   const theme = user?.email?.includes('erickvin49') ? 'gold'
     : user?.email?.includes('sofiagramelich') ? 'rose'
     : 'obsidian';
@@ -129,6 +139,21 @@ export default function AdminLayout({ user, onLogout }) {
     };
   }, []);
 
+  // Carrega perfil completo (avatar, role, job_title)
+  useEffect(() => {
+    if (!user?.id) return;
+    supabase
+      .from('profiles')
+      .select('avatar_url, role, job_title, full_name')
+      .eq('id', user.id)
+      .single()
+      .then(({ data }) => {
+        if (data?.avatar_url) setAvatarUrl(data.avatar_url);
+        if (data?.role)       setUserRole(data.role);
+        setUserProfile(data);
+      });
+  }, [user?.id]);
+
   const handleLogout = async () => {
     if (onLogout) {
       await onLogout();
@@ -137,10 +162,6 @@ export default function AdminLayout({ user, onLogout }) {
     }
     navigate('/admin');
   };
-
-  const initials = user?.email
-    ? user.email.substring(0, 2).toUpperCase()
-    : 'AD';
 
   const closeMenu = () => setIsMobileMenuOpen(false);
 
@@ -162,24 +183,47 @@ export default function AdminLayout({ user, onLogout }) {
         </div>
 
         <nav className="sidebar-nav">
-          <NavLink to="/admin" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} end onClick={closeMenu}>
-            <Home size={18} /><span>Dashboard</span>
-          </NavLink>
-          <NavLink to="/admin/clientes" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
-            <Users size={18} /><span>Clientes</span>
-          </NavLink>
-          <NavLink to="/admin/entregas" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
-            <FolderUp size={18} /><span>Entregas</span>
-          </NavLink>
-          <NavLink to="/admin/status" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
-            <Activity size={18} /><span>Status</span>
-          </NavLink>
-          <NavLink to="/admin/kanban" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
-            <Kanban size={18} /><span>Kanban</span>
-          </NavLink>
-          <NavLink to="/admin/metas" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
-            <Target size={18} /><span>Metas</span>
-          </NavLink>
+          {userRole === 'admin' ? (
+            <>
+              <NavLink to="/admin" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} end onClick={closeMenu}>
+                <Home size={18} /><span>Dashboard</span>
+              </NavLink>
+              <NavLink to="/admin/clientes" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
+                <Users size={18} /><span>Clientes</span>
+              </NavLink>
+              <NavLink to="/admin/entregas" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
+                <FolderUp size={18} /><span>Entregas</span>
+              </NavLink>
+              <NavLink to="/admin/status" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
+                <Activity size={18} /><span>Status</span>
+              </NavLink>
+              <NavLink to="/admin/kanban" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
+                <Kanban size={18} /><span>Kanban</span>
+              </NavLink>
+              <NavLink to="/admin/metas" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
+                <Target size={18} /><span>Metas</span>
+              </NavLink>
+              <div className="sidebar-nav-divider" />
+              <NavLink to="/admin/equipe" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
+                <UserCircle2 size={18} /><span>Equipe</span>
+              </NavLink>
+              <NavLink to="/admin/mensagens" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
+                <MessageSquare size={18} /><span>Mensagens</span>
+              </NavLink>
+            </>
+          ) : (
+            <>
+              <NavLink to="/admin" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} end onClick={closeMenu}>
+                <Home size={18} /><span>Meu Dashboard</span>
+              </NavLink>
+              <NavLink to="/admin/mensagens" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
+                <MessageSquare size={18} /><span>Mensagens</span>
+              </NavLink>
+              <NavLink to="/admin/arquivos" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
+                <FileArchive size={18} /><span>Arquivos</span>
+              </NavLink>
+            </>
+          )}
         </nav>
 
         <div className="sidebar-footer">
@@ -200,12 +244,12 @@ export default function AdminLayout({ user, onLogout }) {
               <input type="text" placeholder="Buscar clientes ou projetos..." />
             </div>
           </div>
-          <div className="topbar-user">
-            <div className="avatar">{initials}</div>
-            <span style={{ color: 'var(--text-secondary)', fontSize: 13 }}>
-              {user?.email || 'Administrador'}
-            </span>
-          </div>
+          <ProfilePanel
+            user={user}
+            avatarUrl={avatarUrl}
+            onAvatarUpdate={setAvatarUrl}
+            onLogout={handleLogout}
+          />
         </header>
         <div className="content-area">
           <AnimatePresence mode="wait">
@@ -217,7 +261,7 @@ export default function AdminLayout({ user, onLogout }) {
               transition={{ duration: 0.22, ease: 'easeOut' }}
               style={{ height: '100%' }}
             >
-              <Outlet />
+              <Outlet context={{ userRole, userProfile, user }} />
             </motion.div>
           </AnimatePresence>
         </div>

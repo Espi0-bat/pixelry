@@ -1,0 +1,262 @@
+.pp-wrap {
+  position: relative;
+}
+
+/* ── Trigger button ── */
+.pp-trigger {
+  position: relative;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.pp-trigger:hover { transform: scale(1.06); }
+
+.pp-avatar-img {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--border-bright);
+  box-shadow: 0 0 0 0 transparent;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  display: block;
+}
+.pp-trigger:hover .pp-avatar-img {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(128, 64, 245, 0.2);
+}
+
+.pp-avatar-initials {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--grad);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  color: #fff;
+  letter-spacing: 0.02em;
+}
+
+/* Online dot */
+.pp-trigger-dot {
+  position: absolute;
+  bottom: 1px;
+  right: 1px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #10b981;
+  border: 2px solid var(--bg);
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.7);
+}
+
+/* ── Panel ── */
+.pp-panel {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  width: 280px;
+  background: rgba(12, 12, 28, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  padding: 20px;
+  z-index: 100;
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(128, 64, 245, 0.12) inset;
+  animation: ppFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes ppFadeIn {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.pp-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: none;
+  border-radius: 6px;
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  transition: background 0.2s, color 0.2s;
+}
+.pp-close:hover { background: rgba(244, 63, 94, 0.15); color: #f43f5e; }
+
+/* ── Header ── */
+.pp-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-right: 24px;
+}
+
+.pp-photo-area {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.pp-photo {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.12);
+  display: block;
+}
+
+.pp-photo-fallback {
+  background: var(--grad);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 22px;
+  color: #fff;
+}
+
+.pp-upload-btn {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--grad);
+  border: 2px solid rgba(12, 12, 28, 0.9);
+  color: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, opacity 0.2s;
+}
+.pp-upload-btn:hover { transform: scale(1.15); }
+.pp-upload-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.pp-upload-btn.uploading { animation: ppSpinBtn 1s linear infinite; }
+
+@keyframes ppSpinBtn {
+  to { transform: rotate(360deg); }
+}
+
+.pp-spinner {
+  width: 10px;
+  height: 10px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: ppSpin 0.7s linear infinite;
+  display: block;
+}
+@keyframes ppSpin {
+  to { transform: rotate(360deg); }
+}
+
+.pp-file-input {
+  display: none;
+}
+
+/* ── Info ── */
+.pp-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.pp-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+.pp-email {
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-family: var(--font-mono);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pp-role {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  background: rgba(128, 64, 245, 0.12);
+  padding: 3px 8px;
+  border-radius: 20px;
+  width: fit-content;
+  margin-top: 2px;
+}
+
+/* ── Divider ── */
+.pp-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.07);
+  margin: 16px 0 12px;
+}
+
+/* ── Logout ── */
+.pp-logout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  text-align: left;
+}
+.pp-logout:hover {
+  background: rgba(244, 63, 94, 0.1);
+  border-color: rgba(244, 63, 94, 0.2);
+  color: #f43f5e;
+}
+
+/* ── Theme adaptations ── */
+.theme-gold .pp-avatar-initials,
+.theme-gold .pp-photo-fallback { background: var(--grad); }
+.theme-gold .pp-role { color: var(--neon-color); background: rgba(255, 215, 0, 0.1); }
+.theme-gold .pp-upload-btn { background: var(--grad); }
+
+.theme-rose .pp-avatar-initials,
+.theme-rose .pp-photo-fallback { background: linear-gradient(135deg, #ff6bbd, #e0448a); }
+.theme-rose .pp-role { color: var(--neon-color); background: rgba(255, 107, 189, 0.1); }
+.theme-rose .pp-upload-btn { background: linear-gradient(135deg, #ff6bbd, #e0448a); }
+
+.theme-obsidian .pp-avatar-initials,
+.theme-obsidian .pp-photo-fallback { background: var(--grad); }
+.theme-obsidian .pp-role { color: var(--neon-color); background: rgba(157, 0, 255, 0.1); }
+.theme-obsidian .pp-upload-btn { background: var(--grad); }

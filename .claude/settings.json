@@ -2,7 +2,25 @@
   "permissions": {
     "allow": [
       "Bash(dir \"c:\\\\Users\\\\gmont\\\\OneDrive\\\\Documentos\\\\GitHub\\\\pixelry-admin\" /b /a)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(xargs grep -l \"JSON.stringify\\\\|ld+json\\\\|schema\\\\|structured\")",
+      "Bash(python3 .claude/skills/ui-ux-pro-max/scripts/search.py \"design agency creative studio SaaS landing page dark elegant\" --design-system -p \"Pixelry\")",
+      "Bash(py --version)",
+      "Bash(python .claude/skills/ui-ux-pro-max/scripts/search.py \"digital agency tech startup landing page dark premium\" --design-system -f markdown -p \"Pixelry\")",
+      "Bash(Get-ChildItem src/components/*.module.css)",
+      "PowerShell(Get-Process -Id 3992 -ErrorAction SilentlyContinue)",
+      "PowerShell(Stop-Process -Force -Confirm:$false)",
+      "PowerShell(Stop-Process -Id 17884, 17468 -Force -Confirm:$false)",
+      "Bash(xargs grep -l \"var\\(--text-primary\\)\\\\|var\\(--surface\\)\\\\|var\\(--bg\\)\")",
+      "Bash(xargs grep -l \":root\\\\|--text-primary\\\\|--bg\")",
+      "Bash(cat)",
+      "Read(//tmp/**)",
+      "mcp__supabase__deploy_edge_function",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\gmont\\\\OneDrive\\\\Documentos\\\\GitHub\\\\pixelry\" -Recurse -Directory)",
+      "Bash(Test-Path \"supabase\\\\functions\\\\create-client\\\\index.ts\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\gmont\\.gemini\\antigravity-ide\\brain\\70a8adcb-8922-4262-a4a0-11daddf15e26"
     ]
   }
 }

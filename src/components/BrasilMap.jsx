@@ -36,15 +36,16 @@ const BRASIL_PATH =
 // Geographic coordinates → SVG coordinates
 // x = (lon + 73.9) / 39.1 * 500, y = (5.3 - lat) / 39 * 560
 const CITIES = [
-  { id: 'brasilia', name: 'Brasília — DF', cx: 332, cy: 304, hub: true },
-  { id: 'saopaulo', name: 'São Paulo — SP', cx: 349, cy: 406 },
-  { id: 'rio',      name: 'Rio de Janeiro — RJ', cx: 393, cy: 399 },
-  { id: 'bh',       name: 'Belo Horizonte — MG', cx: 382, cy: 362 },
-  { id: 'fortaleza',name: 'Fortaleza — CE', cx: 452, cy: 126 },
-  { id: 'recife',   name: 'Recife — PE', cx: 478, cy: 185 },
-  { id: 'salvador', name: 'Salvador — BA', cx: 452, cy: 260 },
-  { id: 'curitiba', name: 'Curitiba — PR', cx: 308, cy: 456 },
-  { id: 'manaus',   name: 'Manaus — AM', cx: 179, cy: 118 },
+  { id: 'brasilia',    name: 'Brasília — DF',       cx: 332, cy: 304, hub: true },
+  { id: 'pirenopolis', name: 'Pirenópolis — GO',    cx: 319, cy: 304 },
+  { id: 'saopaulo',   name: 'São Paulo — SP',        cx: 349, cy: 406 },
+  { id: 'rio',         name: 'Rio de Janeiro — RJ', cx: 393, cy: 399 },
+  { id: 'bh',          name: 'Belo Horizonte — MG', cx: 382, cy: 362 },
+  { id: 'fortaleza',   name: 'Fortaleza — CE',       cx: 452, cy: 126 },
+  { id: 'recife',      name: 'Recife — PE',          cx: 478, cy: 185 },
+  { id: 'salvador',    name: 'Salvador — BA',        cx: 452, cy: 260 },
+  { id: 'curitiba',    name: 'Curitiba — PR',        cx: 308, cy: 456 },
+  { id: 'manaus',      name: 'Manaus — AM',          cx: 179, cy: 118 },
 ]
 
 const HUB = CITIES.find(c => c.hub)
