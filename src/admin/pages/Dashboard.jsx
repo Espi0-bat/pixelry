@@ -1,8 +1,23 @@
 import React, { useEffect, useState } from 'react';
-import { Users, Clock, CheckCircle2, Zap, FileText, MessageSquare } from 'lucide-react';
+import { Users, Clock, CheckCircle2, Zap, FileText, MessageSquare, Target, Check, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { supabase } from '../../config/supabase';
 import './Dashboard.css';
+
+function getMonday(date) {
+  const d = new Date(date);
+  const day = d.getDay();
+  d.setDate(d.getDate() + (day === 0 ? -6 : 1 - day));
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
+function getWeekStart() {
+  return getMonday(new Date()).toISOString().split('T')[0];
+}
+
+const prioColor = { high: '#f43f5e', medium: '#f59e0b', low: '#10b981' };
 
 function formatRelative(isoString) {
   if (!isoString) return '';
@@ -58,6 +73,8 @@ export default function Dashboard() {
   const [stats, setStats] = useState({ clients: 0, pending: 0, approved: 0 });
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [goals, setGoals] = useState([]);
+  const [goalsLoading, setGoalsLoading] = useState(true);
 
   const getGreeting = () => {
     const h = new Date().getHours();
@@ -93,6 +110,19 @@ export default function Dashboard() {
       setLoading(false);
     }
     load();
+  }, []);
+
+  useEffect(() => {
+    async function loadGoals() {
+      const { data } = await supabase
+        .from('weekly_goals')
+        .select('*')
+        .eq('week_start', getWeekStart())
+        .order('created_at', { ascending: true });
+      setGoals(data || []);
+      setGoalsLoading(false);
+    }
+    loadGoals();
   }, []);
 
   function eventLabel(ev) {
@@ -141,6 +171,77 @@ export default function Dashboard() {
           Icon={CheckCircle2}
           loading={loading}
         />
+      </div>
+
+      {/* Widget Metas */}
+      <div className="goals-widget animate-in" style={{ animationDelay: '0.05s' }}>
+        <div className="goals-widget-header">
+          <h2><Target size={20} color="var(--primary-color)" /> Metas desta semana</h2>
+          <Link to="/admin/metas" className="goals-widget-link">
+            Ver todas <ChevronRight size={15} />
+          </Link>
+        </div>
+
+        {goalsLoading ? (
+          <div style={{ color: 'var(--text-secondary)', fontSize: 13 }}>Carregando...</div>
+        ) : goals.length === 0 ? (
+          <div className="goals-widget-empty">
+            Nenhuma meta criada para essa semana.{' '}
+            <Link to="/admin/metas">Criar agora →</Link>
+          </div>
+        ) : (
+          <>
+            {/* Barra de progresso */}
+            {(() => {
+              const done  = goals.filter(g => g.status === 'done').length;
+              const total = goals.length;
+              const pct   = total ? Math.round((done / total) * 100) : 0;
+              return (
+                <div className="goals-widget-progress">
+                  <div className="goals-widget-progress-bar">
+                    <motion.div
+                      className="goals-widget-progress-fill"
+                      initial={{ width: 0 }}
+                      animate={{ width: `${pct}%` }}
+                      transition={{ duration: 0.6, ease: 'easeOut' }}
+                      style={{ background: pct === 100 ? '#10b981' : 'var(--grad)' }}
+                    />
+                  </div>
+                  <span className="goals-widget-pct" style={{ color: pct === 100 ? '#10b981' : 'var(--text-secondary)' }}>
+                    {done}/{total}
+                  </span>
+                </div>
+              );
+            })()}
+
+            {/* Checklist */}
+            <div className="goals-widget-list">
+              {goals.slice(0, 5).map(g => {
+                const isDone = g.status === 'done';
+                return (
+                  <div key={g.id} className={`goals-widget-item${isDone ? ' done' : ''}`}>
+                    <div className="goals-widget-check" style={{
+                      background: isDone ? 'var(--grad)' : 'transparent',
+                      borderColor: isDone ? 'transparent' : `${prioColor[g.priority] ?? '#8040F5'}60`,
+                      boxShadow: isDone ? '0 2px 8px rgba(128,64,245,0.35)' : 'none',
+                    }}>
+                      {isDone && <Check size={11} color="white" />}
+                    </div>
+                    <span className="goals-widget-title">{g.title}</span>
+                    {g.assignee && (
+                      <span className="goals-widget-assignee">{g.assignee}</span>
+                    )}
+                  </div>
+                );
+              })}
+              {goals.length > 5 && (
+                <div style={{ fontSize: 12, color: 'var(--text-secondary)', paddingLeft: 4, marginTop: 4 }}>
+                  +{goals.length - 5} mais…
+                </div>
+              )}
+            </div>
+          </>
+        )}
       </div>
 
       <div className="recent-activity animate-in" style={{ animationDelay: '0.1s' }}>

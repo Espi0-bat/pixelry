@@ -157,6 +157,135 @@
   font-weight: 500;
 }
 
+/* Goals widget */
+.goals-widget {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 28px 32px;
+}
+
+.goals-widget-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.goals-widget-header h2 {
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.goals-widget-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--primary-hover);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+.goals-widget-link:hover { opacity: 0.75; }
+
+.goals-widget-empty {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.goals-widget-empty a {
+  color: var(--primary-hover);
+  text-decoration: none;
+}
+
+.goals-widget-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.goals-widget-progress-bar {
+  flex: 1;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.goals-widget-progress-fill {
+  height: 100%;
+  border-radius: 99px;
+}
+
+.goals-widget-pct {
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  min-width: 32px;
+  text-align: right;
+}
+
+.goals-widget-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.goals-widget-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+  border: 1px solid transparent;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.goals-widget-item:hover {
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+.goals-widget-item.done .goals-widget-title {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.goals-widget-check {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.goals-widget-title {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-primary);
+  transition: opacity 0.2s;
+}
+
+.goals-widget-assignee {
+  font-size: 11px;
+  color: var(--text-secondary);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 8px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
 @media (max-width: 768px) {
   .dashboard-header h1 {
     font-size: 22px;
