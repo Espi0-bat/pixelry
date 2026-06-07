@@ -29,15 +29,18 @@ const TermosUso = React.lazy(() => import('./pages/TermosUso'))
 const ClientPortal = React.lazy(() => import('./pages/ClientPortal'))
 
 // Admin panel — lazy loaded
-const AdminLogin      = React.lazy(() => import('./admin/pages/AdminLogin'))
-const AdminLayout     = React.lazy(() => import('./admin/layouts/AdminLayout'))
-const Dashboard       = React.lazy(() => import('./admin/pages/Dashboard'))
-const Clientes        = React.lazy(() => import('./admin/pages/Clientes'))
-const ClienteDetalhes = React.lazy(() => import('./admin/pages/ClienteDetalhes'))
-const Entregas        = React.lazy(() => import('./admin/pages/Entregas'))
-const Status          = React.lazy(() => import('./admin/pages/Status'))
-const Kanban          = React.lazy(() => import('./admin/pages/Kanban'))
-const Metas           = React.lazy(() => import('./admin/pages/Metas'))
+const AdminLogin         = React.lazy(() => import('./admin/pages/AdminLogin'))
+const AdminLayout        = React.lazy(() => import('./admin/layouts/AdminLayout'))
+const Dashboard          = React.lazy(() => import('./admin/pages/Dashboard'))
+const Clientes           = React.lazy(() => import('./admin/pages/Clientes'))
+const ClienteDetalhes    = React.lazy(() => import('./admin/pages/ClienteDetalhes'))
+const Entregas           = React.lazy(() => import('./admin/pages/Entregas'))
+const Status             = React.lazy(() => import('./admin/pages/Status'))
+const Kanban             = React.lazy(() => import('./admin/pages/Kanban'))
+const Metas              = React.lazy(() => import('./admin/pages/Metas'))
+const Equipe             = React.lazy(() => import('./admin/pages/Equipe'))
+const InternalMessages   = React.lazy(() => import('./admin/pages/InternalMessages'))
+const InternalFiles      = React.lazy(() => import('./admin/pages/InternalFiles'))
 
 const Home = () => (
   <>
@@ -171,6 +174,9 @@ export default function App() {
             <Route path="status" element={<Suspense fallback={PORTAL_FALLBACK}><Status /></Suspense>} />
             <Route path="kanban" element={<Suspense fallback={PORTAL_FALLBACK}><Kanban /></Suspense>} />
             <Route path="metas" element={<Suspense fallback={PORTAL_FALLBACK}><Metas /></Suspense>} />
+            <Route path="equipe" element={<Suspense fallback={PORTAL_FALLBACK}><Equipe /></Suspense>} />
+            <Route path="mensagens" element={<Suspense fallback={PORTAL_FALLBACK}><InternalMessages /></Suspense>} />
+            <Route path="arquivos" element={<Suspense fallback={PORTAL_FALLBACK}><InternalFiles /></Suspense>} />
           </Route>
         </Routes>
       </main>
