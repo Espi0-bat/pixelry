@@ -37,6 +37,7 @@ const ClienteDetalhes = React.lazy(() => import('./admin/pages/ClienteDetalhes')
 const Entregas        = React.lazy(() => import('./admin/pages/Entregas'))
 const Status          = React.lazy(() => import('./admin/pages/Status'))
 const Kanban          = React.lazy(() => import('./admin/pages/Kanban'))
+const Metas           = React.lazy(() => import('./admin/pages/Metas'))
 
 const Home = () => (
   <>
@@ -169,6 +170,7 @@ export default function App() {
             <Route path="entregas" element={<Suspense fallback={PORTAL_FALLBACK}><Entregas /></Suspense>} />
             <Route path="status" element={<Suspense fallback={PORTAL_FALLBACK}><Status /></Suspense>} />
             <Route path="kanban" element={<Suspense fallback={PORTAL_FALLBACK}><Kanban /></Suspense>} />
+            <Route path="metas" element={<Suspense fallback={PORTAL_FALLBACK}><Metas /></Suspense>} />
           </Route>
         </Routes>
       </main>
