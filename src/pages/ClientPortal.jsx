@@ -1498,7 +1498,7 @@ function SupportView({ user }) {
 
     let fileUrl = null;
     if (attachFile) {
-      const path = `chat/${user.id}/${Date.now()}_${attachFile.name}`;
+      const path = `${user.id}/chat/${Date.now()}_${attachFile.name}`;
       const { error: uploadErr } = await supabase.storage.from("client-uploads").upload(path, attachFile, { upsert: false });
       if (!uploadErr) {
         const { data: { publicUrl } } = supabase.storage.from("client-uploads").getPublicUrl(path);
@@ -1770,12 +1770,26 @@ export default function ClientPortal({ user, onLogout }) {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "deliveries", filter: `client_id=eq.${user.id}` },
-        () => { loadDeliveries(); }
+        (payload) => {
+          if (payload.eventType === "INSERT") {
+            const newItem = mapDelivery(payload.new);
+            setDeliveries(prev =>
+              [newItem, ...prev].sort((a, b) => getDeliverySortDate(b.source) - getDeliverySortDate(a.source))
+            );
+          } else if (payload.eventType === "UPDATE") {
+            const updated = mapDelivery(payload.new);
+            setDeliveries(prev => prev.map(d => d.id === updated.id ? updated : d));
+            setSelectedDelivery(prev => prev?.id === updated.id ? updated : prev);
+          } else if (payload.eventType === "DELETE") {
+            setDeliveries(prev => prev.filter(d => d.id !== payload.old.id));
+            setSelectedDelivery(prev => prev?.id === payload.old.id ? null : prev);
+          }
+        }
       )
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user?.id, loadDeliveries]);
+  }, [user?.id]);
 
   const PAGE_TITLES = {
     "Início":   { supra: "Bem-vindo de volta",      h1: "Olá 👋"  },
@@ -1836,8 +1850,8 @@ export default function ClientPortal({ user, onLogout }) {
 
     // Log de auditoria
     if (user?.id) {
-      const delivery = deliveries.find((d) => d.id === id);
-      supabase.from("portal_events").insert({
+      const delivery = previousDeliveries.find((d) => d.id === id);
+      await supabase.from("portal_events").insert({
         client_id: user.id,
         event_type: normalizedStatus === "approved" ? "delivery_approved" : "revision_requested",
         metadata: { delivery_id: id, title: delivery?.title },
