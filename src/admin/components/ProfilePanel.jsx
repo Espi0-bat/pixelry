@@ -65,7 +65,8 @@ export default function ProfilePanel({ user, avatarUrl, onAvatarUpdate, onLogout
 
     const { error: dbErr } = await supabase
       .from('profiles')
-      .upsert({ id: user.id, avatar_url: bustedUrl, updated_at: new Date().toISOString() });
+      .update({ avatar_url: bustedUrl, updated_at: new Date().toISOString() })
+      .eq('id', user.id);
 
     if (dbErr) {
       console.error('Erro ao salvar avatar:', dbErr);

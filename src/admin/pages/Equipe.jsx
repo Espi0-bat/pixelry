@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   UserCircle2, Star, Users, X, ChevronRight, Check,
-  Plus, Loader2, FileArchive, Send, UserPlus, UserMinus,
+  Plus, Loader2, FileArchive, Send, UserPlus, UserMinus, Trash2,
 } from 'lucide-react';
 import { supabase } from '../../config/supabase';
 import './Equipe.css';
@@ -53,6 +53,8 @@ function formatRelative(iso) {
   return `${Math.floor(h / 24)}d atrás`;
 }
 
+const JOB_TITLES = ['SDR', 'Closer', 'Hunter', 'Chefe de Infraestrutura', 'Designer', 'Sócio'];
+
 export default function Equipe() {
   const [employees, setEmployees]     = useState([]);
   const [loading, setLoading]         = useState(true);
@@ -75,20 +77,44 @@ export default function Equipe() {
   const [uploading, setUploading]     = useState(false);
   const [uploadMsg, setUploadMsg]     = useState('');
 
+  // Create member modal
+  const [showCreate, setShowCreate]   = useState(false);
+  const [creating, setCreating]       = useState(false);
+  const [createForm, setCreateForm]   = useState({ full_name: '', email: '', job_title: '' });
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user) setCurrentUser(session.user);
+      const me = session?.user || null;
+      if (me) setCurrentUser(me);
+      loadEmployees(me?.id);
     });
-    loadEmployees();
   }, []);
 
-  async function loadEmployees() {
+  async function loadEmployees(myId) {
     const { data } = await supabase
       .from('profiles')
       .select('id, full_name, email, avatar_url, job_title, role')
-      .eq('role', 'employee');
-    setEmployees(data || []);
+      .in('role', ['employee', 'admin']);
+    setEmployees((data || []).filter(e => e.id !== myId));
     setLoading(false);
+  }
+
+  async function handleCreateMember(e) {
+    e.preventDefault();
+    if (!createForm.full_name.trim() || !createForm.job_title) return;
+    setCreating(true);
+    const id = crypto.randomUUID();
+    await supabase.from('profiles').insert({
+      id,
+      full_name: createForm.full_name.trim(),
+      email: createForm.email.trim() || null,
+      job_title: createForm.job_title,
+      role: 'employee',
+    });
+    setCreateForm({ full_name: '', email: '', job_title: '' });
+    setShowCreate(false);
+    await loadEmployees(currentUser?.id);
+    setCreating(false);
   }
 
   async function openEmployee(emp) {
@@ -148,6 +174,11 @@ export default function Equipe() {
     setSaving(false);
   }
 
+  async function handleDeleteNote(noteId) {
+    await supabase.from('employee_notes').delete().eq('id', noteId);
+    await refreshDrawerData(selected.id);
+  }
+
   async function toggleClientAssign(client) {
     const isAssigned = client.assigned_employee_id === selected?.id;
     await supabase
@@ -201,9 +232,14 @@ export default function Equipe() {
       <div className="equipe-header">
         <div>
           <h1 className="equipe-title">Equipe</h1>
-          <p className="equipe-sub">Gerencie funcionários, avalie e atribua clientes.</p>
+          <p className="equipe-sub">Gerencie membros, avalie e atribua clientes.</p>
         </div>
-        <div className="equipe-count-badge">{employees.length} funcionário{employees.length !== 1 ? 's' : ''}</div>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <button className="btn-novo-membro" onClick={() => setShowCreate(true)}>
+            <Plus size={14} /> Novo membro
+          </button>
+          <div className="equipe-count-badge">{employees.length} membro{employees.length !== 1 ? 's' : ''}</div>
+        </div>
       </div>
 
       {/* ── Employee grid ── */}
@@ -252,6 +288,82 @@ export default function Equipe() {
           ))}
         </div>
       )}
+
+      {/* ── Create member modal ── */}
+      <AnimatePresence>
+        {showCreate && (
+          <>
+            <motion.div
+              className="drawer-overlay"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowCreate(false)}
+            />
+            <motion.div
+              className="create-member-modal"
+              initial={{ opacity: 0, scale: 0.95, y: -12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: -12 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 320 }}
+            >
+              <div className="create-modal-header">
+                <span className="create-modal-title">Novo membro</span>
+                <button className="drawer-close" onClick={() => setShowCreate(false)}>
+                  <X size={16} />
+                </button>
+              </div>
+              <form className="create-modal-form" onSubmit={handleCreateMember}>
+                <div className="create-field">
+                  <label className="create-label">Nome</label>
+                  <input
+                    className="create-input"
+                    type="text"
+                    placeholder="Nome completo"
+                    value={createForm.full_name}
+                    onChange={e => setCreateForm(f => ({ ...f, full_name: e.target.value }))}
+                    required
+                    autoFocus
+                  />
+                </div>
+                <div className="create-field">
+                  <label className="create-label">E-mail (opcional)</label>
+                  <input
+                    className="create-input"
+                    type="email"
+                    placeholder="email@exemplo.com"
+                    value={createForm.email}
+                    onChange={e => setCreateForm(f => ({ ...f, email: e.target.value }))}
+                  />
+                </div>
+                <div className="create-field">
+                  <label className="create-label">Cargo</label>
+                  <div className="create-cargo-grid">
+                    {JOB_TITLES.map(title => (
+                      <button
+                        key={title}
+                        type="button"
+                        className={`create-cargo-btn${createForm.job_title === title ? ' selected' : ''}`}
+                        onClick={() => setCreateForm(f => ({ ...f, job_title: title }))}
+                      >
+                        {title}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  className="note-submit"
+                  disabled={creating || !createForm.full_name.trim() || !createForm.job_title}
+                >
+                  {creating ? <Loader2 size={14} className="spin" /> : <Plus size={14} />}
+                  {creating ? 'Criando...' : 'Criar membro'}
+                </button>
+              </form>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* ── Drawer overlay ── */}
       <AnimatePresence>
@@ -343,7 +455,16 @@ export default function Equipe() {
                           <div key={note.id} className="note-entry">
                             <div className="note-entry-header">
                               <span className="note-author">Equipe Pixelry</span>
-                              <span className="note-time">{formatRelative(note.created_at)}</span>
+                              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                <span className="note-time">{formatRelative(note.created_at)}</span>
+                                <button
+                                  className="note-delete-btn"
+                                  onClick={() => handleDeleteNote(note.id)}
+                                  title="Excluir avaliação"
+                                >
+                                  <Trash2 size={12} />
+                                </button>
+                              </div>
                             </div>
                             {note.rating && <StarDisplay value={note.rating} />}
                             <p className="note-body">{note.content}</p>
