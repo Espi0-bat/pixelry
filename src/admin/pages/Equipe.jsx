@@ -311,6 +311,7 @@ export default function Equipe() {
               exit={{ opacity: 0 }}
               onClick={() => setShowCreate(false)}
             />
+            <div className="create-modal-centering">
             <motion.div
               className="create-member-modal"
               initial={{ opacity: 0, scale: 0.95, y: -12 }}
@@ -372,6 +373,7 @@ export default function Equipe() {
                 </button>
               </form>
             </motion.div>
+            </div>
           </>
         )}
       </AnimatePresence>
