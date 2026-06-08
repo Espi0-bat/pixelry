@@ -140,7 +140,7 @@ export default function AdminLayout({ user, onLogout }) {
     };
   }, []);
 
-  // Carrega perfil completo (avatar, role, job_title)
+  // Carrega perfil completo (avatar, role, job_title); redireciona clientes para o portal
   useEffect(() => {
     if (!user?.id) return;
     supabase
@@ -150,7 +150,10 @@ export default function AdminLayout({ user, onLogout }) {
       .single()
       .then(({ data }) => {
         if (data?.avatar_url) setAvatarUrl(data.avatar_url);
-        if (data?.role)       setUserRole(data.role);
+        if (data?.role) {
+          setUserRole(data.role);
+          if (data.role === 'client') navigate('/portal');
+        }
         setUserProfile(data);
       });
   }, [user?.id]);

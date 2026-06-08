@@ -1456,6 +1456,7 @@ function SupportView({ user }) {
   const [sending, setSending] = useState(false);
   const [attachName, setAttachName] = useState(null);
   const [attachFile, setAttachFile] = useState(null);
+  const [uploadError, setUploadError] = useState(null);
   const fileInputRef = useRef(null);
   const messagesEndRef = useRef(null);
 
@@ -1500,13 +1501,17 @@ function SupportView({ user }) {
     if (attachFile) {
       const path = `${user.id}/chat/${Date.now()}_${attachFile.name}`;
       const { error: uploadErr } = await supabase.storage.from("client-uploads").upload(path, attachFile, { upsert: false });
-      if (!uploadErr) {
-        const { data: { publicUrl } } = supabase.storage.from("client-uploads").getPublicUrl(path);
-        fileUrl = publicUrl;
+      if (uploadErr) {
+        setSending(false);
+        setUploadError("Falha ao enviar o arquivo. Verifique sua conexão e tente novamente.");
+        return;
       }
+      const { data: { publicUrl } } = supabase.storage.from("client-uploads").getPublicUrl(path);
+      fileUrl = publicUrl;
     }
 
-    const fileLabel = attachFile ? `\n📎 Arquivo anexado: ${attachFile.name}${fileUrl ? `\n${fileUrl}` : ""}` : "";
+    setUploadError(null);
+    const fileLabel = attachFile ? `\n📎 Arquivo anexado: ${attachFile.name}\n${fileUrl}` : "";
     const messageContent = (content + fileLabel).trim() || `[Arquivo: ${attachFile?.name}]`;
     setMsg("");
     setAttachFile(null);
@@ -1594,6 +1599,21 @@ function SupportView({ user }) {
         borderRadius: 16,
         padding: 20,
       }}>
+        {/* Upload error */}
+        {uploadError && (
+          <div style={{
+            padding: "8px 12px", borderRadius: 8, marginBottom: 10,
+            background: "rgba(244,63,94,0.08)",
+            border: "1px solid rgba(244,63,94,0.25)",
+            fontSize: 12, fontFamily: FONT_BODY, color: C.red,
+            display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8,
+          }}>
+            <span>{uploadError}</span>
+            <button type="button" onClick={() => setUploadError(null)} style={{ background: "none", border: "none", cursor: "pointer", color: C.red, padding: 2 }}>
+              <X size={13} />
+            </button>
+          </div>
+        )}
         {/* Attachment preview */}
         {attachName && (
           <div style={{

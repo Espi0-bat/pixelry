@@ -114,6 +114,7 @@ export default function ClienteDetalhes() {
 
   useEffect(() => {
     let mounted = true;
+    setLoadingDeliveries(true);
     supabase
       .from('deliveries')
       .select('id, title, status, type, created_at, file_url')

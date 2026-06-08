@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useState } from 'react'
-import { Routes, Route, useLocation, Navigate, useNavigate } from 'react-router-dom'
+import { Routes, Route, useLocation, Navigate, useNavigate, useOutletContext } from 'react-router-dom'
 import Nav          from './components/Nav'
 import Hero         from './components/Hero'
 import Marquee      from './components/Marquee'
@@ -32,6 +32,7 @@ const ClientPortal = React.lazy(() => import('./pages/ClientPortal'))
 const AdminLogin         = React.lazy(() => import('./admin/pages/AdminLogin'))
 const AdminLayout        = React.lazy(() => import('./admin/layouts/AdminLayout'))
 const Dashboard          = React.lazy(() => import('./admin/pages/Dashboard'))
+const EmployeeDashboard  = React.lazy(() => import('./admin/pages/EmployeeDashboard'))
 const Clientes           = React.lazy(() => import('./admin/pages/Clientes'))
 const ClienteDetalhes    = React.lazy(() => import('./admin/pages/ClienteDetalhes'))
 const Entregas           = React.lazy(() => import('./admin/pages/Entregas'))
@@ -67,6 +68,23 @@ const Home = () => (
 )
 
 const PORTAL_FALLBACK = <div style={{ minHeight: '100dvh', background: 'var(--bg)' }} />
+
+// Renderiza Dashboard ou EmployeeDashboard conforme o role do usuário logado
+function AdminDashboardRouter() {
+  const { userRole, userProfile, user } = useOutletContext()
+  if (userRole === 'employee') {
+    return (
+      <Suspense fallback={PORTAL_FALLBACK}>
+        <EmployeeDashboard userProfile={userProfile} user={user} />
+      </Suspense>
+    )
+  }
+  return (
+    <Suspense fallback={PORTAL_FALLBACK}>
+      <Dashboard />
+    </Suspense>
+  )
+}
 
 export default function App() {
   const location = useLocation()
@@ -136,10 +154,10 @@ export default function App() {
         </Suspense>
       )
 
-  // Painel admin — mostra login se não autenticado ou se e-mail não é admin
+  // Painel admin — qualquer usuário autenticado acessa; AdminLayout redireciona clientes para /portal
   const adminElement = authLoading
     ? PORTAL_FALLBACK
-    : !user || !ADMIN_EMAILS.includes(user.email)
+    : !user
       ? <Suspense fallback={PORTAL_FALLBACK}><AdminLogin onLogin={usr => setUser(usr)} /></Suspense>
       : <Suspense fallback={PORTAL_FALLBACK}><AdminLayout user={user} onLogout={handleLogout} /></Suspense>
 
@@ -168,7 +186,7 @@ export default function App() {
           <Route path="/portal" element={portalElement} />
           <Route path="/admin" element={adminElement}>
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
-            <Route path="dashboard" element={<Suspense fallback={PORTAL_FALLBACK}><Dashboard /></Suspense>} />
+            <Route path="dashboard" element={<AdminDashboardRouter />} />
             <Route path="clientes" element={<Suspense fallback={PORTAL_FALLBACK}><Clientes /></Suspense>} />
             <Route path="clientes/:id" element={<Suspense fallback={PORTAL_FALLBACK}><ClienteDetalhes /></Suspense>} />
             <Route path="entregas" element={<Suspense fallback={PORTAL_FALLBACK}><Entregas /></Suspense>} />
