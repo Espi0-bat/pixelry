@@ -674,18 +674,24 @@
 .btn-novo-membro:hover { opacity: 0.85; }
 
 /* ── Create member modal ── */
-.create-member-modal {
+.create-modal-centering {
   position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 202;
+  pointer-events: none;
+}
+
+.create-member-modal {
   width: 420px;
   max-width: 92vw;
+  pointer-events: auto;
   background: rgba(14,14,32,0.98);
   backdrop-filter: blur(24px);
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 20px;
-  z-index: 202;
   box-shadow: 0 32px 80px rgba(0,0,0,0.6);
   overflow: hidden;
 }
