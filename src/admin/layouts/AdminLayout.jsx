@@ -17,7 +17,7 @@ const FRAME_INTERVAL = 1000 / TARGET_FPS;
 function getRoleFromEmail(email = '') {
   if (email.includes('moutinhoezer') || email.includes('erickvin49')) return 'admin';
   if (email.includes('sofiagramelich')) return 'employee';
-  return 'admin';
+  return 'employee';
 }
 
 export default function AdminLayout({ user, onLogout }) {
@@ -241,7 +241,7 @@ export default function AdminLayout({ user, onLogout }) {
               {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
             <div className="topbar-search">
-              <input type="text" placeholder="Buscar clientes ou projetos..." />
+              <input type="text" placeholder="Buscar clientes ou projetos..." aria-label="Buscar clientes ou projetos" />
             </div>
           </div>
           <ProfilePanel

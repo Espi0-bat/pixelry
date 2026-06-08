@@ -1,18 +1,46 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const NOTION_VERSION = '2022-06-28'
 
-const cors = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const ALLOWED_ORIGINS = [
+  'https://www.pixelry.com.br',
+  'https://pixelry.com.br',
+  'http://localhost:5173',
+  'http://localhost:3000',
+]
+
+function getCors(req: Request) {
+  const origin = req.headers.get('origin') ?? ''
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : 'https://www.pixelry.com.br'
+  return {
+    'Access-Control-Allow-Origin': allowed,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  }
 }
 
 const PRIORITY_MAP: Record<string, string> = { high: 'Alta', medium: 'Media', low: 'Baixa' }
 const STATUS_MAP:   Record<string, string> = { done: 'Concluida', pending: 'Pendente' }
 
 serve(async (req) => {
+  const cors = getCors(req)
   if (req.method === 'OPTIONS') return new Response('ok', { headers: cors })
+
+  // Require auth — only authenticated users can trigger Notion sync
+  const authHeader = req.headers.get('Authorization')
+  if (!authHeader) {
+    return new Response(JSON.stringify({ error: 'Não autorizado' }), { status: 401, headers: cors })
+  }
+  const supabaseAnon = createClient(
+    Deno.env.get('SUPABASE_URL')!,
+    Deno.env.get('SUPABASE_ANON_KEY')!,
+  )
+  const { data: { user }, error: authError } = await supabaseAnon.auth.getUser(
+    authHeader.replace('Bearer ', '')
+  )
+  if (authError || !user) {
+    return new Response(JSON.stringify({ error: 'Não autorizado' }), { status: 401, headers: cors })
+  }
 
   try {
     const supabaseAdmin = createClient(

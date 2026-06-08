@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Target, Plus, ChevronLeft, ChevronRight, Check, Trash2, X, User, Flag, Tag } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../config/supabase';
@@ -55,7 +55,7 @@ export default function Metas() {
   const { start, end } = getWeekBounds(week);
   const isCurrentWeek = getWeekBounds(new Date()).start === start;
 
-  async function loadGoals() {
+  const loadGoals = useCallback(async () => {
     const { data } = await supabase
       .from('weekly_goals')
       .select('*')
@@ -63,7 +63,7 @@ export default function Metas() {
       .order('created_at', { ascending: true });
     setGoals(data || []);
     setLoading(false);
-  }
+  }, [start]);
 
   useEffect(() => {
     setLoading(true);
@@ -76,7 +76,7 @@ export default function Metas() {
       .subscribe();
 
     return () => { if (subRef.current) subRef.current.unsubscribe(); };
-  }, [start]);
+  }, [loadGoals, start]);
 
   const done  = goals.filter(g => g.status === 'done').length;
   const total = goals.length;

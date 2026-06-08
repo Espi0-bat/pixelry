@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Upload, FileText, Palette, Film, BarChart2, X, Check,
   Plus, ChevronDown, Clock, CheckCircle2, XCircle, Zap, Image, Paperclip
@@ -57,7 +57,7 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '');
 }
 
-const DeliveryRow = React.memo(function DeliveryRow({ d, s, Icon, SIcon, index }) {
+const DeliveryRow = React.memo(function DeliveryRow({ d, s, Icon, SIcon }) {
   const [hov, setHov] = useState(false);
   return (
     <motion.div
@@ -107,6 +107,7 @@ export default function Entregas() {
   const [filterStatus, setFilterStatus] = useState('all');
   const [loading, setLoading]         = useState(true);
   const [submitting, setSubmitting]   = useState(false);
+  const [submitError, setSubmitError] = useState(null);
   const [uploadedFile, setUploadedFile] = useState(null);
 
   const loadDeliveries = useCallback(async () => {
@@ -132,6 +133,7 @@ export default function Entregas() {
 
   // Real-time: atualiza quando cliente aprova ou solicita ajuste
   useEffect(() => {
+    if (!supabase) return;
     const channel = supabase
       .channel('admin:deliveries')
       .on(
@@ -155,41 +157,51 @@ export default function Entregas() {
     if (!file) return;
     const entry = { id: Date.now(), name: file.name, size: (file.size / 1024 / 1024).toFixed(1) + ' MB', progress: 0, done: false, error: false, raw: file };
     setUploads([entry]);
-    setUploadedFile(null);
-    let p = 0;
-    const iv = setInterval(() => {
-      p = Math.min(p + Math.random() * 18 + 8, 85);
-      setUploads([{ ...entry, progress: Math.floor(p) }]);
-    }, 180);
-    setTimeout(() => { clearInterval(iv); }, 3000);
     setUploadedFile(file);
-    setUploads([{ ...entry, progress: 100, done: true }]);
-    clearInterval(iv);
   }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!form.clientId || !form.title) return;
     setSubmitting(true);
+    setSubmitError(null);
 
     let fileUrl = null;
 
     if (uploadedFile) {
+      let p = 0;
+      const iv = setInterval(() => {
+        p = Math.min(p + Math.random() * 18 + 8, 85);
+        setUploads(prev => prev.map(u => ({ ...u, progress: Math.floor(p) })));
+      }, 180);
+
       const path = `${form.clientId}/${Date.now()}_${uploadedFile.name}`;
       const { error: uploadError } = await supabase.storage
         .from(STORAGE_BUCKET)
         .upload(path, uploadedFile, { upsert: false });
 
-      if (!uploadError) {
-        const { data: { publicUrl } } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-        fileUrl = publicUrl;
+      clearInterval(iv);
+
+      if (uploadError) {
+        setUploads(prev => prev.map(u => ({ ...u, progress: 0, error: true })));
+        setSubmitError(`Erro no upload: ${uploadError.message}`);
+        setSubmitting(false);
+        return;
       }
+
+      const { data: { publicUrl } } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
+      fileUrl = publicUrl;
+      setUploads(prev => prev.map(u => ({ ...u, progress: 100, done: true })));
     }
 
     const projectId = await getOrCreateProject(form.clientId);
-    if (!projectId) { setSubmitting(false); return; }
+    if (!projectId) {
+      setSubmitError('Erro ao criar ou encontrar o projeto para este cliente.');
+      setSubmitting(false);
+      return;
+    }
 
-    const { data: newDelivery } = await supabase
+    const { data: newDelivery, error: insertError } = await supabase
       .from('deliveries')
       .insert({
         client_id: form.clientId,
@@ -202,6 +214,12 @@ export default function Entregas() {
       })
       .select('id, title, type, status, created_at, client_id, profiles(full_name, company_name)')
       .single();
+
+    if (insertError) {
+      setSubmitError(`Erro ao publicar entrega: ${insertError.message}`);
+      setSubmitting(false);
+      return;
+    }
 
     if (newDelivery) {
       setDeliveries(prev => [{
@@ -384,6 +402,11 @@ export default function Entregas() {
                 )}
               </div>
 
+              {submitError && (
+                <div style={{ color: '#f43f5e', fontSize: 13, padding: '8px 12px', background: 'rgba(244,63,94,0.1)', borderRadius: 8, marginBottom: 8 }}>
+                  {submitError}
+                </div>
+              )}
               <button type="submit" className="btn-submit" disabled={submitting}>
                 {submitting ? 'Publicando...' : 'Publicar Entrega no Portal do Cliente'}
               </button>

@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Users, Clock, CheckCircle2, Zap, FileText, MessageSquare, Target, Check, ChevronRight, FolderUp, Kanban, ArrowUpRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link, useOutletContext } from 'react-router-dom';
-import { supabase } from '../../config/supabase';
+import { supabase, ADMIN_EMAILS } from '../../config/supabase';
 import EmployeeDashboard from './EmployeeDashboard';
 import './Dashboard.css';
 
@@ -116,13 +116,14 @@ function AdminDashboard() {
 
   useEffect(() => {
     async function load() {
+      const adminFilter = '(' + ADMIN_EMAILS.map(e => '"' + e + '"').join(',') + ')';
       const [
         { count: clients },
         { count: pending },
         { count: approved },
         { data: eventsData },
       ] = await Promise.all([
-        supabase.from('profiles').select('*', { count: 'exact', head: true }),
+        supabase.from('profiles').select('*', { count: 'exact', head: true }).not('email', 'in', adminFilter),
         supabase.from('deliveries').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
         supabase.from('deliveries').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
         supabase

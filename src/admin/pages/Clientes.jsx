@@ -79,7 +79,7 @@ export default function Clientes() {
     const { data: profiles } = await supabase
       .from('profiles')
       .select('id, full_name, company_name, email')
-      .not('email', 'in', `(${ADMIN_EMAILS.join(',')})`)
+      .not('email', 'in', `(${ADMIN_EMAILS.map(e => `"${e}"`).join(',')})`)
       .order('full_name', { ascending: true });
 
     if (!profiles?.length) { setLoading(false); return; }

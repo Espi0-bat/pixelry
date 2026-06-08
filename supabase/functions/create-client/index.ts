@@ -1,15 +1,28 @@
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const ADMIN_EMAILS = (Deno.env.get('ADMIN_EMAILS') ?? 'moutinhoezer@gmail.com,erickvin49@gmail.com')
   .split(',').map(e => e.trim())
 
-const cors = {
-  'Access-Control-Allow-Origin': 'https://www.pixelry.com.br',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+const ALLOWED_ORIGINS = [
+  'https://www.pixelry.com.br',
+  'https://pixelry.com.br',
+  'http://localhost:5173',
+  'http://localhost:3000',
+]
+
+function getCors(req: Request) {
+  const origin = req.headers.get('origin') ?? ''
+  const allowed = ALLOWED_ORIGINS.includes(origin) ? origin : 'https://www.pixelry.com.br'
+  return {
+    'Access-Control-Allow-Origin': allowed,
+    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  }
 }
 
 serve(async (req) => {
+  const cors = getCors(req)
+
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: cors })
   }
@@ -72,8 +85,8 @@ serve(async (req) => {
 
   } catch (err) {
     return new Response(
-      JSON.stringify({ error: err.message ?? 'Erro inesperado' }),
-      { status: 500, headers: cors }
+      JSON.stringify({ error: (err as Error).message ?? 'Erro inesperado' }),
+      { status: 500, headers: getCors(req) }
     )
   }
 })
