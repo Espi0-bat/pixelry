@@ -62,6 +62,12 @@ serve(async (req) => {
     }
 
     const { action, goal } = await req.json()
+    if (!action || !goal) {
+      return new Response(
+        JSON.stringify({ error: 'action e goal são obrigatórios' }),
+        { status: 400, headers: cors }
+      )
+    }
     // action: 'upsert' | 'delete'
 
     const notionHeaders = {

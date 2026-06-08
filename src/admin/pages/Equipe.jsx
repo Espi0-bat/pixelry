@@ -66,6 +66,7 @@ export default function Equipe() {
   const [files, setFiles]             = useState([]);
   const [drawerLoading, setDrawerLoading] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [clientCounts, setClientCounts] = useState({});
 
   // Note form
   const [noteText, setNoteText]       = useState('');
@@ -88,13 +89,25 @@ export default function Equipe() {
       if (me) setCurrentUser(me);
       loadEmployees(me?.id);
     });
+    supabase
+      .from('profiles')
+      .select('assigned_employee_id')
+      .eq('role', 'client')
+      .not('assigned_employee_id', 'is', null)
+      .then(({ data }) => {
+        const counts = {};
+        (data || []).forEach(p => {
+          counts[p.assigned_employee_id] = (counts[p.assigned_employee_id] || 0) + 1;
+        });
+        setClientCounts(counts);
+      });
   }, []);
 
   async function loadEmployees(myId) {
     const { data } = await supabase
       .from('profiles')
       .select('id, full_name, email, avatar_url, job_title, role')
-      .in('role', ['employee', 'admin']);
+      .in('role', ['employee', 'manager', 'super_admin']);
     setEmployees((data || []).filter(e => e.id !== myId));
     setLoading(false);
   }
@@ -276,7 +289,7 @@ export default function Equipe() {
               </div>
               <div className="emp-card-footer">
                 <span className="emp-card-stat">
-                  <Users size={12} /> {clients.filter(c => c.assigned_employee_id === emp.id).length} clientes
+                  <Users size={12} /> {clientCounts[emp.id] || 0} clientes
                 </span>
                 {avgRating(emp) && (
                   <span className="emp-card-stat">

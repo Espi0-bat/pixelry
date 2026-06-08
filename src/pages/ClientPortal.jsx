@@ -1470,6 +1470,24 @@ function SupportView({ user }) {
   }, [user?.id]);
 
   useEffect(() => {
+    if (!isSupabaseConfigured || !supabase || !user?.id) return;
+    const channel = supabase
+      .channel(`support:${user.id}`)
+      .on('postgres_changes', {
+        event: 'INSERT',
+        schema: 'public',
+        table: 'messages',
+        filter: `client_id=eq.${user.id}`,
+      }, (payload) => {
+        if (!payload.new.from_client) {
+          setMessages(prev => [...prev, payload.new]);
+        }
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user?.id]);
+
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 

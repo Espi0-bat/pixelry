@@ -15,8 +15,8 @@ const TARGET_FPS = 30;
 const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
 function getRoleFromEmail(email = '') {
-  if (email.includes('moutinhoezer') || email.includes('erickvin49')) return 'admin';
-  if (email.includes('sofiagramelich')) return 'employee';
+  if (email.includes('moutinhoezer') || email.includes('erickvin49')) return 'super_admin';
+  if (email.includes('sofiagramelich')) return 'manager';
   return 'employee';
 }
 
@@ -30,8 +30,9 @@ export default function AdminLayout({ user, onLogout }) {
   const [avatarUrl, setAvatarUrl] = useState(null);
   const [userRole, setUserRole] = useState(() => getRoleFromEmail(user?.email));
   const [userProfile, setUserProfile] = useState(null);
-  const theme = user?.email?.includes('erickvin49') ? 'gold'
-    : user?.email?.includes('sofiagramelich') ? 'rose'
+  const theme = userRole === 'manager' ? 'rose'
+    : userRole === 'employee' ? 'slate'
+    : user?.email?.includes('erickvin49') ? 'gold'
     : 'obsidian';
   const themeRef = useRef(theme);
   themeRef.current = theme;
@@ -183,7 +184,7 @@ export default function AdminLayout({ user, onLogout }) {
         </div>
 
         <nav className="sidebar-nav">
-          {userRole === 'admin' ? (
+          {['super_admin', 'manager'].includes(userRole) ? (
             <>
               <NavLink to="/admin" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} end onClick={closeMenu}>
                 <Home size={18} /><span>Dashboard</span>
@@ -249,6 +250,7 @@ export default function AdminLayout({ user, onLogout }) {
             avatarUrl={avatarUrl}
             onAvatarUpdate={setAvatarUrl}
             onLogout={handleLogout}
+            userRole={userRole}
           />
         </header>
         <div className="content-area">

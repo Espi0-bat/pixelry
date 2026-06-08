@@ -1,7 +1,8 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const ADMIN_EMAILS = (Deno.env.get('ADMIN_EMAILS') ?? 'moutinhoezer@gmail.com,erickvin49@gmail.com')
+const ADMIN_EMAILS = (Deno.env.get('ADMIN_EMAILS')
+  ?? 'moutinhoezer@gmail.com,erickvin49@gmail.com,sofiagramelich@icloud.com')
   .split(',').map(e => e.trim())
 
 const ALLOWED_ORIGINS = [
@@ -42,7 +43,16 @@ serve(async (req) => {
       authHeader.replace('Bearer ', '')
     )
 
-    if (authError || !user || !ADMIN_EMAILS.includes(user.email ?? '')) {
+    const { data: callerProfile } = await supabaseAnon
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+
+    const isAuthorized = ADMIN_EMAILS.includes(user.email ?? '') ||
+      ['super_admin', 'manager'].includes(callerProfile?.role ?? '')
+
+    if (authError || !user || !isAuthorized) {
       return new Response(JSON.stringify({ error: 'Acesso negado' }), { status: 403, headers: cors })
     }
 
@@ -72,6 +82,7 @@ serve(async (req) => {
       full_name: full_name?.trim() || '',
       company_name: company_name?.trim() || '',
       email: email.trim(),
+      role: 'client',
     })
 
     if (profileError) {

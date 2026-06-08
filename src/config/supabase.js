@@ -3,7 +3,29 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-export const ADMIN_EMAILS =(import.meta.env.VITE_ADMIN_EMAILS || 'moutinhoezer@gmail.com,erickvin49@gmail.com,sofiagramelich@icloud.com').split(',').map(e => e.trim())
+export const SUPER_ADMIN_EMAILS = (
+  import.meta.env.VITE_SUPER_ADMIN_EMAILS ||
+  'moutinhoezer@gmail.com,erickvin49@gmail.com'
+).split(',').map(e => e.trim())
+
+export const MANAGER_EMAILS = (
+  import.meta.env.VITE_MANAGER_EMAILS ||
+  'sofiagramelich@icloud.com'
+).split(',').map(e => e.trim())
+
+export const ADMIN_EMAILS = [...SUPER_ADMIN_EMAILS, ...MANAGER_EMAILS]
+
+export const ROLE_LEVELS = {
+  super_admin: 4,
+  manager:     3,
+  employee:    2,
+  client:      1,
+}
+
+export function hasMinRole(userRole, minRole) {
+  return (ROLE_LEVELS[userRole] || 0) >= (ROLE_LEVELS[minRole] || 0)
+}
+
 export const STORAGE_BUCKET = 'deliveries'
 export const isSupabaseConfigured = Boolean(supabaseUrl && supabaseAnonKey)
 

@@ -3,7 +3,7 @@ import { Camera, LogOut, User, X } from 'lucide-react';
 import { supabase } from '../../config/supabase';
 import './ProfilePanel.css';
 
-export default function ProfilePanel({ user, avatarUrl, onAvatarUpdate, onLogout }) {
+export default function ProfilePanel({ user, avatarUrl, onAvatarUpdate, onLogout, userRole }) {
   const [open, setOpen]         = useState(false);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview]   = useState(avatarUrl);
@@ -21,6 +21,12 @@ export default function ProfilePanel({ user, avatarUrl, onAvatarUpdate, onLogout
     if (e.includes('sofiagramelich')) return 'Sofia';
     return e.split('@')[0];
   })();
+
+  const roleLabel = {
+    super_admin: 'CEO · Pixelry',
+    manager:     'Gerente',
+    employee:    'Designer',
+  }[userRole] || 'Admin';
 
   // Sync preview when prop changes
   useEffect(() => { setPreview(avatarUrl); }, [avatarUrl]);
@@ -65,7 +71,7 @@ export default function ProfilePanel({ user, avatarUrl, onAvatarUpdate, onLogout
 
     const { error: dbErr } = await supabase
       .from('profiles')
-      .update({ avatar_url: bustedUrl, updated_at: new Date().toISOString() })
+      .update({ avatar_url: publicUrl, updated_at: new Date().toISOString() })
       .eq('id', user.id);
 
     if (dbErr) {
@@ -137,7 +143,7 @@ export default function ProfilePanel({ user, avatarUrl, onAvatarUpdate, onLogout
               <span className="pp-name">{displayName}</span>
               <span className="pp-email">{user?.email}</span>
               <span className="pp-role">
-                <User size={10} /> Administrador
+                <User size={10} /> {roleLabel}
               </span>
             </div>
           </div>
