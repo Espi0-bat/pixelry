@@ -205,6 +205,33 @@ function mapClientFile(row) {
   };
 }
 
+function renderMsgContent(content) {
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const imageExts = /\.(png|jpg|jpeg|gif|webp|svg)(\?.*)?$/i;
+  const parts = content.split(urlRegex);
+  return parts.map((part, i) => {
+    if (urlRegex.test(part)) {
+      urlRegex.lastIndex = 0;
+      if (imageExts.test(part)) {
+        return (
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer">
+            <img src={part} alt="anexo" style={{ maxWidth: "100%", maxHeight: 220, borderRadius: 8, display: "block", marginTop: 6, cursor: "pointer" }} />
+          </a>
+        );
+      }
+      const fileName = decodeURIComponent(part.split("/").pop().split("?")[0]);
+      return (
+        <a key={i} href={part} target="_blank" rel="noopener noreferrer"
+          style={{ color: "#a78bfa", textDecoration: "underline", wordBreak: "break-all", fontSize: 13 }}>
+          📎 {fileName}
+        </a>
+      );
+    }
+    const text = part.replace(/📎 Arquivo anexado: [^\n]*/g, "").trim();
+    return text ? <span key={i} style={{ whiteSpace: "pre-wrap" }}>{text}</span> : null;
+  });
+}
+
 function normalizeStatus(status) {
   return STATUS_ALIASES[String(status || "").toLowerCase()] || "production";
 }
@@ -1508,6 +1535,16 @@ function SupportView({ user }) {
       }
       const { data: { publicUrl } } = supabase.storage.from("client-uploads").getPublicUrl(path);
       fileUrl = publicUrl;
+
+      // Salva em client_files para aparecer na aba de Arquivos em tempo real
+      const { data: newFile } = await supabase.from("client_files").insert({
+        client_id: user.id,
+        name: attachFile.name,
+        type: getFileTypeName(attachFile.name),
+        file_url: fileUrl,
+        size_label: (attachFile.size / 1024 / 1024).toFixed(1) + " MB",
+      }).select("id, name, type, file_url, size_label, created_at").single();
+      if (newFile) setClientFiles(prev => [mapClientFile(newFile), ...prev]);
     }
 
     setUploadError(null);
@@ -1583,7 +1620,7 @@ function SupportView({ user }) {
               border: `1px solid ${m.from_client ? "rgba(128,64,245,0.3)" : C.border}`,
               fontFamily: FONT_BODY, fontSize: 13, color: C.text, lineHeight: 1.6,
             }}>
-              {m.content}
+              {renderMsgContent(m.content)}
               <div style={{ fontSize: 10, color: C.textMuted, marginTop: 4 }}>{formatPortalDate(m.created_at)}</div>
             </div>
           ))}
