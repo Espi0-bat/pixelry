@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, MessageSquare, Loader2 } from 'lucide-react';
+import { Send, MessageSquare, Loader2, ArrowLeft } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import { supabase } from '../../config/supabase';
 import './InternalMessages.css';
@@ -33,11 +33,13 @@ export default function InternalMessages() {
   const [loadingMsgs, setLoadingMsgs] = useState(false);
   const [sending, setSending]         = useState(false);
   const [unread, setUnread]           = useState({});
+  const [showContacts, setShowContacts] = useState(true);
   const bottomRef = useRef(null);
   const channelRef = useRef(null);
 
   const openContact = useCallback(async (contact) => {
     setSelected(contact);
+    setShowContacts(false);
     setLoadingMsgs(true);
     setMessages([]);
 
@@ -137,7 +139,7 @@ export default function InternalMessages() {
     <div className="chat-layout">
 
       {/* ── Contacts sidebar ── */}
-      <div className="chat-contacts">
+      <div className={`chat-contacts${!showContacts ? ' mobile-hidden' : ''}`}>
         <div className="chat-contacts-header">
           <h2 className="chat-title">Mensagens</h2>
           <span className="chat-role-badge">
@@ -170,7 +172,7 @@ export default function InternalMessages() {
       </div>
 
       {/* ── Chat area ── */}
-      <div className="chat-area">
+      <div className={`chat-area${showContacts ? ' mobile-hidden' : ''}`}>
         {!selected ? (
           <div className="chat-placeholder">
             <MessageSquare size={40} strokeWidth={1.5} className="chat-placeholder-icon" />
@@ -180,6 +182,9 @@ export default function InternalMessages() {
           <>
             {/* Chat header */}
             <div className="chat-header">
+              <button className="chat-back-btn" onClick={() => setShowContacts(true)} aria-label="Voltar">
+                <ArrowLeft size={16} />
+              </button>
               <div className="chat-header-avatar">
                 {selected.avatar_url
                   ? <img src={selected.avatar_url} alt={selected.full_name} />

@@ -425,3 +425,10 @@
     max-height: 90vh;
   }
 }
+
+@media (max-width: 480px) {
+  .summary-cards {
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+}

@@ -304,6 +304,44 @@
 
 /* ── Responsive ── */
 @media (max-width: 700px) {
-  .chat-layout { grid-template-columns: 1fr; }
-  .chat-contacts { display: none; }
+  .chat-layout {
+    grid-template-columns: 1fr;
+    height: calc(100dvh - 60px - 48px);
+  }
+
+  .chat-contacts {
+    display: flex;
+  }
+
+  .chat-contacts.mobile-hidden {
+    display: none;
+  }
+
+  .chat-area.mobile-hidden {
+    display: none;
+  }
+
+  .chat-back-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 13px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    margin-right: 8px;
+    flex-shrink: 0;
+    transition: color 0.15s;
+  }
+
+  .chat-back-btn:hover {
+    color: var(--text-primary);
+  }
+}
+
+.chat-back-btn {
+  display: none;
 }
