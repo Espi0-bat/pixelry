@@ -97,6 +97,10 @@
   box-shadow: 0 4px 12px var(--primary-glow);
 }
 
+.cliente-details {
+  min-width: 0;
+}
+
 .cliente-details h3 {
   font-size: 18px;
   margin-bottom: 6px;

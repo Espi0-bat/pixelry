@@ -548,3 +548,9 @@
   .dash-quick-actions { grid-template-columns: repeat(2, 1fr); }
   .activity-time { display: none; }
 }
+
+@media (max-width: 480px) {
+  .stat-value { font-size: 32px; }
+  .dash-qs-item { padding: 10px 12px; }
+  .dash-qs-val { font-size: 18px; }
+}
