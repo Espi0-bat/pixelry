@@ -789,3 +789,28 @@
   background: rgba(128,64,245,0.15);
   color: var(--primary-color);
 }
+
+/* ── Drawer mobile ── */
+@media (max-width: 768px) {
+  .emp-drawer {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    border-left: none;
+    border-top: 1px solid rgba(255,255,255,0.08);
+  }
+
+  .drawer-header {
+    padding: 20px 16px 16px;
+  }
+
+  .drawer-body {
+    padding: 16px;
+  }
+
+  .create-member-modal {
+    width: 92vw;
+    max-width: 92vw;
+  }
+}
