@@ -112,7 +112,7 @@ export default function Entregas() {
 
   const loadDeliveries = useCallback(async () => {
     const [{ data: profilesData }, { data: deliveriesData }] = await Promise.all([
-      supabase.from('profiles').select('id, full_name, company_name, email').order('full_name'),
+      supabase.from('profiles').select('id, full_name, company_name, email').eq('role', 'client').order('full_name'),
       supabase
         .from('deliveries')
         .select('id, title, type, status, created_at, client_id, profiles!deliveries_client_id_profiles_fkey(full_name, company_name)')
