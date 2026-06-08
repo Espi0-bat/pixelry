@@ -136,6 +136,30 @@ function AdminDashboard() {
       setLoading(false);
     }
     load();
+
+    const channel = supabase
+      .channel('admin:dashboard:events')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'portal_events' },
+        async (payload) => {
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, company_name')
+            .eq('id', payload.new.client_id)
+            .single();
+          const newEvent = { ...payload.new, profiles: profile };
+          setEvents(prev => [newEvent, ...prev].slice(0, 5));
+
+          const eventType = payload.new.event_type;
+          if (eventType === 'delivery_approved') {
+            setStats(s => ({ ...s, approved: s.approved + 1, pending: Math.max(0, s.pending - 1) }));
+          } else if (eventType === 'revision_requested') {
+            setStats(s => ({ ...s, pending: Math.max(0, s.pending - 1) }));
+          }
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   useEffect(() => {

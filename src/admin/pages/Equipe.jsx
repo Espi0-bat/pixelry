@@ -140,12 +140,7 @@ export default function Equipe() {
   }
 
   async function refreshDrawerData(empId) {
-    const [
-      { data: empNotes },
-      { data: empClients },
-      { data: allC },
-      { data: empFiles },
-    ] = await Promise.all([
+    const [notesRes, clientsRes, allCRes, filesRes] = await Promise.all([
       supabase
         .from('employee_notes')
         .select('*')
@@ -166,10 +161,10 @@ export default function Equipe() {
         .or(`from_id.eq.${empId},to_id.eq.${empId}`)
         .order('created_at', { ascending: false }),
     ]);
-    setNotes(empNotes || []);
-    setClients(empClients || []);
-    setAllClients(allC || []);
-    setFiles(empFiles || []);
+    if (!notesRes.error)   setNotes(notesRes.data || []);
+    if (!clientsRes.error) setClients(clientsRes.data || []);
+    if (!allCRes.error)    setAllClients(allCRes.data || []);
+    if (!filesRes.error)   setFiles(filesRes.data || []);
   }
 
   async function handleAddNote(e) {
@@ -229,14 +224,15 @@ export default function Equipe() {
   }
 
   const avgRating = (emp) => {
-    const empNotes = notes.filter(n => n.employee_id === emp.id && n.rating);
+    const empNotes = notes.filter(n => n.employee_id === emp.id && n.rating != null);
     if (!empNotes.length) return null;
     return (empNotes.reduce((a, n) => a + n.rating, 0) / empNotes.length).toFixed(1);
   };
 
   const drawerNotes   = notes.filter(n => n.employee_id === selected?.id);
-  const drawerAvg     = drawerNotes.filter(n => n.rating).length
-    ? (drawerNotes.filter(n => n.rating).reduce((a, n) => a + n.rating, 0) / drawerNotes.filter(n => n.rating).length).toFixed(1)
+  const drawerNotesWithRating = drawerNotes.filter(n => n.rating != null);
+  const drawerAvg = drawerNotesWithRating.length
+    ? (drawerNotesWithRating.reduce((a, n) => a + n.rating, 0) / drawerNotesWithRating.length).toFixed(1)
     : null;
 
   return (

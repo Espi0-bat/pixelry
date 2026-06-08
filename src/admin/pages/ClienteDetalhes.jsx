@@ -133,7 +133,15 @@ export default function ClienteDetalhes() {
       .eq('client_id', id)
       .order('created_at', { ascending: false })
       .then(({ data }) => { if (mounted) { setClientFiles(data || []); setLoadingFiles(false); } });
-    return () => { mounted = false; };
+
+    const channel = supabase
+      .channel(`admin:docs:${id}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'client_files', filter: `client_id=eq.${id}` },
+        (payload) => { setClientFiles(prev => [payload.new, ...prev]); }
+      )
+      .subscribe();
+
+    return () => { mounted = false; supabase.removeChannel(channel); };
   }, [activeTab, id]);
 
   useEffect(() => {
@@ -146,7 +154,15 @@ export default function ClienteDetalhes() {
       .eq('client_id', id)
       .order('created_at', { ascending: true })
       .then(({ data }) => { if (mounted) { setMessages(data || []); setLoadingMessages(false); } });
-    return () => { mounted = false; };
+
+    const channel = supabase
+      .channel(`admin:chat:${id}`)
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `client_id=eq.${id}` },
+        (payload) => { setMessages(prev => [...prev, payload.new]); }
+      )
+      .subscribe();
+
+    return () => { mounted = false; supabase.removeChannel(channel); };
   }, [activeTab, id]);
 
   useEffect(() => {

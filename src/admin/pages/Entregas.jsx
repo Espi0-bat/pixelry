@@ -142,7 +142,7 @@ export default function Entregas() {
         (payload) => {
           setDeliveries(prev => prev.map(d =>
             d.id === payload.new.id
-              ? { ...d, status: payload.new.status }
+              ? { ...d, ...payload.new, clientName: d.clientName, date: d.date }
               : d
           ));
         }

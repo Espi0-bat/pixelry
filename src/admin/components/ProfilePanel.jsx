@@ -76,6 +76,7 @@ export default function ProfilePanel({ user, avatarUrl, onAvatarUpdate, onLogout
 
     if (dbErr) {
       console.error('Erro ao salvar avatar:', dbErr);
+      await supabase.storage.from('avatars').remove([path]);
       setPreview(avatarUrl);
       setUploading(false);
       return;
