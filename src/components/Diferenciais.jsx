@@ -19,7 +19,7 @@ const ITEMS = [
   },
   {
     title: 'Parceria orientada a resultados',
-    body: 'Não entregamos um site e encerramos o contato. Somos uma empresa de tecnologia que realiza a leitura dos dados do que constrói — porque o sistema digital precisa evoluir e escalar as suas vendas continuamente.',
+    body: 'Não entregamos um site e encerramos o contato. Somos uma empresa que lê os dados do que entrega — porque o sistema digital precisa evoluir para escalar suas vendas continuamente.',
     wide: false,
   },
   {

@@ -113,10 +113,10 @@ export default function Planos() {
     <section id="planos">
       <div className="section-wrap" ref={ref}>
         <div className="reveal" style={{ textAlign: 'center' }}>
-          <span className="label" style={{ justifyContent: 'center' }}>ENGENHARIA E PRECIFICAÇÃO</span>
+          <span className="label" style={{ justifyContent: 'center' }}>SISTEMA E INVESTIMENTO</span>
           <h2 className={styles.h2}>
-            O que construímos.<br />
-            Por que funciona. Sem rodeios.
+            Três formas de estruturar.<br />
+            Um único objetivo: agenda cheia.
           </h2>
         </div>
 

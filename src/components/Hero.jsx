@@ -156,7 +156,7 @@ export default function Hero() {
               Agendar Diagnóstico
             </a>
             
-            <p className={styles.microcopy}>Análise técnica do seu funil atual. Resposta rápida.</p>
+            <p className={styles.microcopy}>Diagnóstico real do que está falhando. Resposta rápida.</p>
             
             <div className={styles.proof}>
               <span className={styles.proofDot} />

@@ -81,7 +81,7 @@ export default function Core() {
             É uma <span className="grad-text">infraestrutura de aquisição.</span>
           </h2>
           <p className={styles.sub}>
-            O CORE é o sistema integrado que conecta cada camada da sua presença digital.
+            O CORE é o sistema integrado que conecta cada camada da sua operação de captação de clientes.
             Cada componente tem função crítica — nenhum é decorativo.
           </p>
         </div>
