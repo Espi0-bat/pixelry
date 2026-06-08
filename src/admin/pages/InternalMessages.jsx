@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, MessageSquare, Loader2, ArrowLeft } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
-import { supabase } from '../../config/supabase';
+import { supabase, hasMinRole } from '../../config/supabase';
 import './InternalMessages.css';
 
 function formatTime(iso) {
@@ -69,10 +69,11 @@ export default function InternalMessages() {
       .from('profiles')
       .select('id, full_name, email, avatar_url, job_title, role');
 
-    if (userRole === 'admin') {
-      query = query.in('role', ['employee', 'admin']).neq('id', authUser.id);
+    const isAdminLevel = hasMinRole(userRole, 'manager');
+    if (isAdminLevel) {
+      query = query.in('role', ['employee', 'manager', 'super_admin']).neq('id', authUser.id);
     } else {
-      query = query.eq('role', 'admin');
+      query = query.in('role', ['manager', 'super_admin']);
     }
 
     query.then(({ data }) => {
@@ -143,7 +144,7 @@ export default function InternalMessages() {
         <div className="chat-contacts-header">
           <h2 className="chat-title">Mensagens</h2>
           <span className="chat-role-badge">
-            {userRole === 'admin' ? 'Equipe' : 'Suporte'}
+            {hasMinRole(userRole, 'manager') ? 'Equipe' : 'Suporte'}
           </span>
         </div>
 
@@ -162,7 +163,7 @@ export default function InternalMessages() {
             </div>
             <div className="contact-info">
               <div className="contact-name">{c.full_name || c.email}</div>
-              <div className="contact-role">{c.job_title || (userRole === 'employee' ? 'Admin' : 'Funcionário')}</div>
+              <div className="contact-role">{c.job_title || (hasMinRole(c.role, 'manager') ? 'Admin' : 'Funcionário')}</div>
             </div>
             {unread[c.id] > 0 && (
               <span className="contact-unread">{unread[c.id]}</span>
@@ -193,7 +194,7 @@ export default function InternalMessages() {
               </div>
               <div>
                 <div className="chat-header-name">{selected.full_name || selected.email}</div>
-                <div className="chat-header-role">{selected.job_title || (userRole === 'employee' ? 'Admin' : 'Funcionário')}</div>
+                <div className="chat-header-role">{selected.job_title || (hasMinRole(selected.role, 'manager') ? 'Admin' : 'Funcionário')}</div>
               </div>
             </div>
 
