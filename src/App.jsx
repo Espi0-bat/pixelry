@@ -41,6 +41,7 @@ const Metas              = React.lazy(() => import('./admin/pages/Metas'))
 const Equipe             = React.lazy(() => import('./admin/pages/Equipe'))
 const InternalMessages   = React.lazy(() => import('./admin/pages/InternalMessages'))
 const InternalFiles      = React.lazy(() => import('./admin/pages/InternalFiles'))
+const Suporte            = React.lazy(() => import('./admin/pages/Suporte'))
 
 const Home = () => (
   <>
@@ -176,6 +177,7 @@ export default function App() {
             <Route path="metas" element={<Suspense fallback={PORTAL_FALLBACK}><Metas /></Suspense>} />
             <Route path="equipe" element={<Suspense fallback={PORTAL_FALLBACK}><Equipe /></Suspense>} />
             <Route path="mensagens" element={<Suspense fallback={PORTAL_FALLBACK}><InternalMessages /></Suspense>} />
+            <Route path="suporte" element={<Suspense fallback={PORTAL_FALLBACK}><Suporte /></Suspense>} />
             <Route path="arquivos" element={<Suspense fallback={PORTAL_FALLBACK}><InternalFiles /></Suspense>} />
           </Route>
         </Routes>
