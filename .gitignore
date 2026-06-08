@@ -31,3 +31,11 @@ __pycache__/
 
 # MCP config (contains secrets)
 .mcp.json
+
+# Office documents
+*.docx
+*.doc
+*.xlsx
+*.xls
+*.pptx
+*.ppt
