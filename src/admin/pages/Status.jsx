@@ -70,7 +70,7 @@ export default function Status() {
     }
     load();
 
-    // Realtime: atualiza status quando cliente age no portal
+    // Realtime: atualiza quando cliente age no portal
     const channel = supabase
       .channel('admin:status:deliveries')
       .on(
@@ -79,7 +79,13 @@ export default function Status() {
         (payload) => {
           setDeliveries(prev => prev.map(d =>
             d.id === payload.new.id
-              ? { ...d, status: payload.new.status, updatedAt: formatDate(payload.new.updated_at) }
+              ? {
+                  ...d,
+                  ...payload.new,
+                  clientName: d.clientName,
+                  updatedAt: formatDate(payload.new.updated_at),
+                  clientNote: payload.new.status === 'revision' ? d.clientNote : null,
+                }
               : d
           ));
         }
