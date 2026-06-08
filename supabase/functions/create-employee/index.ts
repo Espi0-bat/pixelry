@@ -1,15 +1,13 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const ADMIN_EMAILS = (Deno.env.get('ADMIN_EMAILS')
-  ?? 'socio1@exemplo.com,ex-membro-1@exemplo.com,ex-membro-2@exemplo.com')
-  .split(',').map(e => e.trim())
+const adminEmailsEnv = Deno.env.get('ADMIN_EMAILS')
+if (!adminEmailsEnv) throw new Error('ADMIN_EMAILS env var is required')
+const ADMIN_EMAILS = adminEmailsEnv.split(',').map(e => e.trim())
 
 const ALLOWED_ORIGINS = [
   'https://www.pixelry.com.br',
   'https://pixelry.com.br',
-  'http://localhost:5173',
-  'http://localhost:3000',
 ]
 
 function getCors(req: Request) {

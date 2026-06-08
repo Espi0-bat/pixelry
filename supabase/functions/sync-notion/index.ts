@@ -6,8 +6,6 @@ const NOTION_VERSION = '2022-06-28'
 const ALLOWED_ORIGINS = [
   'https://www.pixelry.com.br',
   'https://pixelry.com.br',
-  'http://localhost:5173',
-  'http://localhost:3000',
 ]
 
 function getCors(req: Request) {
