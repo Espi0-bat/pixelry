@@ -33,7 +33,7 @@ export default function Status() {
       // Query principal limpa — sem JOIN pesado de messages
       const { data } = await supabase
         .from('deliveries')
-        .select('id, title, type, status, updated_at, client_id, profiles(full_name, company_name)')
+        .select('id, title, type, status, updated_at, client_id, profiles!deliveries_client_id_profiles_fkey(full_name, company_name)')
         .order('updated_at', { ascending: false });
 
       const deliveriesRaw = data || [];

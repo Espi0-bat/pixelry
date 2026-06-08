@@ -115,7 +115,7 @@ export default function Entregas() {
       supabase.from('profiles').select('id, full_name, company_name, email').order('full_name'),
       supabase
         .from('deliveries')
-        .select('id, title, type, status, created_at, client_id, profiles(full_name, company_name)')
+        .select('id, title, type, status, created_at, client_id, profiles!deliveries_client_id_profiles_fkey(full_name, company_name)')
         .order('created_at', { ascending: false }),
     ]);
     setClients(profilesData || []);
@@ -212,7 +212,7 @@ export default function Entregas() {
         description: form.description,
         file_url: fileUrl,
       })
-      .select('id, title, type, status, created_at, client_id, profiles(full_name, company_name)')
+      .select('id, title, type, status, created_at, client_id, profiles!deliveries_client_id_profiles_fkey(full_name, company_name)')
       .single();
 
     if (insertError) {
