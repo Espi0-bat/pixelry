@@ -71,7 +71,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
   padding: 20px;
-  z-index: 100;
+  z-index: 300;
   box-shadow:
     0 24px 60px rgba(0, 0, 0, 0.6),
     0 0 0 1px rgba(128, 64, 245, 0.12) inset;
@@ -243,6 +243,14 @@
   background: rgba(244, 63, 94, 0.1);
   border-color: rgba(244, 63, 94, 0.2);
   color: #f43f5e;
+}
+
+@media (max-width: 480px) {
+  .pp-panel {
+    right: 0;
+    left: auto;
+    max-width: calc(100vw - 32px);
+  }
 }
 
 /* ── Theme adaptations ── */

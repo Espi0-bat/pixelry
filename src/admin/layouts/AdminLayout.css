@@ -274,13 +274,13 @@
 }
 
 .logout-btn {
-  color: var(#f43f5e);
+  color: #f43f5e;
   justify-content: center;
 }
 
 .logout-btn:hover {
   background-color: rgba(244, 63, 94, 0.1);
-  color: var(#f43f5e);
+  color: #f43f5e;
 }
 
 .main-content {
@@ -467,6 +467,7 @@
     left: 0;
     height: 100%;
     z-index: 50;
+    width: min(260px, 90vw);
     transform: translateX(-100%);
     transition: transform 0.28s cubic-bezier(0.4, 0, 0.2, 1);
   }
@@ -515,15 +516,6 @@
   /* Topbar compacta */
   .topbar {
     height: 60px;
-  }
-
-  /* Truncar email no topbar */
-  .topbar-user span {
-    max-width: 160px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 12px;
   }
 
   /* Avatar menor para dar mais espaço */
