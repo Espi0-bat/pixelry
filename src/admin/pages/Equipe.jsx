@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   UserCircle2, Star, Users, X, ChevronRight, Check,
@@ -303,6 +304,7 @@ export default function Equipe() {
       )}
 
       {/* ── Create member modal ── */}
+      {createPortal(
       <AnimatePresence>
         {showCreate && (
           <>
@@ -377,8 +379,10 @@ export default function Equipe() {
           </>
         )}
       </AnimatePresence>
+      , document.body)}
 
       {/* ── Drawer overlay ── */}
+      {createPortal(
       <AnimatePresence>
         {selected && (
           <>
@@ -568,6 +572,7 @@ export default function Equipe() {
           </>
         )}
       </AnimatePresence>
+      , document.body)}
     </div>
   );
 }
