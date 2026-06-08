@@ -550,6 +550,9 @@
 }
 
 @media (max-width: 480px) {
+  .dash-hero { padding: 16px 14px; }
+  .dash-greeting { font-size: 22px; }
+  .stat-card { padding: 16px 14px 14px; }
   .stat-value { font-size: 32px; }
   .dash-qs-item { padding: 10px 12px; }
   .dash-qs-val { font-size: 18px; }
