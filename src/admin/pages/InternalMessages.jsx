@@ -36,20 +36,6 @@ export default function InternalMessages() {
   const bottomRef = useRef(null);
   const channelRef = useRef(null);
 
-  useEffect(() => {
-    if (!authUser?.id) return;
-    const roleToFetch = userRole === 'admin' ? 'employee' : 'admin';
-    supabase
-      .from('profiles')
-      .select('id, full_name, email, avatar_url, job_title')
-      .eq('role', roleToFetch)
-      .then(({ data }) => {
-        setContacts(data || []);
-        setLoadingContacts(false);
-        if (data?.length === 1) openContact(data[0]);
-      });
-  }, [authUser?.id, userRole, openContact]);
-
   const openContact = useCallback(async (contact) => {
     setSelected(contact);
     setLoadingMsgs(true);
@@ -74,6 +60,25 @@ export default function InternalMessages() {
     setMessages(data || []);
     setLoadingMsgs(false);
   }, [authUser?.id]);
+
+  useEffect(() => {
+    if (!authUser?.id) return;
+    let query = supabase
+      .from('profiles')
+      .select('id, full_name, email, avatar_url, job_title, role');
+
+    if (userRole === 'admin') {
+      query = query.in('role', ['employee', 'admin']).neq('id', authUser.id);
+    } else {
+      query = query.eq('role', 'admin');
+    }
+
+    query.then(({ data }) => {
+      setContacts(data || []);
+      setLoadingContacts(false);
+      if (data?.length === 1) openContact(data[0]);
+    });
+  }, [authUser?.id, userRole, openContact]);
 
   // Realtime subscription
   useEffect(() => {

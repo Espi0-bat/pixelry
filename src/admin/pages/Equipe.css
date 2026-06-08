@@ -439,6 +439,25 @@
   font-family: var(--font-mono);
 }
 
+.note-delete-btn {
+  display: flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  color: var(--text-faint);
+  opacity: 0;
+  transition: opacity 0.15s, color 0.15s;
+}
+.note-entry:hover .note-delete-btn {
+  opacity: 1;
+}
+.note-delete-btn:hover {
+  color: #ef4444;
+}
+
 .note-body {
   font-size: 13px;
   color: var(--text-primary);
@@ -632,4 +651,134 @@
   font-size: 13.5px;
   color: var(--text-secondary);
   padding: 12px 0;
+}
+
+/* ── Novo membro button ── */
+.btn-novo-membro {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: var(--grad);
+  border: none;
+  border-radius: 20px;
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+  white-space: nowrap;
+}
+
+.btn-novo-membro:hover { opacity: 0.85; }
+
+/* ── Create member modal ── */
+.create-member-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 420px;
+  max-width: 92vw;
+  background: rgba(14,14,32,0.98);
+  backdrop-filter: blur(24px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 20px;
+  z-index: 202;
+  box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+  overflow: hidden;
+}
+
+.create-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  position: relative;
+}
+
+.create-modal-header::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--grad);
+  opacity: 0.6;
+}
+
+.create-modal-title {
+  font-family: var(--font-editorial, 'Syne', sans-serif);
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.create-modal-form {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.create-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.create-label {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-secondary);
+}
+
+.create-input {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 13px;
+  padding: 10px 12px;
+  transition: border-color 0.2s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.create-input:focus {
+  outline: none;
+  border-color: rgba(128,64,245,0.4);
+}
+
+.create-cargo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.create-cargo-btn {
+  padding: 8px 4px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.08);
+  background: rgba(255,255,255,0.03);
+  color: var(--text-secondary);
+  transition: all 0.15s;
+  text-align: center;
+}
+
+.create-cargo-btn:hover {
+  border-color: rgba(128,64,245,0.3);
+  color: var(--text-primary);
+}
+
+.create-cargo-btn.selected {
+  border-color: var(--primary-color);
+  background: rgba(128,64,245,0.15);
+  color: var(--primary-color);
 }
