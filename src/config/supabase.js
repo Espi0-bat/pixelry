@@ -3,15 +3,11 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-export const SUPER_ADMIN_EMAILS = (
-  import.meta.env.VITE_SUPER_ADMIN_EMAILS ||
-  'moutinhoezer@gmail.com,erickvin49@gmail.com'
-).split(',').map(e => e.trim())
+export const SUPER_ADMIN_EMAILS = (import.meta.env.VITE_SUPER_ADMIN_EMAILS || '')
+  .split(',').map(e => e.trim()).filter(Boolean)
 
-export const MANAGER_EMAILS = (
-  import.meta.env.VITE_MANAGER_EMAILS ||
-  'sofiagramelich@icloud.com'
-).split(',').map(e => e.trim())
+export const MANAGER_EMAILS = (import.meta.env.VITE_MANAGER_EMAILS || '')
+  .split(',').map(e => e.trim()).filter(Boolean)
 
 export const ADMIN_EMAILS = [...SUPER_ADMIN_EMAILS, ...MANAGER_EMAILS]
 

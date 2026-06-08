@@ -22,24 +22,27 @@ serve(async (req) => {
       const ts = sigParts['ts'] ?? ''
       const v1 = sigParts['v1'] ?? ''
 
-      if (ts && v1) {
-        const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`
-        const key = await crypto.subtle.importKey(
-          'raw',
-          new TextEncoder().encode(webhookSecret),
-          { name: 'HMAC', hash: 'SHA-256' },
-          false,
-          ['sign']
-        )
-        const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(manifest))
-        const computed = Array.from(new Uint8Array(sig))
-          .map(b => b.toString(16).padStart(2, '0'))
-          .join('')
+      if (!ts || !v1) {
+        console.warn('[payment-webhook] Missing or malformed signature — request rejected')
+        return new Response('Invalid signature', { status: 401 })
+      }
 
-        if (computed !== v1) {
-          console.warn('[payment-webhook] Invalid signature — request rejected')
-          return new Response('Invalid signature', { status: 401 })
-        }
+      const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`
+      const key = await crypto.subtle.importKey(
+        'raw',
+        new TextEncoder().encode(webhookSecret),
+        { name: 'HMAC', hash: 'SHA-256' },
+        false,
+        ['sign']
+      )
+      const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(manifest))
+      const computed = Array.from(new Uint8Array(sig))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('')
+
+      if (computed !== v1) {
+        console.warn('[payment-webhook] Invalid signature — request rejected')
+        return new Response('Invalid signature', { status: 401 })
       }
     }
 
