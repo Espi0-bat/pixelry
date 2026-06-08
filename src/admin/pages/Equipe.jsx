@@ -82,7 +82,8 @@ export default function Equipe() {
   // Create member modal
   const [showCreate, setShowCreate]   = useState(false);
   const [creating, setCreating]       = useState(false);
-  const [createForm, setCreateForm]   = useState({ full_name: '', email: '', job_title: '' });
+  const [createForm, setCreateForm]   = useState({ full_name: '', email: '', job_title: '', password: '' });
+  const [createError, setCreateError] = useState('');
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -115,19 +116,37 @@ export default function Equipe() {
 
   async function handleCreateMember(e) {
     e.preventDefault();
-    if (!createForm.full_name.trim() || !createForm.job_title) return;
+    if (!createForm.full_name.trim() || !createForm.job_title || !createForm.email.trim() || !createForm.password.trim()) return;
     setCreating(true);
-    const id = crypto.randomUUID();
-    await supabase.from('profiles').insert({
-      id,
-      full_name: createForm.full_name.trim(),
-      email: createForm.email.trim() || null,
-      job_title: createForm.job_title,
-      role: 'employee',
-    });
-    setCreateForm({ full_name: '', email: '', job_title: '' });
-    setShowCreate(false);
-    await loadEmployees(currentUser?.id);
+    setCreateError('');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-employee`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`,
+          'apikey': import.meta.env.VITE_SUPABASE_ANON_KEY,
+        },
+        body: JSON.stringify({
+          full_name: createForm.full_name.trim(),
+          email: createForm.email.trim(),
+          job_title: createForm.job_title,
+          password: createForm.password.trim(),
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        setCreateError(json.error ?? 'Erro ao criar membro');
+        setCreating(false);
+        return;
+      }
+      setCreateForm({ full_name: '', email: '', job_title: '', password: '' });
+      setShowCreate(false);
+      await loadEmployees(currentUser?.id);
+    } catch {
+      setCreateError('Erro de conexão. Tente novamente.');
+    }
     setCreating(false);
   }
 
@@ -309,7 +328,7 @@ export default function Equipe() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setShowCreate(false)}
+              onClick={() => { setShowCreate(false); setCreateError(''); }}
             />
             <div className="create-modal-centering">
             <motion.div
@@ -339,13 +358,25 @@ export default function Equipe() {
                   />
                 </div>
                 <div className="create-field">
-                  <label className="create-label">E-mail (opcional)</label>
+                  <label className="create-label">E-mail</label>
                   <input
                     className="create-input"
                     type="email"
                     placeholder="email@exemplo.com"
                     value={createForm.email}
                     onChange={e => setCreateForm(f => ({ ...f, email: e.target.value }))}
+                    required
+                  />
+                </div>
+                <div className="create-field">
+                  <label className="create-label">Senha</label>
+                  <input
+                    className="create-input"
+                    type="password"
+                    placeholder="Senha de acesso"
+                    value={createForm.password}
+                    onChange={e => setCreateForm(f => ({ ...f, password: e.target.value }))}
+                    required
                   />
                 </div>
                 <div className="create-field">
@@ -363,10 +394,13 @@ export default function Equipe() {
                     ))}
                   </div>
                 </div>
+                {createError && (
+                  <p style={{ color: '#f87171', fontSize: '0.8rem', margin: '0 0 4px' }}>{createError}</p>
+                )}
                 <button
                   type="submit"
                   className="note-submit"
-                  disabled={creating || !createForm.full_name.trim() || !createForm.job_title}
+                  disabled={creating || !createForm.full_name.trim() || !createForm.job_title || !createForm.email.trim() || !createForm.password.trim()}
                 >
                   {creating ? <Loader2 size={14} className="spin" /> : <Plus size={14} />}
                   {creating ? 'Criando...' : 'Criar membro'}
