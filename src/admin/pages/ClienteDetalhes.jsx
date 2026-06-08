@@ -4,6 +4,7 @@ import {
   ChevronLeft, Plus, Download, UploadCloud, Send,
   Mail, Phone, Globe, AtSign, User, StickyNote, Pencil, Save, X,
   Music2, Briefcase, Users, Link2, HardDrive, FileText, Image, File, Trash2,
+  CreditCard,
 } from 'lucide-react';
 import { supabase } from '../../config/supabase';
 import './ClienteDetalhes.css';
@@ -76,6 +77,12 @@ export default function ClienteDetalhes() {
 
   const [sendingMsg, setSendingMsg] = useState(false);
   const chatBottomRef = useRef(null);
+
+  const [invoices, setInvoices] = useState([]);
+  const [loadingInvoices, setLoadingInvoices] = useState(false);
+  const [invoiceForm, setInvoiceForm] = useState({ description: '', amount: '', due_date: '' });
+  const [creatingInvoice, setCreatingInvoice] = useState(false);
+  const [invoiceError, setInvoiceError] = useState('');
 
 
   useEffect(() => {
@@ -170,6 +177,30 @@ export default function ClienteDetalhes() {
     chatBottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  useEffect(() => {
+    if (activeTab !== 'financeiro') return;
+    let mounted = true;
+    setLoadingInvoices(true);
+    supabase
+      .from('invoices')
+      .select('*')
+      .eq('client_id', id)
+      .order('created_at', { ascending: false })
+      .then(({ data }) => { if (mounted) { setInvoices(data || []); setLoadingInvoices(false); } });
+
+    const channel = supabase
+      .channel(`admin:invoices:${id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'invoices', filter: `client_id=eq.${id}` },
+        (payload) => {
+          if (payload.eventType === 'INSERT') setInvoices(prev => [payload.new, ...prev]);
+          else if (payload.eventType === 'UPDATE') setInvoices(prev => prev.map(inv => inv.id === payload.new.id ? payload.new : inv));
+        }
+      )
+      .subscribe();
+
+    return () => { mounted = false; supabase.removeChannel(channel); };
+  }, [activeTab, id]);
+
   const handleSaveContact = async () => {
     setSavingContact(true);
     const updatedEmails = emailsRaw.split('\n').map(e => e.trim()).filter(Boolean);
@@ -235,6 +266,37 @@ export default function ClienteDetalhes() {
     const ci = client?.contact_info || {};
     await supabase.from('profiles').update({ contact_info: { ...ci, drive_links: newLinks } }).eq('id', id);
     setDriveLinks(newLinks);
+  };
+
+  const createInvoice = async () => {
+    const { description, amount, due_date } = invoiceForm;
+    if (!description.trim() || !amount) return;
+    setCreatingInvoice(true);
+    setInvoiceError('');
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const { data, error } = await supabase.functions.invoke('create-invoice', {
+        body: {
+          client_id: id,
+          amount: parseFloat(amount),
+          description: description.trim(),
+          due_date: due_date || null,
+        },
+        headers: { Authorization: `Bearer ${session.access_token}` },
+      });
+      if (error || data?.error) {
+        setInvoiceError(error?.message || data?.error || 'Erro ao criar cobrança');
+      } else {
+        setInvoiceForm({ description: '', amount: '', due_date: '' });
+      }
+    } catch (err) {
+      setInvoiceError(err.message || 'Erro inesperado');
+    }
+    setCreatingInvoice(false);
+  };
+
+  const cancelInvoice = async (invoiceId) => {
+    await supabase.from('invoices').update({ status: 'cancelled' }).eq('id', invoiceId);
   };
 
   const getFileIcon = (name) => {
@@ -621,6 +683,130 @@ export default function ClienteDetalhes() {
     </div>
   );
 
+  const INVOICE_STATUS_MAP = {
+    pending:   { label: 'Pendente',  color: '#f59e0b' },
+    paid:      { label: 'Pago',      color: '#10b981' },
+    cancelled: { label: 'Cancelado', color: '#6b7280' },
+    overdue:   { label: 'Vencido',   color: '#f43f5e' },
+  };
+
+  const fmtCurrency = (val) =>
+    new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val ?? 0);
+
+  const renderFinanceiro = () => (
+    <div className="tab-pane animate-in">
+      <div className="invoice-form">
+        <h3>Gerar Nova Cobrança</h3>
+        <div className="invoice-form-fields">
+          <div className="invoice-field">
+            <label>Descrição</label>
+            <input
+              className="info-input"
+              placeholder="Ex: Mensalidade Julho/2026"
+              value={invoiceForm.description}
+              onChange={e => setInvoiceForm(p => ({ ...p, description: e.target.value }))}
+            />
+          </div>
+          <div className="invoice-field">
+            <label>Valor (R$)</label>
+            <input
+              className="info-input"
+              type="number"
+              min="0"
+              step="0.01"
+              placeholder="0,00"
+              value={invoiceForm.amount}
+              onChange={e => setInvoiceForm(p => ({ ...p, amount: e.target.value }))}
+            />
+          </div>
+          <div className="invoice-field">
+            <label>Vencimento</label>
+            <input
+              className="info-input"
+              type="date"
+              value={invoiceForm.due_date}
+              onChange={e => setInvoiceForm(p => ({ ...p, due_date: e.target.value }))}
+            />
+          </div>
+        </div>
+        {invoiceError && <p className="invoice-error">{invoiceError}</p>}
+        <button
+          className="btn-primary"
+          onClick={createInvoice}
+          disabled={creatingInvoice || !invoiceForm.description.trim() || !invoiceForm.amount}
+        >
+          <CreditCard size={16} />
+          {creatingInvoice ? 'Gerando...' : 'Gerar Cobrança'}
+        </button>
+      </div>
+
+      <div>
+        <h3 className="docs-section-title">Cobranças</h3>
+        {loadingInvoices ? (
+          <p style={{ color: 'var(--text-secondary)', fontSize: 13 }}>Carregando cobranças...</p>
+        ) : invoices.length === 0 ? (
+          <p style={{ color: 'var(--text-secondary)', fontSize: 13 }}>Nenhuma cobrança criada ainda.</p>
+        ) : (
+          <div className="invoice-list">
+            <div className="invoice-list-header">
+              <span>Descrição</span>
+              <span>Valor</span>
+              <span>Vencimento</span>
+              <span>Status</span>
+              <span>Pago em</span>
+              <span>Ações</span>
+            </div>
+            {invoices.map(inv => {
+              const st = INVOICE_STATUS_MAP[inv.status] || INVOICE_STATUS_MAP.pending;
+              return (
+                <div key={inv.id} className="invoice-row">
+                  <span className="invoice-description">{inv.description}</span>
+                  <span className="invoice-amount">{fmtCurrency(inv.amount)}</span>
+                  <span className="invoice-date">
+                    {inv.due_date
+                      ? new Date(inv.due_date + 'T00:00:00').toLocaleDateString('pt-BR')
+                      : '—'}
+                  </span>
+                  <span>
+                    <span
+                      className="invoice-badge"
+                      style={{ background: `${st.color}18`, color: st.color, border: `1px solid ${st.color}44` }}
+                    >
+                      {st.label}
+                    </span>
+                  </span>
+                  <span className="invoice-date">
+                    {inv.paid_at ? new Date(inv.paid_at).toLocaleDateString('pt-BR') : '—'}
+                  </span>
+                  <div className="invoice-actions">
+                    {inv.payment_url && (
+                      <button
+                        className="btn-icon"
+                        title="Copiar link de pagamento"
+                        onClick={() => navigator.clipboard.writeText(inv.payment_url)}
+                      >
+                        <Link2 size={14} />
+                      </button>
+                    )}
+                    {inv.status === 'pending' && (
+                      <button
+                        className="btn-icon"
+                        title="Cancelar cobrança"
+                        onClick={() => cancelInvoice(inv.id)}
+                      >
+                        <X size={14} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
   return (
     <div className="cliente-detalhes-container">
       <div className="cd-header">
@@ -636,7 +822,7 @@ export default function ClienteDetalhes() {
       </div>
 
       <div className="cd-tabs">
-        {['informacoes', 'resumo', 'entregas', 'documentos', 'chat'].map(tab => (
+        {['informacoes', 'resumo', 'entregas', 'documentos', 'financeiro', 'chat'].map(tab => (
           <button
             key={tab}
             className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
@@ -646,6 +832,7 @@ export default function ClienteDetalhes() {
             {tab === 'resumo' && 'Resumo'}
             {tab === 'entregas' && 'Entregas'}
             {tab === 'documentos' && 'Documentos'}
+            {tab === 'financeiro' && 'Financeiro'}
             {tab === 'chat' && 'Chat'}
           </button>
         ))}
@@ -656,6 +843,7 @@ export default function ClienteDetalhes() {
         {activeTab === 'resumo' && renderResumo()}
         {activeTab === 'entregas' && renderEntregas()}
         {activeTab === 'documentos' && renderDocumentos()}
+        {activeTab === 'financeiro' && renderFinanceiro()}
         {activeTab === 'chat' && renderChat()}
       </div>
     </div>

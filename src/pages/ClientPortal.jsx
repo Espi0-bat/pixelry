@@ -29,6 +29,7 @@ import {
   Filter,
   CheckSquare,
   Circle,
+  CreditCard,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import pixelryLogo from "../components/images/pixelryicone.jpeg";
@@ -1733,6 +1734,415 @@ function SupportView({ user }) {
 }
 
 /* ─────────────────────────────────────────────
+   INVOICE PAYMENT MODAL
+───────────────────────────────────────────── */
+const INVOICE_STATUS = {
+  pending:   { label: "Pendente",  color: C.amber,   bg: "rgba(245,158,11,0.09)",  border: "rgba(245,158,11,0.22)"  },
+  paid:      { label: "Pago",      color: C.success, bg: "rgba(37,211,102,0.09)",  border: "rgba(37,211,102,0.22)"  },
+  cancelled: { label: "Cancelado", color: "rgba(240,240,250,0.4)", bg: "rgba(255,255,255,0.04)", border: "rgba(255,255,255,0.1)" },
+  overdue:   { label: "Vencido",   color: C.red,     bg: "rgba(244,63,94,0.09)",  border: "rgba(244,63,94,0.22)"   },
+};
+
+const formatCurrency = (val) =>
+  new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(val ?? 0);
+
+function InvoicePaymentModal({ invoice, onClose }) {
+  const [tab, setTab] = useState("pix");
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    if (!invoice) return;
+    const handler = (e) => { if (e.key === "Escape") onClose(); };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [invoice, onClose]);
+
+  useEffect(() => { if (invoice) setTab("pix"); }, [invoice]);
+
+  if (!invoice) return null;
+
+  const copyToClipboard = async (text) => {
+    try { await navigator.clipboard.writeText(text); } catch { /* fallback */ }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const TABS = [
+    { key: "pix",    label: "Pix",    emoji: "🟣" },
+    { key: "card",   label: "Cartão", emoji: "💳" },
+    { key: "boleto", label: "Boleto", emoji: "📄" },
+  ];
+
+  const checkoutBtn = (label) => (
+    <a
+      href={invoice.payment_url}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+        padding: "13px", borderRadius: 10,
+        background: C.grad, color: "#fff",
+        fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 13.5,
+        textDecoration: "none",
+        boxShadow: "0 0 24px rgba(128,64,245,0.3)",
+      }}
+    >
+      <ArrowRight size={15} /> {label}
+    </a>
+  );
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, zIndex: 300,
+        background: "rgba(2,6,23,0.88)",
+        backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)",
+        display: "flex", alignItems: "center", justifyContent: "center",
+        padding: 24,
+      }}
+    >
+      <div
+        onClick={(e) => e.stopPropagation()}
+        style={{
+          background: "#0b1628",
+          border: `1px solid ${C.borderGlow}`,
+          borderRadius: 20,
+          padding: "28px 30px",
+          maxWidth: 460, width: "100%",
+          boxShadow: "0 0 60px rgba(128,64,245,0.14)",
+        }}
+      >
+        {/* Header */}
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 20 }}>
+          <div>
+            <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub, marginBottom: 4 }}>
+              {invoice.description}
+            </div>
+            <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 26, color: C.text }}>
+              {formatCurrency(invoice.amount)}
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            style={{
+              background: "rgba(148,163,184,0.06)", border: `1px solid ${C.border}`,
+              borderRadius: 8, width: 32, height: 32,
+              display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer", color: C.textSub,
+            }}
+          >
+            <X size={14} />
+          </button>
+        </div>
+
+        {/* Tabs */}
+        <div style={{ display: "flex", gap: 6, marginBottom: 22 }}>
+          {TABS.map((t) => (
+            <button
+              key={t.key}
+              type="button"
+              onClick={() => setTab(t.key)}
+              style={{
+                flex: 1, padding: "9px 0", borderRadius: 10,
+                border: `1px solid ${tab === t.key ? C.borderGlow : C.border}`,
+                background: tab === t.key ? "rgba(128,64,245,0.1)" : "transparent",
+                color: tab === t.key ? C.purple : C.textSub,
+                fontFamily: FONT_BODY, fontSize: 13, fontWeight: tab === t.key ? 700 : 400,
+                cursor: "pointer", transition: "all 0.15s",
+              }}
+            >
+              {t.emoji} {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Pix */}
+        {tab === "pix" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, alignItems: "center" }}>
+            {invoice.qr_code ? (
+              <>
+                <div style={{ padding: 12, background: "#fff", borderRadius: 14 }}>
+                  <img
+                    src={`data:image/png;base64,${invoice.qr_code}`}
+                    alt="QR Code Pix"
+                    style={{ width: 200, height: 200, display: "block" }}
+                  />
+                </div>
+                {invoice.qr_code_text && (
+                  <div style={{ width: "100%" }}>
+                    <div style={{ fontSize: 11, color: C.textSub, fontFamily: FONT_BODY, marginBottom: 6 }}>
+                      Pix copia e cola:
+                    </div>
+                    <div style={{
+                      background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`,
+                      borderRadius: 8, padding: "10px 14px",
+                      fontSize: 11, fontFamily: FONT_MONO, color: C.text,
+                      wordBreak: "break-all", lineHeight: 1.5,
+                    }}>
+                      {invoice.qr_code_text}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => copyToClipboard(invoice.qr_code_text)}
+                      style={{
+                        width: "100%", marginTop: 10, padding: "11px", borderRadius: 10,
+                        border: `1px solid ${C.borderGlow}`,
+                        background: "rgba(128,64,245,0.1)",
+                        color: C.purple, fontFamily: FONT_BODY, fontWeight: 600, fontSize: 13,
+                        cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                      }}
+                    >
+                      {copied && <CheckCircle2 size={14} />}
+                      {copied ? "Copiado!" : "Copiar chave Pix"}
+                    </button>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div style={{ width: "100%", textAlign: "center" }}>
+                <div style={{ fontSize: 13, color: C.textSub, fontFamily: FONT_BODY, lineHeight: 1.65, marginBottom: 18 }}>
+                  Selecione Pix ao abrir o checkout para ver o QR code.
+                </div>
+                {checkoutBtn("Abrir Checkout — Pagar via Pix")}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Cartão */}
+        {tab === "card" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, alignItems: "center" }}>
+            <div style={{ textAlign: "center", fontSize: 13, color: C.textSub, fontFamily: FONT_BODY, lineHeight: 1.65, marginBottom: 4 }}>
+              Pague com cartão de crédito ou débito pelo checkout seguro do MercadoPago.
+            </div>
+            {checkoutBtn("Pagar com Cartão")}
+            <div style={{ fontSize: 11, color: C.textMuted, fontFamily: FONT_BODY }}>
+              Você será redirecionado para o ambiente seguro do MercadoPago
+            </div>
+          </div>
+        )}
+
+        {/* Boleto */}
+        {tab === "boleto" && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            {invoice.boleto_barcode ? (
+              <>
+                <div>
+                  <div style={{ fontSize: 11, color: C.textSub, fontFamily: FONT_BODY, marginBottom: 6 }}>
+                    Linha digitável:
+                  </div>
+                  <div style={{
+                    background: "rgba(255,255,255,0.04)", border: `1px solid ${C.border}`,
+                    borderRadius: 8, padding: "10px 14px",
+                    fontSize: 11, fontFamily: FONT_MONO, color: C.text,
+                    wordBreak: "break-all", lineHeight: 1.5,
+                  }}>
+                    {invoice.boleto_barcode}
+                  </div>
+                </div>
+                <div style={{ display: "flex", gap: 10 }}>
+                  <button
+                    type="button"
+                    onClick={() => copyToClipboard(invoice.boleto_barcode)}
+                    style={{
+                      flex: 1, padding: "11px", borderRadius: 10,
+                      border: `1px solid ${C.borderGlow}`,
+                      background: "rgba(128,64,245,0.1)",
+                      color: C.purple, fontFamily: FONT_BODY, fontWeight: 600, fontSize: 13,
+                      cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                    }}
+                  >
+                    {copied && <CheckCircle2 size={14} />}
+                    {copied ? "Copiado!" : "Copiar código"}
+                  </button>
+                  {invoice.boleto_url && (
+                    <a
+                      href={invoice.boleto_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        flex: 1, padding: "11px", borderRadius: 10,
+                        border: `1px solid rgba(0,216,255,0.25)`,
+                        background: "rgba(0,216,255,0.08)",
+                        color: C.cyan, fontFamily: FONT_BODY, fontWeight: 600, fontSize: 13,
+                        display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                        textDecoration: "none",
+                      }}
+                    >
+                      <Download size={14} /> Baixar PDF
+                    </a>
+                  )}
+                </div>
+              </>
+            ) : (
+              <div style={{ textAlign: "center" }}>
+                <div style={{ fontSize: 13, color: C.textSub, fontFamily: FONT_BODY, lineHeight: 1.65, marginBottom: 18 }}>
+                  Selecione Boleto Bancário ao abrir o checkout.
+                </div>
+                {checkoutBtn("Abrir Checkout — Pagar via Boleto")}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   FINANCIAL VIEW
+───────────────────────────────────────────── */
+function FinancialView({ user }) {
+  const [invoices, setInvoices] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [selectedInvoice, setSelectedInvoice] = useState(null);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase || !user?.id) {
+      setLoading(false);
+      return;
+    }
+    supabase
+      .from("invoices")
+      .select("*")
+      .eq("client_id", user.id)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        setInvoices(data || []);
+        setLoading(false);
+      });
+  }, [user?.id]);
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase || !user?.id) return;
+    const channel = supabase
+      .channel(`invoices:client:${user.id}`)
+      .on("postgres_changes", {
+        event: "*",
+        schema: "public",
+        table: "invoices",
+        filter: `client_id=eq.${user.id}`,
+      }, (payload) => {
+        if (payload.eventType === "INSERT") {
+          setInvoices((prev) => [payload.new, ...prev]);
+        } else if (payload.eventType === "UPDATE") {
+          setInvoices((prev) => prev.map((inv) => inv.id === payload.new.id ? payload.new : inv));
+          setSelectedInvoice((prev) => prev?.id === payload.new.id ? payload.new : prev);
+        }
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [user?.id]);
+
+  if (loading) {
+    return (
+      <div className={styles.emptyState} style={{ minHeight: 260 }}>
+        <Clock size={28} color={C.cyan} strokeWidth={1.5} />
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text }}>Carregando faturas</div>
+        <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub }}>Buscando seus dados...</div>
+      </div>
+    );
+  }
+
+  if (invoices.length === 0) {
+    return (
+      <div className={styles.emptyState} style={{ minHeight: 260 }}>
+        <div style={{
+          width: 64, height: 64, borderRadius: "50%",
+          background: "rgba(128,64,245,0.08)",
+          border: "1px solid rgba(128,64,245,0.2)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+        }}>
+          <CreditCard size={26} color={C.purple} strokeWidth={1.2} />
+        </div>
+        <div style={{ fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 18, color: C.text }}>
+          Sem cobranças
+        </div>
+        <div style={{ fontFamily: FONT_BODY, fontSize: 13, color: C.textSub, textAlign: "center", maxWidth: 300, lineHeight: 1.65 }}>
+          Cobranças geradas pela equipe Pixelry aparecerão aqui.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <InvoicePaymentModal invoice={selectedInvoice} onClose={() => setSelectedInvoice(null)} />
+      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        {invoices.map((inv) => {
+          const st = INVOICE_STATUS[inv.status] || INVOICE_STATUS.pending;
+          const canPay = inv.status === "pending" && inv.payment_url;
+          return (
+            <div
+              key={inv.id}
+              className={styles.invoiceCard}
+              style={{
+                display: "flex", alignItems: "center", gap: 16,
+                background: C.card,
+                border: `1px solid ${C.border}`,
+                borderRadius: 14,
+                padding: "18px 20px",
+                transition: "border-color 0.18s",
+              }}
+            >
+              <div style={{
+                width: 44, height: 44, borderRadius: 12, flexShrink: 0,
+                background: "rgba(128,64,245,0.1)",
+                border: "1px solid rgba(128,64,245,0.2)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+              }}>
+                <CreditCard size={18} color={C.purple} strokeWidth={1.5} />
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontFamily: FONT_BODY, fontWeight: 700, fontSize: 15, color: C.text, marginBottom: 4 }}>
+                  {inv.description}
+                </div>
+                <div style={{ fontSize: 12, color: C.textSub, fontFamily: FONT_BODY }}>
+                  {inv.due_date ? `Vence em ${formatPortalDate(inv.due_date)}` : "Sem vencimento"}
+                  {inv.paid_at ? ` · Pago em ${formatPortalDate(inv.paid_at)}` : ""}
+                </div>
+              </div>
+              <div style={{
+                fontFamily: FONT_DISPLAY, fontWeight: 800, fontSize: 18, color: C.text,
+                flexShrink: 0,
+              }}>
+                {formatCurrency(inv.amount)}
+              </div>
+              <div style={{
+                background: st.bg, border: `1px solid ${st.border}`,
+                color: st.color, fontSize: 11, fontWeight: 600,
+                padding: "5px 12px", borderRadius: 20,
+                fontFamily: FONT_BODY, whiteSpace: "nowrap", flexShrink: 0,
+              }}>
+                {st.label}
+              </div>
+              {canPay && (
+                <button
+                  type="button"
+                  onClick={() => setSelectedInvoice(inv)}
+                  style={{
+                    display: "flex", alignItems: "center", gap: 6,
+                    padding: "9px 18px", borderRadius: 10,
+                    background: C.grad, border: "none",
+                    color: "#fff", fontFamily: FONT_DISPLAY, fontWeight: 700, fontSize: 13,
+                    cursor: "pointer", flexShrink: 0,
+                    boxShadow: "0 0 18px rgba(128,64,245,0.3)",
+                  }}
+                >
+                  <CreditCard size={13} /> Pagar
+                </button>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </>
+  );
+}
+
+/* ─────────────────────────────────────────────
    MAIN COMPONENT
 ───────────────────────────────────────────── */
 export default function ClientPortal({ user, onLogout }) {
@@ -1771,10 +2181,11 @@ export default function ClientPortal({ user, onLogout }) {
     .toUpperCase();
 
   const NAV = [
-    { icon: Home,          label: "Início"   },
-    { icon: FolderOpen,    label: "Projetos" },
-    { icon: Files,         label: "Documentos" },
-    { icon: MessageCircle, label: "Atendimento"  },
+    { icon: Home,          label: "Início"      },
+    { icon: FolderOpen,    label: "Projetos"    },
+    { icon: Files,         label: "Documentos"  },
+    { icon: CreditCard,    label: "Financeiro"  },
+    { icon: MessageCircle, label: "Atendimento" },
   ];
 
   const pendingCount = deliveries.filter((d) => d.status === "pending").length;
@@ -1849,9 +2260,10 @@ export default function ClientPortal({ user, onLogout }) {
   }, [user?.id]);
 
   const PAGE_TITLES = {
-    "Início":   { supra: "Bem-vindo de volta",      h1: "Olá 👋"  },
-    "Projetos": { supra: "Operação Pixelry",         h1: "Seus Projetos"  },
-    "Documentos": { supra: "Operação Pixelry",         h1: "Ativos e Documentação" },
+    "Início":      { supra: "Bem-vindo de volta",      h1: "Olá 👋"                 },
+    "Projetos":    { supra: "Operação Pixelry",         h1: "Seus Projetos"          },
+    "Documentos":  { supra: "Operação Pixelry",         h1: "Ativos e Documentação"  },
+    "Financeiro":  { supra: "Gestão Financeira",        h1: "Minhas Faturas"         },
     "Atendimento": { supra: "Estamos aqui para ajudar", h1: "Central de Atendimento" },
   };
 
@@ -2164,6 +2576,7 @@ export default function ClientPortal({ user, onLogout }) {
 
             {activeNav === "Projetos" && <ProjectsView user={user} />}
             {activeNav === "Documentos" && <FilesView user={user} />}
+            {activeNav === "Financeiro" && <FinancialView user={user} />}
             {activeNav === "Atendimento" && <SupportView user={user} />}
           </motion.div>
         </AnimatePresence>

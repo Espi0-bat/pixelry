@@ -894,3 +894,141 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Invoice / Financeiro ── */
+.invoice-form {
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 32px;
+}
+
+.invoice-form h3 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 20px;
+}
+
+.invoice-form-fields {
+  display: grid;
+  grid-template-columns: 1fr 160px 180px;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.invoice-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.invoice-field label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-faint);
+  font-weight: 600;
+}
+
+.invoice-error {
+  font-size: 12px;
+  color: var(--danger-color);
+  margin-bottom: 12px;
+}
+
+.invoice-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.invoice-list-header {
+  display: grid;
+  grid-template-columns: 1fr 120px 110px 90px 110px 72px;
+  gap: 12px;
+  padding: 6px 16px 10px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-faint);
+  font-weight: 600;
+}
+
+.invoice-row {
+  display: grid;
+  grid-template-columns: 1fr 120px 110px 90px 110px 72px;
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  background: var(--surface-color);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 14px;
+  color: var(--text-primary);
+  transition: border-color 0.2s;
+}
+
+.invoice-row:hover {
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.invoice-description {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.invoice-amount {
+  font-weight: 600;
+}
+
+.invoice-date {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.invoice-badge {
+  display: inline-block;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 100px;
+  font-weight: 600;
+}
+
+.invoice-actions {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+@media (max-width: 768px) {
+  .invoice-form-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .invoice-list-header {
+    display: none;
+  }
+
+  .invoice-row {
+    grid-template-columns: 1fr auto;
+    gap: 8px;
+  }
+
+  .invoice-description {
+    grid-column: 1 / -1;
+    font-weight: 600;
+  }
+
+  .invoice-amount {
+    font-size: 15px;
+  }
+
+  .invoice-date:not(:last-of-type),
+  .invoice-row > span:nth-child(3),
+  .invoice-row > span:nth-child(5) {
+    display: none;
+  }
+}
