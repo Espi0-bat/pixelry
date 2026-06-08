@@ -16,11 +16,18 @@ dist-ssr/
 .DS_Store
 Thumbs.db
 
-# IDEs
+# IDEs / AI assistants
 .vscode/
 .idea/
+.cursor/
+.claude/
 *.swp
 *.swo
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
 
 # MCP config (contains secrets)
 .mcp.json
