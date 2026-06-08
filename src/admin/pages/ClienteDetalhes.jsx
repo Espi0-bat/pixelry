@@ -378,6 +378,38 @@ export default function ClienteDetalhes() {
     </div>
   );
 
+  const renderMsgContent = (content) => {
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    const imageExts = /\.(png|jpg|jpeg|gif|webp|svg)(\?.*)?$/i;
+    const parts = content.split(urlRegex);
+
+    return parts.map((part, i) => {
+      if (urlRegex.test(part)) {
+        urlRegex.lastIndex = 0;
+        if (imageExts.test(part)) {
+          return (
+            <a key={i} href={part} target="_blank" rel="noopener noreferrer">
+              <img
+                src={part}
+                alt="anexo"
+                style={{ maxWidth: '100%', maxHeight: 260, borderRadius: 8, display: 'block', marginTop: 6, cursor: 'pointer' }}
+              />
+            </a>
+          );
+        }
+        const fileName = part.split('/').pop().split('?')[0];
+        return (
+          <a key={i} href={part} target="_blank" rel="noopener noreferrer"
+            style={{ color: 'var(--primary)', textDecoration: 'underline', wordBreak: 'break-all' }}>
+            {decodeURIComponent(fileName)}
+          </a>
+        );
+      }
+      const text = part.replace(/📎 Arquivo anexado: [^\n]*/g, '').trim();
+      return text ? <span key={i} style={{ whiteSpace: 'pre-wrap' }}>{text}</span> : null;
+    });
+  };
+
   const renderChat = () => (
     <div className="tab-pane chat-container animate-in">
       <div className="chat-messages">
@@ -391,7 +423,7 @@ export default function ClienteDetalhes() {
           <div key={m.id} className={`message ${m.from_client ? 'received' : 'sent'}`}>
             {m.from_client && <div className="msg-avatar">{clientName.substring(0, 2).toUpperCase()}</div>}
             <div className="msg-bubble">
-              <p>{m.content}</p>
+              <div style={{ fontSize: 14, lineHeight: 1.5 }}>{renderMsgContent(m.content)}</div>
               <span className="msg-time">
                 {new Date(m.created_at).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
               </span>

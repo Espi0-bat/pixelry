@@ -127,7 +127,7 @@ function AdminDashboard() {
         supabase.from('deliveries').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
         supabase
           .from('portal_events')
-          .select('id, event_type, metadata, created_at, profiles(full_name, company_name)')
+          .select('id, event_type, metadata, created_at, profiles!portal_events_client_id_profiles_fkey(full_name, company_name)')
           .order('created_at', { ascending: false })
           .limit(5),
       ]);
