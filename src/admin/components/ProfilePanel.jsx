@@ -61,13 +61,18 @@ export default function ProfilePanel({ user, avatarUrl, onAvatarUpdate, onLogout
       .from('avatars')
       .getPublicUrl(path);
 
-    // Adiciona cache-bust para forçar reload
     const bustedUrl = `${publicUrl}?t=${Date.now()}`;
 
-    await supabase
+    const { error: dbErr } = await supabase
       .from('profiles')
-      .update({ avatar_url: bustedUrl, updated_at: new Date().toISOString() })
-      .eq('id', user.id);
+      .upsert({ id: user.id, avatar_url: bustedUrl, updated_at: new Date().toISOString() });
+
+    if (dbErr) {
+      console.error('Erro ao salvar avatar:', dbErr);
+      setPreview(avatarUrl);
+      setUploading(false);
+      return;
+    }
 
     setPreview(bustedUrl);
     onAvatarUpdate?.(bustedUrl);

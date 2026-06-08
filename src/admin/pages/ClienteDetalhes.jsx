@@ -113,36 +113,40 @@ export default function ClienteDetalhes() {
   }, [id]);
 
   useEffect(() => {
-    if (activeTab !== 'entregas') return;
-    setLoadingDeliveries(true);
+    let mounted = true;
     supabase
       .from('deliveries')
       .select('id, title, status, type, created_at, file_url')
       .eq('client_id', id)
       .order('created_at', { ascending: false })
-      .then(({ data }) => { setDeliveries(data || []); setLoadingDeliveries(false); });
-  }, [activeTab, id]);
+      .then(({ data }) => { if (mounted) { setDeliveries(data || []); setLoadingDeliveries(false); } });
+    return () => { mounted = false; };
+  }, [id]);
 
   useEffect(() => {
     if (activeTab !== 'documentos') return;
+    let mounted = true;
     setLoadingFiles(true);
     supabase
       .from('client_files')
       .select('id, name, type, file_url, size_label, created_at')
       .eq('client_id', id)
       .order('created_at', { ascending: false })
-      .then(({ data }) => { setClientFiles(data || []); setLoadingFiles(false); });
+      .then(({ data }) => { if (mounted) { setClientFiles(data || []); setLoadingFiles(false); } });
+    return () => { mounted = false; };
   }, [activeTab, id]);
 
   useEffect(() => {
     if (activeTab !== 'chat') return;
+    let mounted = true;
     setLoadingMessages(true);
     supabase
       .from('messages')
       .select('id, content, from_client, created_at')
       .eq('client_id', id)
       .order('created_at', { ascending: true })
-      .then(({ data }) => { setMessages(data || []); setLoadingMessages(false); });
+      .then(({ data }) => { if (mounted) { setMessages(data || []); setLoadingMessages(false); } });
+    return () => { mounted = false; };
   }, [activeTab, id]);
 
   useEffect(() => {

@@ -38,19 +38,17 @@ export default function InternalMessages() {
 
   useEffect(() => {
     if (!authUser?.id) return;
-    loadContacts();
-  }, [authUser?.id, userRole]);
-
-  async function loadContacts() {
     const roleToFetch = userRole === 'admin' ? 'employee' : 'admin';
-    const { data } = await supabase
+    supabase
       .from('profiles')
       .select('id, full_name, email, avatar_url, job_title')
-      .eq('role', roleToFetch);
-    setContacts(data || []);
-    setLoadingContacts(false);
-    if (data?.length === 1) openContact(data[0]);
-  }
+      .eq('role', roleToFetch)
+      .then(({ data }) => {
+        setContacts(data || []);
+        setLoadingContacts(false);
+        if (data?.length === 1) openContact(data[0]);
+      });
+  }, [authUser?.id, userRole, openContact]);
 
   const openContact = useCallback(async (contact) => {
     setSelected(contact);

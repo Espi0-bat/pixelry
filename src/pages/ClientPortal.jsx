@@ -799,7 +799,21 @@ function UploadZone({ uploads, setUploads, user, onUploadComplete }) {
 
   const processFiles = useCallback(async (files) => {
     if (!isSupabaseConfigured || !supabase || !user?.id) return;
-    const fileArray = Array.from(files);
+    const MAX_MB = 50;
+    const fileArray = Array.from(files).filter(f => {
+      if (f.size > MAX_MB * 1024 * 1024) {
+        setUploads(prev => [...prev, {
+          id: Date.now(),
+          name: f.name,
+          size: (f.size / 1024 / 1024).toFixed(1) + " MB",
+          progress: 0, done: false, error: true,
+          errorMsg: `Arquivo excede o limite de ${MAX_MB} MB`,
+        }]);
+        return false;
+      }
+      return true;
+    });
+    if (!fileArray.length) return;
     const newUploads = fileArray.map((f, i) => ({
       id: Date.now() + i,
       name: f.name,
@@ -839,13 +853,19 @@ function UploadZone({ uploads, setUploads, user, onUploadComplete }) {
 
       const { data: { publicUrl } } = supabase.storage.from("client-uploads").getPublicUrl(path);
 
-      await supabase.from("client_files").insert({
+      const { error: insertError } = await supabase.from("client_files").insert({
         client_id: user.id,
         name: f.name,
         type: getFileTypeName(f.name),
         file_url: publicUrl,
         size_label: (f.size / 1024 / 1024).toFixed(1) + " MB",
       });
+
+      if (insertError) {
+        console.error("[Upload] Falha ao salvar no banco:", insertError.message);
+        setUploads((prev) => prev.map((x) => x.id === entry.id ? { ...x, progress: 0, error: true, errorMsg: insertError.message } : x));
+        continue;
+      }
 
       setUploads((prev) => prev.map((x) => x.id === entry.id ? { ...x, progress: 100, done: true } : x));
       if (onUploadComplete) onUploadComplete();
