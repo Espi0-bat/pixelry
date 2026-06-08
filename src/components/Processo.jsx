@@ -33,9 +33,9 @@ const STEPS = [
   {
     num: '05',
     letter: 'L',
-    title: 'L - Leitura de Dados',
-    body: 'Sem dados, é intuição. Instalamos o rastreamento técnico (Pixel, GA4) para monitorar resultados e lapidar a estratégia continuamente, de forma recorrente.',
-    output: 'Pixel + GA4 ativos e leitura contínua'
+    title: 'L - Leitura e Lapidação',
+    body: 'Sem dados, é intuição. Instalamos o rastreamento técnico (Pixel, GA4) para monitorar resultados e lapidar a estratégia continuamente — o sistema não termina no go-live, ele melhora todo mês.',
+    output: 'Pixel + GA4 ativos · otimização contínua'
   },
 ]
 

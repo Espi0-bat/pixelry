@@ -7,7 +7,7 @@ const SEGMENTS = [
   'Clínicas de Estética Avançada',
   'Profissionais Liberais',
   'Consultoria de Alto Ticket',
-  'Prestadores B2B de Serviço',
+  'Negócios Locais com Agenda',
 ]
 
 export default function ParaQuem() {
