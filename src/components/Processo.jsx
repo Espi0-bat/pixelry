@@ -13,14 +13,14 @@ const STEPS = [
     num: '02',
     letter: 'I',
     title: 'I - Identidade',
-    body: 'A estética é um instrumento de percepção de confiança. Geramos um ambiente profissional e coeso que reflete qualidade e eleva a autoridade percebida da sua clínica.',
+    body: 'A estética é um instrumento de percepção de confiança. Uma identidade visual coerente faz o lead decidir que você é confiável antes mesmo de ler o texto.',
     output: 'Identidade visual de autoridade'
   },
   {
     num: '03',
     letter: 'X',
     title: 'X - Experiência',
-    body: 'Reduzimos toda a fricção de navegação. Um layout confuso ou lento joga o cliente para trás. Nosso papel é pavimentar um caminho rápido e limpo até o botão de contato.',
+    body: 'Reduzimos toda a fricção de navegação. Um layout confuso ou lento joga o cliente para trás. Nosso papel é tirar o que atrapalha o lead de clicar no botão de contato.',
     output: 'Jornada sem fricção até o contato'
   },
   {

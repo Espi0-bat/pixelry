@@ -21,7 +21,7 @@ const FAQS = [
   },
   {
     q: 'Como funciona o processo de pagamento?',
-    a: 'Nosso modelo tem duas etapas. Primeiro, você investe na Taxa de Setup — o projeto completo: desenvolvimento, design, tagueamento e publicação. Após a entrega, entra o Acompanhamento Mensal: hosting premium, o Hub PIXELRY com seus dados em tempo real, suporte técnico e manutenção contínua. Tudo começa com uma conversa para definir qual plano faz sentido para o seu negócio.',
+    a: 'Nosso modelo tem duas etapas. Primeiro, você investe na Taxa de Setup — o projeto completo: desenvolvimento, design, tagueamento e publicação. Após a entrega, entra o Acompanhamento Mensal: hosting premium, acesso ao painel de dados do seu sistema, suporte técnico e manutenção contínua. Tudo começa com uma conversa para definir qual plano faz sentido para o seu negócio.',
   },
   {
     q: 'E se eu não gostar do resultado?',
@@ -39,8 +39,8 @@ export default function Faq() {
         <div className="reveal">
           <span className="label">DÚVIDAS</span>
           <h2 className={styles.h2}>
-            Perguntas que todo dono de negócio<br />
-            faz antes de investir em digital.
+            Dúvidas reais de quem ainda não sabe<br />
+            se o digital funciona para o seu negócio.
           </h2>
         </div>
 

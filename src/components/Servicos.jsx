@@ -7,7 +7,7 @@ const SERVICES = [
     num: '01',
     icon: Code2,
     title: 'PIXELRY CORE',
-    body: 'A base de tudo. Uma landing page que não é só bonita — é construída para converter. Cada elemento tem função: o botão do WhatsApp está no lugar certo, o texto faz o lead entender por que você em 10 segundos, e o rastreamento diz exatamente de onde veio cada contato.',
+    body: 'A base de tudo. Uma landing page que não é só bonita — é construída para converter. Cada elemento tem função: o botão do WhatsApp está no lugar certo, o texto faz o lead entender por que você é a escolha certa em menos de 10 segundos, e o rastreamento diz exatamente de onde veio cada contato.',
     badge: 'ESTRUTURA PRINCIPAL',
     wide: false,
   },
@@ -15,7 +15,7 @@ const SERVICES = [
     num: '02',
     icon: BarChart3,
     title: 'Rastreamento Técnico & Leitura de Dados',
-    body: 'Rastreamento confiável como infraestrutura. Instalamos configurações de tags e eventos (GA4 & Meta Pixel) para você enxergar de onde vêm seus leads, permitindo decisões guiadas por dados reais, não intuições.',
+    body: 'Rastreamento confiável como infraestrutura. Instalamos GA4, Meta Pixel e GTM para você enxergar de onde vêm seus leads. Você para de adivinhar e começa a decidir com o que o dado diz.',
     badge: null,
     wide: false,
   },
@@ -46,8 +46,8 @@ export default function Servicos() {
         <div className="reveal">
           <span className="label">SOLUÇÕES</span>
           <h2 className={styles.h2}>
-            O que construímos.<br />
-            Por que funciona. Sem rodeios.
+            Cada serviço tem função.<br />
+            Nenhum é decorativo.
           </h2>
         </div>
 

@@ -28,7 +28,8 @@ export default function CtaFinal() {
 
         <div className={`${styles.content} reveal`}>
           <h2 className={styles.h2}>
-            Seu negócio merece uma presença digital à altura do que ele já entrega.
+            A agenda cheia não vem de sorte.<br />
+            Vem de sistema. Vamos construir o seu.
           </h2>
 
           <p className={styles.sub}>
