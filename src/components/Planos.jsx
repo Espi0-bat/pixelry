@@ -6,53 +6,55 @@ import styles from './Planos.module.css'
 const PLANOS = [
   {
     nome: 'START',
-    desc: 'Para quem precisa de uma presença digital séria e rápida. Estrutura de conversão pronta, com rastreamento e WhatsApp integrado. Sem enrolação.',
+    desc: 'Para quem precisa de uma base sólida de captação digital. Estrutura de conversão pronta, rastreamento completo e WhatsApp integrado. Sem enrolação.',
     setup: 'R$ 2.500,00',
-    recorrencia: 'R$ 250,00/mês',
+    recorrencia: 'R$ 387,00/mês',
     setupFeatures: [
       'Landing Page em React/Vite (01 página)',
       'Design focado em conversão mobile',
-      'Tagueamento estrutural (Pixel e GA4)',
-      'Botão de WhatsApp inteligente'
+      'Tagueamento completo (Meta Pixel + GA4 + GTM)',
+      'Botão de WhatsApp com mensagem pré-redigida'
     ],
     recorrenciaFeatures: [
-      'Cloud Hosting Premium de Alta Performance',
-      'Hub PIXELRY: Dashboard de Métricas Essenciais',
-      'Manutenção Preventiva e Suporte Técnico Especializado'
+      'Hospedagem cloud gerenciada pela PIXELRY',
+      'Manutenção técnica: formulários, tracking e WhatsApp ativos',
+      'Suporte técnico em dias úteis (SLA 24h úteis)'
     ]
   },
   {
     nome: 'PRO',
-    desc: 'Para clínicas e negócios que já existem e precisam de um sistema de alto nível. Design editorial, dados avançados e um portal exclusivo para seus clientes.',
+    desc: 'Para clínicas e negócios que querem mais do que um site — um sistema com acompanhamento ativo, otimização contínua e consultoria mensal.',
     setup: 'R$ 3.800,00',
-    recorrencia: 'R$ 400,00/mês',
+    recorrencia: 'R$ 497,00/mês',
     setupFeatures: [
-      'Layout premium (Bento Grid e Parallax)',
-      'Design editorial exclusivo',
-      'Engenharia de Tagueamento (API Meta)',
-      'Setup do Ecossistema Logado'
+      'Site com até 4 páginas (principal + complementares)',
+      'Tagueamento avançado com eventos customizados por conversão',
+      'Google Meu Negócio — revisão e otimização completa',
+      'Performance técnica premium (React · mobile-first · animações)'
     ],
     recorrenciaFeatures: [
-      'Hub PIXELRY Pro: Portal do Cliente com Criptografia',
-      'Analytics Avançado: Dados e Conversões em Tempo Real',
-      'Gestão Centralizada de Demandas e Abertura de Chamados'
+      'CRO — Monitoramento e Otimização de Conversão mensal',
+      'Auditoria de Tracking (Meta Pixel + GA4 verificados todo mês)',
+      'Consultoria Mensal: Call de 1h + Relatório + Briefing pós-call',
+      'Hospedagem premium e infraestrutura gerenciada'
     ]
   },
   {
     nome: 'ELITE',
-    desc: 'Para operações que precisam de mais do que um site. Scripts de venda, auditoria de leads e consultoria mensal inclusos.',
+    desc: 'Para quem quer a PIXELRY como parceira estratégica completa. Acesso direto aos sócios, mentoria de vendas, roadmap trimestral e testes A/B ativos.',
     setup: 'R$ 5.000,00',
-    recorrencia: 'R$ 900,00/mês',
+    recorrencia: 'R$ 1.500,00/mês',
     setupFeatures: [
-      'Toda a arquitetura do pacote PRO',
-      'Auditoria de leads e atendimento comercial',
-      'Desenvolvimento de Scripts de Vendas (WhatsApp)'
+      'Site completo com múltiplas landing pages',
+      'Backend, APIs e integrações customizadas',
+      'Tagueamento avançado de alto nível + experiência visual premium',
+      'Automações de resposta e sistema de agendamento online'
     ],
     recorrenciaFeatures: [
-      'Hub PIXELRY Elite: O Ecossistema Definitivo',
-      'Data Room Privada e Auditoria de Tráfego/Leads',
-      'Engenharia de Elite com SLA de Atendimento Prioritário (< 24h)',
-      'Consultoria Estratégica Executiva (Reunião Mensal)'
+      'Tudo do PRO + Contato direto prioritário (SLA até 2h úteis)',
+      'Roadmap Trimestral de Crescimento Estruturado',
+      'Testes A/B Ativos com relatório de resultado',
+      'Mentoria de Vendas com Erick + Reuniões Semanais Opcionais'
     ]
   }
 ]
