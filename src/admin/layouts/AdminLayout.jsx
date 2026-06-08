@@ -166,6 +166,10 @@ export default function AdminLayout({ user, onLogout }) {
 
   const closeMenu = () => setIsMobileMenuOpen(false);
 
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
   return (
     <div className={`admin-layout theme-${theme}`}>
       <canvas ref={canvasRef} className="bg-canvas" aria-hidden="true" />
