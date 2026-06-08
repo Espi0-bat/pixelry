@@ -1197,7 +1197,7 @@
     bottom: max(10px, env(safe-area-inset-bottom));
     z-index: 180;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 4px;
     padding: 6px;
     border: 1px solid rgba(255, 255, 255, 0.1);
@@ -1303,5 +1303,27 @@
 
   .mobileNavButton {
     font-size: 9px;
+  }
+}
+
+/* ── Financial / Invoice ── */
+.invoiceCard {
+  animation: portalTileIn 0.38s ease both;
+  will-change: transform;
+}
+
+.invoiceCard:hover {
+  border-color: rgba(128, 64, 245, 0.3) !important;
+}
+
+@media (max-width: 760px) {
+  .invoiceCard {
+    flex-wrap: wrap;
+    gap: 12px !important;
+    padding: 14px 16px !important;
+  }
+
+  .invoiceCard > :nth-child(5) {
+    order: -1;
   }
 }
