@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { useRevealContainer } from '../hooks/useReveal'
 import { buildWhatsAppLink } from '../config/contact'
 import styles from './CtaFinal.module.css'
+import LeadCaptureModal from './LeadCaptureModal'
 
 const WA_LINK = buildWhatsAppLink('Olá Erick! Cheguei ao fim do site da PIXELRY e percebi que meu negócio precisa de uma engenharia digital. Podemos conversar?')
 
@@ -13,6 +15,7 @@ const WaIcon = () => (
 
 export default function CtaFinal() {
   const ref = useRevealContainer()
+  const [modalOpen, setModalOpen] = useState(false)
 
   return (
     <div id="contato">
@@ -38,16 +41,18 @@ export default function CtaFinal() {
           </p>
 
           <div className={styles.waBlock}>
-            <a href={WA_LINK} target="_blank" rel="noreferrer" className="btn-whatsapp">
+            <button type="button" onClick={() => setModalOpen(true)} className="btn-whatsapp">
               <WaIcon />
               Iniciar diagnóstico gratuito
-            </a>
+            </button>
             <p className={styles.waNote}>
               Resposta em até 2h · Brasília — DF
             </p>
           </div>
         </div>
       </div>
+
+      <LeadCaptureModal isOpen={modalOpen} onClose={() => setModalOpen(false)} waLink={WA_LINK} />
     </div>
   )
 }

@@ -1,12 +1,14 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import styles from './Hero.module.css'
 import { WA_LINK_HERO as WA_LINK, WaIconHero as WaIcon } from './common/WhatsApp'
+import LeadCaptureModal from './LeadCaptureModal'
 
 export default function Hero() {
   const canvasRef = useRef(null)
   const mouseRef  = useRef({ x: 0.5, y: 0.5 })
   const targetRef = useRef({ x: 0.5, y: 0.5 })
+  const [modalOpen, setModalOpen] = useState(false)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -151,10 +153,10 @@ export default function Hero() {
 
         <div className={styles.ctas}>
           <div className={styles.ctaGroupPrimary}>
-            <a href={WA_LINK} target="_blank" rel="noreferrer" className="btn-hero-cta">
+            <button type="button" onClick={() => setModalOpen(true)} className="btn-hero-cta">
               <WaIcon />
               Agendar Diagnóstico
-            </a>
+            </button>
             
             <p className={styles.microcopy}>Diagnóstico real do que está falhando. Resposta rápida.</p>
             
@@ -212,6 +214,8 @@ export default function Hero() {
         </div>
 
       </div>
+
+      <LeadCaptureModal isOpen={modalOpen} onClose={() => setModalOpen(false)} waLink={WA_LINK} />
     </section>
   )
 }
