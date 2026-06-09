@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
-import { Home, Users, FolderUp, Activity, LogOut, Kanban, Menu, X, Target, UserCircle2, MessageSquare, FileArchive, Headphones } from 'lucide-react';
+import { Home, Users, FolderUp, Activity, LogOut, Kanban, Menu, X, Target, UserCircle2, MessageSquare, FileArchive, Headphones, UserPlus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../../config/supabase';
 import logoImg from '../../components/images/pixelryicone.jpeg';
@@ -220,6 +220,9 @@ export default function AdminLayout({ user, onLogout }) {
               </NavLink>
               <NavLink to="/admin/suporte" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
                 <Headphones size={18} /><span>Suporte</span>
+              </NavLink>
+              <NavLink to="/admin/leads" className={({isActive}) => isActive ? 'nav-item active' : 'nav-item'} onClick={closeMenu}>
+                <UserPlus size={18} /><span>Leads</span>
               </NavLink>
             </>
           ) : (
