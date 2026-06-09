@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { sendEmail, templateInvoiceCreated } from '../_shared/resend.ts'
 
 const adminEmailsEnv = Deno.env.get('ADMIN_EMAILS')
 if (!adminEmailsEnv) throw new Error('ADMIN_EMAILS env var is required')
@@ -181,6 +182,27 @@ serve(async (req) => {
     if (insertError) {
       console.error('[create-invoice] Insert error:', insertError)
       return new Response(JSON.stringify({ error: 'Erro ao salvar fatura' }), { status: 500, headers: cors })
+    }
+
+    // Send invoice notification email — failure must not break the response
+    try {
+      const clientEmail = clientProfile?.contact_info?.emails?.[0] ?? clientProfile?.email
+      if (clientEmail) {
+        await sendEmail(
+          clientEmail,
+          'Você tem uma nova cobrança — Pixelry',
+          templateInvoiceCreated(
+            clientProfile?.full_name ?? clientProfile?.company_name ?? null,
+            invoice.amount,
+            invoice.description,
+            invoice.payment_url ?? null,
+            invoice.qr_code_text ?? null,
+            invoice.due_date ?? null,
+          )
+        )
+      }
+    } catch (emailErr) {
+      console.error('[create-invoice] Falha ao enviar email:', emailErr)
     }
 
     return new Response(

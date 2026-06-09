@@ -1,5 +1,6 @@
 import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { sendEmail, templatePaymentConfirmed, templateAdminPaymentAlert } from '../_shared/resend.ts'
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -95,6 +96,39 @@ serve(async (req) => {
       console.error('[payment-webhook] Update error:', error)
     } else {
       console.log('[payment-webhook] Invoice marked as paid for preference:', payment.preference_id)
+
+      // Send confirmation emails — failure must not affect the 200 response
+      try {
+        const { data: invoice } = await supabase
+          .from('invoices')
+          .select('amount, description, paid_at, client_id, profiles(email, full_name, company_name, contact_info)')
+          .eq('mp_preference_id', payment.preference_id)
+          .single()
+
+        const profile = (invoice as any)?.profiles
+        const clientEmail = profile?.contact_info?.emails?.[0] ?? profile?.email
+        const clientName = profile?.full_name ?? profile?.company_name ?? null
+
+        if (clientEmail) {
+          await sendEmail(
+            clientEmail,
+            'Pagamento confirmado — Pixelry',
+            templatePaymentConfirmed(clientName, invoice.amount, invoice.description, invoice.paid_at ?? null)
+          )
+        }
+
+        const adminEmailsEnv = Deno.env.get('ADMIN_EMAILS') ?? ''
+        const adminEmails = adminEmailsEnv.split(',').map((e: string) => e.trim()).filter(Boolean)
+        for (const adminEmail of adminEmails) {
+          await sendEmail(
+            adminEmail,
+            `Pagamento recebido: ${clientName ?? clientEmail ?? 'cliente'} — R$ ${invoice.amount}`,
+            templateAdminPaymentAlert(clientName, clientEmail ?? null, invoice.amount, invoice.description)
+          )
+        }
+      } catch (emailErr) {
+        console.error('[payment-webhook] Falha ao enviar emails:', emailErr)
+      }
     }
 
     // Always return 200 so MercadoPago does not retry
