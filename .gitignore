@@ -39,3 +39,6 @@ __pycache__/
 *.xls
 *.pptx
 *.ppt
+
+# Supabase CLI temp files
+supabase/.temp/
