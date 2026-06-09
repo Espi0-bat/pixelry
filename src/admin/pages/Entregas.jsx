@@ -263,7 +263,20 @@ export default function Entregas() {
       </div>
 
       <div className="deliveries-list">
-        {loading && <div style={{ color: 'var(--text-secondary)', fontSize: 13, padding: '12px 0' }}>Carregando entregas...</div>}
+        {loading && (
+          <>
+            {[1, 2, 3].map(i => (
+              <div key={i} className="skeleton-delivery-row">
+                <div className="skeleton skeleton-delivery-icon" />
+                <div className="skeleton-lines">
+                  <div className="skeleton skeleton-line" />
+                  <div className="skeleton skeleton-line skeleton-line-short" />
+                </div>
+                <div className="skeleton skeleton-badge" />
+              </div>
+            ))}
+          </>
+        )}
         <AnimatePresence>
           {filtered.map((d, i) => {
             const s = statusMap[d.status] || statusMap.production;
@@ -287,13 +300,13 @@ export default function Entregas() {
 
       {showModal && (
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" aria-labelledby="modal-entrega-title" className="modal-content" onClick={e => e.stopPropagation()}>
             <div className="modal-header">
               <div>
-                <h2>Nova Entrega</h2>
+                <h2 id="modal-entrega-title">Nova Entrega</h2>
                 <p>Envie um arquivo para o portal do cliente.</p>
               </div>
-              <button className="btn-close" onClick={() => setShowModal(false)}><X size={15} /></button>
+              <button className="btn-close" aria-label="Fechar" onClick={() => setShowModal(false)}><X size={15} /></button>
             </div>
 
             <form onSubmit={handleSubmit}>

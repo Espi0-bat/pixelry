@@ -58,7 +58,7 @@ export default function Kanban() {
     async function load() {
       const { data, error } = await supabase
         .from('kanban_tasks')
-        .select('*')
+        .select('id, title, client, type, assignee, priority, due, status, created_at')
         .order('created_at', { ascending: true });
 
       if (error) {
@@ -190,8 +190,24 @@ export default function Kanban() {
       </div>
 
       {loading ? (
-        <div style={{ color: 'var(--text-secondary)', fontSize: 13, padding: '32px 0' }}>
-          Carregando tarefas...
+        <div className="kanban-board">
+          {COLUMNS.map(col => (
+            <div key={col.id} className="kanban-col" style={{ '--col-color': col.color }}>
+              <div className="kanban-col-header">
+                <span className="kanban-col-dot" />
+                <span className="kanban-col-label">{col.label}</span>
+                <span className="kanban-col-count">0</span>
+              </div>
+              <div className="kanban-cards">
+                {[1, 2].map(i => (
+                  <div key={i} className="skeleton-kanban-card">
+                    <div className="skeleton skeleton-kanban-title" />
+                    <div className="skeleton skeleton-kanban-meta" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       ) : (
         <div className="kanban-board">
@@ -280,10 +296,10 @@ export default function Kanban() {
 
       {modal && (
         <div className="kanban-overlay" onClick={() => setModal(false)}>
-          <div className="kanban-modal" onClick={e => e.stopPropagation()}>
+          <div role="dialog" aria-modal="true" aria-labelledby="modal-kanban-title" className="kanban-modal" onClick={e => e.stopPropagation()}>
             <div className="kanban-modal-header">
-              <h2>Nova Tarefa</h2>
-              <button className="kanban-modal-close" onClick={() => setModal(false)}><X size={18} /></button>
+              <h2 id="modal-kanban-title">Nova Tarefa</h2>
+              <button className="kanban-modal-close" aria-label="Fechar" onClick={() => setModal(false)}><X size={18} /></button>
             </div>
 
             <div className="kanban-modal-body">

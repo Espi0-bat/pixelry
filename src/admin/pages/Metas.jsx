@@ -58,7 +58,7 @@ export default function Metas() {
   const loadGoals = useCallback(async () => {
     const { data } = await supabase
       .from('weekly_goals')
-      .select('*')
+      .select('id, title, description, week_start, week_end, category, assignee, priority, status, created_at, updated_at')
       .eq('week_start', start)
       .order('created_at', { ascending: true });
     setGoals(data || []);
@@ -245,7 +245,11 @@ export default function Metas() {
           <motion.div className="modal-overlay"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             onClick={e => e.target === e.currentTarget && setShowModal(false)}>
-            <motion.div className="modal-card"
+            <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-meta-title"
+              className="modal-card"
               initial={{ opacity: 0, scale: 0.94, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.94, y: 20 }}
@@ -255,11 +259,11 @@ export default function Metas() {
                 <div className="modal-title-wrap">
                   <div className="modal-icon-bg"><Target size={20} /></div>
                   <div>
-                    <h2>Nova Meta</h2>
+                    <h2 id="modal-meta-title">Nova Meta</h2>
                     <p>{fmtWeek(week)}</p>
                   </div>
                 </div>
-                <button className="modal-close" onClick={() => setShowModal(false)}><X size={18} /></button>
+                <button className="modal-close" aria-label="Fechar" onClick={() => setShowModal(false)}><X size={18} /></button>
               </div>
 
               <form className="modal-form" onSubmit={handleCreate}>

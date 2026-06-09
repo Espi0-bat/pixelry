@@ -19,6 +19,7 @@ const STATUS_MAP = {
 const EMPTY_CONTACT = {
   responsavel: '', emails: [], whatsapp: '',
   instagram: '', tiktok: '', linkedin: '', facebook: '', site: '', notas: '',
+  cpf: '',
 };
 
 const OPTIONAL_FIELDS = ['whatsapp', 'instagram', 'tiktok', 'linkedin', 'facebook', 'site'];
@@ -106,6 +107,7 @@ export default function ClienteDetalhes() {
           facebook: ci.facebook || '',
           site: ci.site || '',
           notas: ci.notas || '',
+          cpf: ci.cpf || '',
         };
         setContactData(contact);
         setEmailsRaw((contact.emails || []).join('\n'));
@@ -183,7 +185,7 @@ export default function ClienteDetalhes() {
     setLoadingInvoices(true);
     supabase
       .from('invoices')
-      .select('*')
+      .select('id, client_id, description, amount, due_date, status, paid_at, payment_url, created_at')
       .eq('client_id', id)
       .order('created_at', { ascending: false })
       .then(({ data }) => { if (mounted) { setInvoices(data || []); setLoadingInvoices(false); } });
@@ -232,6 +234,7 @@ export default function ClienteDetalhes() {
       facebook: ci.facebook || '',
       site: ci.site || '',
       notas: ci.notas || '',
+      cpf: ci.cpf || '',
     });
     setEmailsRaw((ci.emails || []).join('\n'));
     setPendingEnabled(enabledFields);
@@ -281,6 +284,7 @@ export default function ClienteDetalhes() {
           amount: parseFloat(amount),
           description: description.trim(),
           due_date: due_date || null,
+          cpf: contactData.cpf || null,
         },
         headers: { Authorization: `Bearer ${session.access_token}` },
       });
