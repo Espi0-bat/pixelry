@@ -56,9 +56,10 @@ export default function InternalMessages() {
 
     const { data } = await supabase
       .from('internal_messages')
-      .select('*')
+      .select('id, from_id, to_id, content, created_at, read_at')
       .or(`and(from_id.eq.${authUser.id},to_id.eq.${contact.id}),and(from_id.eq.${contact.id},to_id.eq.${authUser.id})`)
-      .order('created_at', { ascending: true });
+      .order('created_at', { ascending: true })
+      .limit(200);
     setMessages(data || []);
     setLoadingMsgs(false);
   }, [authUser?.id]);
@@ -159,7 +160,7 @@ export default function InternalMessages() {
             onClick={() => openContact(c)}
           >
             <div className="contact-avatar">
-              {c.avatar_url ? <img src={c.avatar_url} alt={c.full_name} /> : getInitials(c)}
+              {c.avatar_url ? <img src={c.avatar_url} alt={c.full_name} loading="lazy" /> : getInitials(c)}
             </div>
             <div className="contact-info">
               <div className="contact-name">{c.full_name || c.email}</div>
@@ -188,7 +189,7 @@ export default function InternalMessages() {
               </button>
               <div className="chat-header-avatar">
                 {selected.avatar_url
-                  ? <img src={selected.avatar_url} alt={selected.full_name} />
+                  ? <img src={selected.avatar_url} alt={selected.full_name} loading="lazy" />
                   : getInitials(selected)
                 }
               </div>

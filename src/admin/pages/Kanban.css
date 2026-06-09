@@ -504,3 +504,37 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* ── Skeleton loading ── */
+@keyframes skeleton-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%       { opacity: 0.6; }
+}
+
+.skeleton {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+}
+
+.skeleton-kanban-card {
+  padding: 14px;
+  background: rgba(20, 20, 48, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 10px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeleton-kanban-title {
+  height: 14px;
+  border-radius: 6px;
+}
+
+.skeleton-kanban-meta {
+  height: 10px;
+  border-radius: 5px;
+  width: 65%;
+}

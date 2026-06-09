@@ -109,7 +109,8 @@ export default function Equipe() {
     const { data } = await supabase
       .from('profiles')
       .select('id, full_name, email, avatar_url, job_title, role')
-      .in('role', ['employee', 'manager', 'super_admin']);
+      .in('role', ['employee', 'manager', 'super_admin'])
+      .limit(100);
     setEmployees((data || []).filter(e => e.id !== myId));
     setLoading(false);
   }
@@ -162,7 +163,7 @@ export default function Equipe() {
     const [notesRes, clientsRes, allCRes, filesRes] = await Promise.all([
       supabase
         .from('employee_notes')
-        .select('*')
+        .select('id, employee_id, author_id, content, rating, created_at')
         .eq('employee_id', empId)
         .order('created_at', { ascending: false }),
       supabase
@@ -176,7 +177,7 @@ export default function Equipe() {
         .eq('role', 'client'),
       supabase
         .from('internal_files')
-        .select('*')
+        .select('id, from_id, to_id, file_url, file_name, file_size, message, created_at')
         .or(`from_id.eq.${empId},to_id.eq.${empId}`)
         .order('created_at', { ascending: false }),
     ]);
@@ -273,9 +274,26 @@ export default function Equipe() {
 
       {/* ── Employee grid ── */}
       {loading ? (
-        <div className="equipe-loading">Carregando equipe...</div>
+        <div className="equipe-grid">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="skeleton-emp-card">
+              <div className="skeleton-emp-top">
+                <div className="skeleton skeleton-avatar-sq" />
+                <div className="skeleton-lines">
+                  <div className="skeleton skeleton-line" />
+                  <div className="skeleton skeleton-line skeleton-line-short" />
+                </div>
+              </div>
+              <div className="skeleton skeleton-line skeleton-line-short" />
+            </div>
+          ))}
+        </div>
       ) : employees.length === 0 ? (
-        <div className="equipe-empty">Nenhum funcionário cadastrado ainda.</div>
+        <div className="equipe-empty" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '48px 0', gap: 8 }}>
+          <Users size={36} style={{ opacity: 0.25 }} />
+          <div>Nenhum funcionário cadastrado ainda.</div>
+          <div style={{ fontSize: 12, color: 'var(--text-secondary)' }}>Clique em "Novo membro" para adicionar.</div>
+        </div>
       ) : (
         <div className="equipe-grid">
           {employees.map((emp, idx) => (
@@ -291,7 +309,7 @@ export default function Equipe() {
               <div className="emp-card-top">
                 <div className="emp-card-avatar">
                   {emp.avatar_url
-                    ? <img src={emp.avatar_url} alt={emp.full_name} />
+                    ? <img src={emp.avatar_url} alt={emp.full_name} loading="lazy" />
                     : <span>{(emp.full_name || emp.email || '?').slice(0, 1).toUpperCase()}</span>
                   }
                   <div className="emp-online-dot" />
@@ -332,6 +350,9 @@ export default function Equipe() {
             />
             <div className="create-modal-centering">
             <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-novo-membro-title"
               className="create-member-modal"
               initial={{ opacity: 0, scale: 0.95, y: -12 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -339,8 +360,8 @@ export default function Equipe() {
               transition={{ type: 'spring', damping: 28, stiffness: 320 }}
             >
               <div className="create-modal-header">
-                <span className="create-modal-title">Novo membro</span>
-                <button className="drawer-close" onClick={() => setShowCreate(false)}>
+                <span id="modal-novo-membro-title" className="create-modal-title">Novo membro</span>
+                <button className="drawer-close" aria-label="Fechar" onClick={() => setShowCreate(false)}>
                   <X size={16} />
                 </button>
               </div>
@@ -437,7 +458,7 @@ export default function Equipe() {
                 <div className="drawer-employee-info">
                   <div className="drawer-avatar">
                     {selected.avatar_url
-                      ? <img src={selected.avatar_url} alt={selected.full_name} />
+                      ? <img src={selected.avatar_url} alt={selected.full_name} loading="lazy" />
                       : <span>{(selected.full_name || selected.email).slice(0, 1).toUpperCase()}</span>
                     }
                   </div>

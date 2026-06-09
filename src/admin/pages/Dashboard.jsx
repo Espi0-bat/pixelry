@@ -122,9 +122,9 @@ function AdminDashboard() {
         { count: approved },
         { data: eventsData },
       ] = await Promise.all([
-        supabase.from('profiles').select('*', { count: 'exact', head: true }).eq('role', 'client'),
-        supabase.from('deliveries').select('*', { count: 'exact', head: true }).eq('status', 'pending'),
-        supabase.from('deliveries').select('*', { count: 'exact', head: true }).eq('status', 'approved'),
+        supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', 'client'),
+        supabase.from('deliveries').select('id', { count: 'exact', head: true }).eq('status', 'pending'),
+        supabase.from('deliveries').select('id', { count: 'exact', head: true }).eq('status', 'approved'),
         supabase
           .from('portal_events')
           .select('id, event_type, metadata, created_at, profiles!portal_events_client_id_profiles_fkey(full_name, company_name)')
@@ -166,7 +166,7 @@ function AdminDashboard() {
     async function loadGoals() {
       const { data } = await supabase
         .from('weekly_goals')
-        .select('*')
+        .select('id, title, status, priority, assignee, week_start, created_at')
         .eq('week_start', getWeekStart())
         .order('created_at', { ascending: true });
       setGoals(data || []);

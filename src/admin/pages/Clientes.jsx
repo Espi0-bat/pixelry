@@ -74,13 +74,15 @@ export default function Clientes() {
   const [form, setForm] = useState({ full_name: '', company_name: '', email: '' });
   const [saving, setSaving] = useState(false);
   const [toast, setToast] = useState(null);
+  const [emailError, setEmailError] = useState('');
 
   async function loadClients() {
     const { data: profiles } = await supabase
       .from('profiles')
       .select('id, full_name, company_name, email')
       .not('email', 'in', `(${ADMIN_EMAILS.map(e => `"${e}"`).join(',')})`)
-      .order('full_name', { ascending: true });
+      .order('full_name', { ascending: true })
+      .limit(200);
 
     if (!profiles?.length) { setLoading(false); return; }
 
@@ -119,6 +121,12 @@ export default function Clientes() {
   async function handleInvite(e) {
     e.preventDefault();
     if (!form.email.trim()) return;
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim());
+    if (!isValidEmail) {
+      setEmailError('Insira um e-mail válido.');
+      return;
+    }
+    setEmailError('');
     setSaving(true);
     try {
       const { data: { session } } = await supabase.auth.getSession();
@@ -185,8 +193,16 @@ export default function Clientes() {
       </div>
 
       {loading && (
-        <div style={{ color: 'var(--text-secondary)', fontSize: 13, padding: '24px 0' }}>
-          Carregando clientes...
+        <div className="clientes-grid">
+          {[1, 2, 3].map(i => (
+            <div key={i} className="skeleton-card">
+              <div className="skeleton skeleton-avatar" />
+              <div className="skeleton-lines">
+                <div className="skeleton skeleton-line" />
+                <div className="skeleton skeleton-line skeleton-line-short" />
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -227,9 +243,12 @@ export default function Clientes() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            onClick={(e) => e.target === e.currentTarget && setShowModal(false)}
+            onClick={(e) => { if (e.target === e.currentTarget) { setShowModal(false); setEmailError(''); } }}
           >
             <motion.div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-novo-cliente-title"
               className="modal-card"
               initial={{ opacity: 0, scale: 0.94, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -242,11 +261,11 @@ export default function Clientes() {
                     <UserPlus size={20} />
                   </div>
                   <div>
-                    <h2>Novo Cliente</h2>
+                    <h2 id="modal-novo-cliente-title">Novo Cliente</h2>
                     <p>Um email de convite será enviado automaticamente.</p>
                   </div>
                 </div>
-                <button className="modal-close" onClick={() => setShowModal(false)}>
+                <button className="modal-close" aria-label="Fechar" onClick={() => { setShowModal(false); setEmailError(''); }}>
                   <X size={18} />
                 </button>
               </div>
@@ -276,9 +295,13 @@ export default function Clientes() {
                     type="email"
                     placeholder="email@empresa.com"
                     value={form.email}
-                    onChange={(e) => setForm(f => ({ ...f, email: e.target.value }))}
+                    onChange={(e) => { setForm(f => ({ ...f, email: e.target.value })); setEmailError(''); }}
+                    style={emailError ? { borderColor: 'rgba(244,63,94,0.6)', boxShadow: '0 0 0 3px rgba(244,63,94,0.1)' } : undefined}
                     required
                   />
+                  {emailError && (
+                    <span style={{ fontSize: 12, color: '#f43f5e', marginTop: -2 }}>{emailError}</span>
+                  )}
                 </div>
 
                 <div className="modal-actions">

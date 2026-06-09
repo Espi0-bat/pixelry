@@ -67,13 +67,13 @@ export default function EmployeeDashboard({ userProfile, user }) {
           .eq('role', 'client'),
         supabase
           .from('internal_files')
-          .select('*')
+          .select('id, file_url, file_name, file_size, message, created_at, to_id, read_at')
           .eq('to_id', user.id)
           .order('created_at', { ascending: false })
           .limit(5),
         supabase
           .from('employee_notes')
-          .select('*')
+          .select('id, rating, content, created_at')
           .eq('employee_id', user.id)
           .order('created_at', { ascending: false }),
       ]);
@@ -176,7 +176,7 @@ export default function EmployeeDashboard({ userProfile, user }) {
               >
                 <div className="emp-client-avatar">
                   {client.avatar_url
-                    ? <img src={client.avatar_url} alt={client.full_name} />
+                    ? <img src={client.avatar_url} alt={client.full_name} loading="lazy" />
                     : <span>{(client.company_name || client.full_name || '?').slice(0, 1).toUpperCase()}</span>
                   }
                 </div>

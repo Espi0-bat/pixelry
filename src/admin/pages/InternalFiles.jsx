@@ -28,7 +28,7 @@ export default function InternalFiles() {
   async function loadFiles() {
     const { data } = await supabase
       .from('internal_files')
-      .select('*')
+      .select('id, from_id, to_id, file_url, file_name, file_size, message, created_at, read_at')
       .or(`from_id.eq.${authUser.id},to_id.eq.${authUser.id}`)
       .order('created_at', { ascending: false });
     setFiles(data || []);
