@@ -8,6 +8,8 @@ const ADMIN_EMAILS = adminEmailsEnv.split(',').map(e => e.trim())
 const ALLOWED_ORIGINS = [
   'https://www.pixelry.com.br',
   'https://pixelry.com.br',
+  'http://localhost:5173',
+  'http://localhost:3000',
 ]
 
 function getCors(req: Request) {

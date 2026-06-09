@@ -251,9 +251,6 @@ export default function AdminLayout({ user, onLogout }) {
             <button className="hamburger-btn" onClick={() => setIsMobileMenuOpen(o => !o)} aria-label="Menu">
               {isMobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
             </button>
-            <div className="topbar-search">
-              <input type="text" placeholder="Buscar clientes ou projetos..." aria-label="Buscar clientes ou projetos" />
-            </div>
           </div>
           <ProfilePanel
             user={user}
