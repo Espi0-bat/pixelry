@@ -1,7 +1,7 @@
 import { buildWhatsAppLink } from '../../config/contact'
 
-export const WA_LINK_NAV = buildWhatsAppLink('Olá Erick! Vim pelo site da PIXELRY e quero agendar um diagnóstico gratuito.')
-export const WA_LINK_HERO = buildWhatsAppLink('Olá Erick! Vi a estrutura de vocês para aquisição de clientes e quero agendar um diagnóstico gratuito.')
+export const WA_LINK_NAV = buildWhatsAppLink('Oi Erick! Cliquei no botão lá em cima do site da Pixelry. Quero saber se vocês conseguem lotar minha agenda — pode me dar uma visão geral?')
+export const WA_LINK_HERO = buildWhatsAppLink('Oi Erick! Vi no site que a Pixelry monta sistemas pra lotar agendas. Minha clínica tem exatamente esse problema. Quero o diagnóstico.')
 
 export const WaIconHero = () => (
   <svg className="wa-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

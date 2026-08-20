@@ -4,7 +4,7 @@ import { buildWhatsAppLink } from '../config/contact'
 import styles from './CtaFinal.module.css'
 import LeadCaptureModal from './LeadCaptureModal'
 
-const WA_LINK = buildWhatsAppLink('Olá Erick! Cheguei ao fim do site da PIXELRY e percebi que meu negócio precisa de uma engenharia digital. Podemos conversar?')
+const WA_LINK = buildWhatsAppLink('Oi Erick! Li tudo sobre a Pixelry. Quero conversar sobre um sistema de captação pra minha clínica. Pode me dar o diagnóstico?')
 
 const WaIcon = () => (
   <svg className="wa-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -52,7 +52,7 @@ export default function CtaFinal() {
         </div>
       </div>
 
-      <LeadCaptureModal isOpen={modalOpen} onClose={() => setModalOpen(false)} waLink={WA_LINK} />
+      <LeadCaptureModal isOpen={modalOpen} onClose={() => setModalOpen(false)} waLink={WA_LINK} source="cta_final" />
     </div>
   )
 }

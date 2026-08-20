@@ -144,43 +144,32 @@ body {
 }
 .btn-primary:active { transform: translateY(0); }
 
-/* WhatsApp CTA — elegant gradient, no green */
+/* WhatsApp CTA — solid gradient fill */
 .btn-whatsapp {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: transparent;
-  color: #fff;
+  background: var(--grad);
+  color: var(--bg);
   font-family: var(--font-mono);
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.06em;
   padding: 20px 44px;
   text-decoration: none;
-  border: 1px solid rgba(0, 216, 255, 0.45);
+  border: none;
   cursor: pointer;
   position: relative;
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
-              box-shadow 0.25s ease,
-              border-color 0.25s ease,
-              background 0.25s ease;
-}
-.btn-whatsapp::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--grad);
-  opacity: 0;
-  transition: opacity 0.25s ease;
+              box-shadow 0.25s ease;
 }
 .btn-whatsapp:hover {
   transform: translateY(-3px);
-  box-shadow: 0 0 28px rgba(0, 216, 255, 0.3), 0 12px 40px rgba(128, 64, 245, 0.25);
-  border-color: rgba(0, 216, 255, 0.8);
+  box-shadow: 0 0 32px rgba(0, 216, 255, 0.35), 0 12px 40px rgba(128, 64, 245, 0.3);
+  background: #fff;
+  color: var(--bg);
 }
-.btn-whatsapp:hover::before { opacity: 1; }
-.btn-whatsapp > * { position: relative; z-index: 1; }
 .btn-whatsapp:active { transform: translateY(0); }
 
 .wa-icon {

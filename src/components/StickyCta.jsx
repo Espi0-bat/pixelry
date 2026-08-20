@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react'
 import { buildWhatsAppLink } from '../config/contact'
+import LeadCaptureModal from './LeadCaptureModal'
 
-const WA_LINK = buildWhatsAppLink('Olá Erick! Vim pelo botão flutuante do site. Gostaria de discutir minha infraestrutura de marketing.')
+const WA_LINK = buildWhatsAppLink('Oi Erick! Fiquei lendo sobre a Pixelry e resolvi entrar em contato. Minha clínica precisa de mais pacientes. Podemos conversar?')
 
 const WaIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -12,6 +13,7 @@ const WaIcon = () => (
 
 export default function StickyCta() {
   const [visible, setVisible] = useState(false)
+  const [modalOpen, setModalOpen] = useState(false)
 
   useEffect(() => {
     const onScroll = () => {
@@ -24,16 +26,19 @@ export default function StickyCta() {
   if (!visible) return null
 
   return (
-    <div className="sticky-cta" aria-label="Contato rápido" style={{ animation: 'fadeInUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards' }}>
-      <a 
-        href={WA_LINK} 
-        target="_blank" 
-        rel="noreferrer" 
-        title="Falar com Especialista"
-        aria-label="Agendar diagnóstico via WhatsApp"
-      >
-        <WaIcon />
-      </a>
-    </div>
+    <>
+      <div className="sticky-cta" aria-label="Contato rápido" style={{ animation: 'fadeInUp 0.4s cubic-bezier(0.16,1,0.3,1) forwards' }}>
+        <button
+          type="button"
+          onClick={() => setModalOpen(true)}
+          title="Falar com Especialista"
+          aria-label="Agendar diagnóstico via WhatsApp"
+          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <WaIcon />
+        </button>
+      </div>
+      <LeadCaptureModal isOpen={modalOpen} onClose={() => setModalOpen(false)} waLink={WA_LINK} source="sticky_cta" />
+    </>
   )
 }

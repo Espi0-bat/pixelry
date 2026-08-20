@@ -2,6 +2,15 @@ import { useState } from 'react'
 import { useRevealContainer } from '../hooks/useReveal'
 import { buildWhatsAppLink } from '../config/contact'
 import styles from './Planos.module.css'
+import LeadCaptureModal from './LeadCaptureModal'
+
+const WA_MESSAGES = {
+  START: 'Oi Erick! Me interessei no plano START da Pixelry — landing page de conversão com rastreamento completo. Posso aplicar?',
+  PRO:   'Oi Erick! Quero o plano PRO da Pixelry. Além do site, quero acompanhamento mensal, automação e consultoria. Podemos conversar sobre minha clínica?',
+  ELITE: 'Oi Erick! Tenho interesse no plano ELITE da Pixelry. Quero a Pixelry como parceira estratégica completa. Quando podemos conversar?',
+  AI:    'Oi Erick! Quero saber mais sobre o módulo de Agente de IA para WhatsApp da Pixelry. Podemos conversar?',
+  ADS:   'Oi Erick! Quero saber mais sobre o PIXELRY ADS — gestão de tráfego pago. Podemos conversar?',
+}
 
 const PLANOS = [
   {
@@ -23,14 +32,15 @@ const PLANOS = [
   },
   {
     nome: 'PRO',
-    desc: 'Para clínicas e negócios que querem mais do que um site — um sistema com acompanhamento ativo, otimização contínua e consultoria mensal.',
+    desc: 'Para clínicas que querem mais do que um site — um sistema com automação de atendimento, acompanhamento ativo e consultoria mensal.',
     setup: 'R$ 3.800,00',
-    recorrencia: 'R$ 497,00/mês',
+    recorrencia: 'R$ 697,00/mês',
     setupFeatures: [
       'Site com até 4 páginas (principal + complementares)',
       'Tagueamento avançado com eventos customizados por conversão',
       'Google Meu Negócio — revisão e otimização completa',
-      'Performance técnica premium (React · mobile-first · animações)'
+      'Performance técnica premium (React · mobile-first · animações)',
+      'Atendimento automatizado — qualificação de lead e lembrete de consulta'
     ],
     recorrenciaFeatures: [
       'CRO — Monitoramento e Otimização de Conversão mensal',
@@ -42,76 +52,120 @@ const PLANOS = [
   {
     nome: 'ELITE',
     desc: 'Para quem quer a PIXELRY como parceira estratégica completa. Acesso direto aos sócios, mentoria de vendas, roadmap trimestral e testes A/B ativos.',
-    setup: 'R$ 5.000,00',
-    recorrencia: 'R$ 1.500,00/mês',
+    setup: 'R$ 5.500,00',
+    recorrencia: 'R$ 1.997,00/mês',
     setupFeatures: [
       'Site completo com múltiplas landing pages',
       'Backend, APIs e integrações customizadas',
       'Tagueamento avançado de alto nível + experiência visual premium',
-      'Automações de resposta e sistema de agendamento online'
+      'Atendimento automatizado + sistema de agendamento online integrado'
     ],
     recorrenciaFeatures: [
       'Tudo do PRO + Contato direto prioritário (SLA até 2h úteis)',
       'Roadmap Trimestral de Crescimento Estruturado',
       'Testes A/B Ativos com relatório de resultado',
-      'Mentoria de Vendas com Erick + Reuniões Semanais Opcionais'
+      'Mentoria de Vendas com Erick + Reuniões Semanais Opcionais',
+      'Prioridade de acesso ao módulo Agente de IA'
     ]
+  }
+]
+
+const MODULOS = [
+  {
+    key: 'AI',
+    tag: 'NOVO',
+    tagColor: 'cyan',
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M12 2a2 2 0 0 1 2 2c0 .74-.4 1.39-1 1.73V7h1a7 7 0 0 1 7 7h1a1 1 0 0 1 1 1v3a1 1 0 0 1-1 1h-1v1a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-1H2a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1h1a7 7 0 0 1 7-7h1V5.73A2 2 0 0 1 10 4a2 2 0 0 1 2-2z"/>
+        <circle cx="7.5" cy="14.5" r="1.5"/>
+        <circle cx="16.5" cy="14.5" r="1.5"/>
+      </svg>
+    ),
+    nome: 'Agente de IA',
+    subtitulo: 'Atendimento autônomo via WhatsApp',
+    desc: 'O agente qualifica leads, responde dúvidas e apoia agendamentos de forma autônoma — 24h por dia. Ele entende o contexto de cada conversa e encaminha o lead no momento certo, sem depender de alguém disponível.',
+    setup: 'R$ 4.500,00',
+    recorrencia: 'R$ 997,00/mês',
+    requisito: 'Requer plano PRO ou ELITE ativo',
+    waKey: 'AI'
+  },
+  {
+    key: 'ADS',
+    tag: null,
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+      </svg>
+    ),
+    nome: 'PIXELRY ADS',
+    subtitulo: 'Tráfego pago gerenciado',
+    desc: 'Gestão de campanhas no Meta Ads e Google Ads com estratégia, direção criativa e relatório mensal. Combustível para o sistema — nunca vendido sem CORE ativo.',
+    setup: null,
+    recorrencia: 'R$ 700/mês ou 15% da verba',
+    requisito: 'Requer plano CORE ativo',
+    waKey: 'ADS'
+  },
+  {
+    key: 'SM',
+    tag: null,
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
+      </svg>
+    ),
+    nome: 'Social Media',
+    subtitulo: 'Gestão de redes sociais',
+    desc: 'Calendário editorial, produção de conteúdo e gestão das redes sociais. Módulo complementar para quem quer presença orgânica além do sistema de captação.',
+    setup: null,
+    recorrencia: 'R$ 800,00/mês',
+    requisito: 'Pode ser contratado com qualquer plano',
+    waKey: 'ADS'
   }
 ]
 
 export default function Planos() {
   const ref = useRevealContainer()
-  const [activeIndex, setActiveIndex] = useState(1); // Começa com o plano PRO (meio) em destaque
+  const [activeIndex, setActiveIndex] = useState(1)
+  const [modalOpen, setModalOpen] = useState(false)
+  const [currentPlan, setCurrentPlan] = useState(null)
+  const [waMsg, setWaMsg] = useState('')
 
-  // --- SWIPE LOGIC ---
-  const [touchStartX, setTouchStartX] = useState(null);
-  const [touchEndX, setTouchEndX] = useState(null);
-  const minSwipeDistance = 50;
+  const [touchStartX, setTouchStartX] = useState(null)
+  const [touchEndX, setTouchEndX] = useState(null)
+  const minSwipeDistance = 50
 
-  const onTouchStart = (e) => {
-    setTouchEndX(null);
-    setTouchStartX(e.targetTouches[0].clientX);
-  };
-
-  const onTouchMove = (e) => {
-    setTouchEndX(e.targetTouches[0].clientX);
-  };
-
+  const onTouchStart = (e) => { setTouchEndX(null); setTouchStartX(e.targetTouches[0].clientX) }
+  const onTouchMove = (e) => { setTouchEndX(e.targetTouches[0].clientX) }
   const onTouchEnd = () => {
-    if (!touchStartX || !touchEndX) return;
-    const distance = touchStartX - touchEndX;
-    const isLeftSwipe = distance > minSwipeDistance;
-    const isRightSwipe = distance < -minSwipeDistance;
-    
-    if (isLeftSwipe) {
-      nextSlide();
-    } else if (isRightSwipe) {
-      prevSlide();
-    }
-  };
+    if (!touchStartX || !touchEndX) return
+    const distance = touchStartX - touchEndX
+    if (distance > minSwipeDistance) nextSlide()
+    else if (distance < -minSwipeDistance) prevSlide()
+  }
 
-  const nextSlide = () => {
-    setActiveIndex((prev) => (prev + 1) % PLANOS.length);
-  };
-
-  const prevSlide = () => {
-    setActiveIndex((prev) => (prev - 1 + PLANOS.length) % PLANOS.length);
-  };
+  const nextSlide = () => setActiveIndex((prev) => (prev + 1) % PLANOS.length)
+  const prevSlide = () => setActiveIndex((prev) => (prev - 1 + PLANOS.length) % PLANOS.length)
 
   const getPositionClass = (index) => {
-    const diff = index - activeIndex;
-    
-    // Matemática para a posição no coverflow circular
-    if (diff === 0) return styles.activeConfig;
-    if (diff === 1 || (diff === -(PLANOS.length - 1))) return styles.rightConfig;
-    if (diff === -1 || (diff === PLANOS.length - 1)) return styles.leftConfig;
-    
-    return styles.hiddenConfig; // Para projetos adicionais (se > 3 itens no futuro)
-  };
+    const diff = index - activeIndex
+    if (diff === 0) return styles.activeConfig
+    if (diff === 1 || diff === -(PLANOS.length - 1)) return styles.rightConfig
+    if (diff === -1 || diff === PLANOS.length - 1) return styles.leftConfig
+    return styles.hiddenConfig
+  }
+
+  const openModal = (planName, msgKey) => {
+    setCurrentPlan(planName)
+    setWaMsg(WA_MESSAGES[msgKey] || WA_MESSAGES[planName] || '')
+    setModalOpen(true)
+  }
 
   return (
     <section id="planos">
       <div className="section-wrap" ref={ref}>
+
+        {/* Header */}
         <div className="reveal" style={{ textAlign: 'center' }}>
           <span className="label" style={{ justifyContent: 'center' }}>SISTEMA E INVESTIMENTO</span>
           <h2 className={styles.h2}>
@@ -120,16 +174,17 @@ export default function Planos() {
           </h2>
         </div>
 
+        {/* Coverflow carousel */}
         <div className={`${styles.carouselContainer} reveal reveal-d1`}>
-          <div 
+          <div
             className={styles.carouselCards}
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
           >
             {PLANOS.map((p, i) => {
-              const positionClass = getPositionClass(i);
-              const isDestaque = i === activeIndex;
+              const positionClass = getPositionClass(i)
+              const isDestaque = i === activeIndex
 
               return (
                 <button
@@ -158,50 +213,107 @@ export default function Planos() {
                       <div className={styles.featuresGroup}>
                         <p className={styles.featureTitle}>INCLUSO NO SETUP:</p>
                         <ul className={styles.features}>
-                          {p.setupFeatures.map(f => (
-                            <li key={f}>{f}</li>
-                          ))}
+                          {p.setupFeatures.map(f => <li key={f}>{f}</li>)}
                         </ul>
                       </div>
                       <div className={styles.featuresGroup}>
                         <p className={styles.featureTitle}>ACOMPANHAMENTO MENSAL:</p>
                         <ul className={styles.features}>
-                          {p.recorrenciaFeatures.map(f => (
-                            <li key={f}>{f}</li>
-                          ))}
+                          {p.recorrenciaFeatures.map(f => <li key={f}>{f}</li>)}
                         </ul>
                       </div>
                     </div>
                     {isDestaque && (
-                      <a 
-                        href={buildWhatsAppLink('Olá Erick! Quero saber mais sobre a implementação do plano ' + p.nome + '.')} 
-                        target="_blank" 
-                        rel="noreferrer" 
+                      <a
+                        href="#"
                         className={styles.btn}
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          openModal(p.nome, p.nome)
+                        }}
                       >
                         Aplicar para o plano {p.nome} →
                       </a>
                     )}
                   </div>
                 </button>
-              );
+              )
             })}
           </div>
-          
+
           <div className={styles.navControls}>
             <button className={styles.navBtn} onClick={prevSlide} aria-label="Plano anterior">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="15 18 9 12 15 6"></polyline>
+                <polyline points="15 18 9 12 15 6"/>
               </svg>
             </button>
             <button className={styles.navBtn} onClick={nextSlide} aria-label="Próximo plano">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6"></polyline>
+                <polyline points="9 18 15 12 9 6"/>
               </svg>
             </button>
           </div>
         </div>
+
+        {/* Módulos Adicionais */}
+        <div className={`${styles.modulosSection} reveal reveal-d2`}>
+          <div className={styles.modulosHeader}>
+            <span className={styles.modulosLabel}>MÓDULOS OPCIONAIS</span>
+            <h3 className={styles.modulosTitle}>Amplie o sistema conforme o negócio cresce.</h3>
+            <p className={styles.modulosSubtitle}>
+              Módulos cobrados sempre em linha separada — nunca embutidos no plano. Cada um tem função específica dentro do sistema.
+            </p>
+          </div>
+
+          <div className={styles.modulosGrid}>
+            {MODULOS.map((m) => (
+              <div key={m.key} className={`${styles.moduloCard} ${m.key === 'AI' ? styles.moduloDestaque : ''}`}>
+                {m.tag && (
+                  <span className={`${styles.moduloTag} ${m.tagColor === 'cyan' ? styles.moduloTagCyan : ''}`}>
+                    {m.tag}
+                  </span>
+                )}
+                <div className={styles.moduloIcon}>{m.icon}</div>
+                <div className={styles.moduloNome}>{m.nome}</div>
+                <div className={styles.moduloSub}>{m.subtitulo}</div>
+                <p className={styles.moduloDesc}>{m.desc}</p>
+                <div className={styles.moduloPrecos}>
+                  {m.setup && (
+                    <div className={styles.moduloPrecoItem}>
+                      <span>Setup</span>
+                      <strong>{m.setup}</strong>
+                    </div>
+                  )}
+                  <div className={styles.moduloPrecoItem}>
+                    <span>{m.setup ? 'Recorrência' : 'Investimento'}</span>
+                    <strong>{m.recorrencia}</strong>
+                  </div>
+                </div>
+                <p className={styles.moduloRequisito}>{m.requisito}</p>
+                <a
+                  href="#"
+                  className={styles.moduloBtn}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    openModal(m.nome, m.waKey)
+                  }}
+                >
+                  Saber mais →
+                </a>
+              </div>
+            ))}
+          </div>
+        </div>
+
       </div>
+
+      <LeadCaptureModal
+        isOpen={modalOpen}
+        onClose={() => { setModalOpen(false); setCurrentPlan(null); setWaMsg('') }}
+        waLink={waMsg ? buildWhatsAppLink(waMsg) : ''}
+        source={currentPlan ? 'planos_' + currentPlan.toLowerCase().replace(/\s/g, '_') : 'planos'}
+      />
     </section>
   )
 }

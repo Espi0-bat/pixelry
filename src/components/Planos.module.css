@@ -287,20 +287,233 @@
   transform: translateY(0);
 }
 
+/* =============================================
+   MÓDULOS ADICIONAIS
+   ============================================= */
+
+.modulosSection {
+  margin-top: 120px;
+  width: 100%;
+}
+
+.modulosHeader {
+  text-align: center;
+  margin-bottom: 56px;
+}
+
+.modulosLabel {
+  display: inline-block;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.15em;
+  color: var(--cyan);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.modulosTitle {
+  font-family: var(--font-display);
+  font-size: clamp(20px, 2.2vw, 32px);
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 0 0 12px;
+}
+
+.modulosSubtitle {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+.modulosGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.moduloCard {
+  background: var(--bg3);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 32px 28px;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.moduloCard:hover {
+  border-color: var(--cyan);
+  box-shadow: 0 8px 32px rgba(0, 200, 255, 0.08);
+}
+
+.moduloDestaque {
+  border-color: var(--cyan);
+  box-shadow: 0 8px 40px rgba(0, 200, 255, 0.12);
+}
+
+.moduloTag {
+  position: absolute;
+  top: -10px;
+  left: 20px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: var(--border);
+  color: var(--text-dim);
+}
+
+.moduloTagCyan {
+  background: var(--cyan);
+  color: var(--bg);
+}
+
+.moduloIcon {
+  width: 44px;
+  height: 44px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--cyan);
+  margin-bottom: 20px;
+}
+
+.moduloNome {
+  font-family: var(--font-display);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.moduloSub {
+  font-size: 12px;
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+  margin-bottom: 16px;
+}
+
+.moduloDesc {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.65;
+  flex-grow: 1;
+  margin-bottom: 24px;
+}
+
+.moduloPrecos {
+  border-top: 1px solid var(--border);
+  padding-top: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.moduloPrecoItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.moduloPrecoItem span {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-dim);
+  margin-bottom: 2px;
+}
+
+.moduloPrecoItem strong {
+  font-size: 16px;
+  color: var(--cyan);
+  font-family: var(--font-mono);
+}
+
+.moduloRequisito {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 20px;
+  padding: 8px 12px;
+  background: var(--bg2);
+  border-radius: 6px;
+  border-left: 2px solid var(--border);
+}
+
+.moduloBtn {
+  display: block;
+  text-align: center;
+  padding: 12px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  cursor: pointer;
+}
+
+.moduloBtn:hover {
+  border-color: var(--cyan);
+  color: var(--cyan);
+  background: rgba(0, 200, 255, 0.05);
+}
+
+.moduloDestaque .moduloBtn {
+  background: var(--cyan);
+  border-color: var(--cyan);
+  color: var(--bg);
+  font-weight: 700;
+}
+
+.moduloDestaque .moduloBtn:hover {
+  background: #fff;
+  border-color: #fff;
+  color: var(--bg);
+}
+
 @media (max-width: 900px) {
+  .modulosGrid {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .modulosSection {
+    margin-top: 80px;
+  }
+
   .carouselCards {
-    min-height: 880px;
+    min-height: 0;
     height: auto;
     perspective: 800px;
+    overflow: hidden;
   }
-  
+
+  /* Active card flows in document — container grows to fit content */
+  .activeConfig {
+    position: relative;
+    transform: none;
+  }
+
   .cardCover {
     width: 290px;
   }
 
   .card { padding: 28px 24px; }
-  
-  /* Mobile Coverflow positions - removing translateZ for iOS Safari fix */
+
   .leftConfig {
     transform: translateX(-95%) scale(0.85);
   }
@@ -319,16 +532,10 @@
 }
 
 @media (max-width: 480px) {
-  .carouselCards {
-    min-height: 920px;
-    height: auto;
-  }
-  
   .cardCover {
     width: 280px;
   }
-  
-  /* Make them closer so hints of them show on narrow mobile screens */
+
   .leftConfig {
     transform: translateX(-105%) scale(0.85);
   }
