@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { supabase } from '../config/supabase'
 import styles from './LeadCaptureModal.module.css'
 
-export default function LeadCaptureModal({ isOpen, onClose, waLink }) {
+export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'diagnostico_hero' }) {
   const [form, setForm] = useState({ name: '', email: '', whatsapp: '', instagram: '' })
   const [loading, setLoading] = useState(false)
 
@@ -21,7 +21,7 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink }) {
       email: form.email.trim(),
       whatsapp: form.whatsapp.trim() || null,
       instagram: form.instagram.trim() || null,
-      source: 'diagnostico_hero',
+      source,
     })
     setLoading(false)
     window.open(waLink, '_blank', 'noreferrer')

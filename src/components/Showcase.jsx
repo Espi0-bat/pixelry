@@ -8,15 +8,48 @@ function DesktopMockup() {
         <span className={`${styles.dot} ${styles.dotRed}`}   />
         <span className={`${styles.dot} ${styles.dotYellow}`}/>
         <span className={`${styles.dot} ${styles.dotGreen}`} />
-        <span className={styles.url} />
+        <span className={styles.url}>pixelry.com.br/clinica</span>
       </div>
       <div className={styles.browserBody}>
-        <div className={styles.heroBlock} />
+        {/* Nav */}
+        <div className={styles.bNav}>
+          <div className={styles.bNavLogo} />
+          <div className={styles.bNavLinks}>
+            <div className={styles.bNavLink} />
+            <div className={styles.bNavLink} />
+            <div className={styles.bNavBtn} />
+          </div>
+        </div>
+        {/* Hero */}
+        <div className={styles.heroBlock}>
+          <div className={styles.heroText}>
+            <div className={styles.heroLabel} />
+            <div className={styles.heroH1} />
+            <div className={styles.heroH1Short} />
+            <div className={styles.heroCta} />
+          </div>
+        </div>
+        {/* Metrics strip */}
+        <div className={styles.metricsStrip}>
+          <div className={styles.metric}>
+            <span className={styles.metricVal}>+340%</span>
+            <span className={styles.metricLabel}>leads/mês</span>
+          </div>
+          <div className={styles.metricDiv} />
+          <div className={styles.metric}>
+            <span className={styles.metricVal}>97</span>
+            <span className={styles.metricLabel}>PageSpeed</span>
+          </div>
+          <div className={styles.metricDiv} />
+          <div className={styles.metric}>
+            <span className={styles.metricVal}>4,8%</span>
+            <span className={styles.metricLabel}>conv. rate</span>
+          </div>
+        </div>
+        {/* Cards row */}
         <div className={styles.twoCol}>
           <div className={styles.block} />
           <div className={styles.block} />
-          <div className={styles.blockSm} />
-          <div className={styles.blockSm} />
           <div className={styles.blockSm} />
           <div className={styles.blockSm} />
         </div>
@@ -30,12 +63,24 @@ function MobileMockup() {
     <div className={styles.phone}>
       <span className={styles.notch} />
       <div className={styles.phoneBody}>
-        <div className={styles.pHero} />
+        {/* Mobile hero */}
+        <div className={styles.pHero}>
+          <div className={styles.pHeroLabel} />
+          <div className={styles.pHeroH1} />
+          <div className={styles.pHeroH1} style={{ width: '72%' }} />
+        </div>
+        {/* CTA button */}
+        <div className={styles.pCtaBtn} />
+        {/* Content blocks */}
         <div className={styles.pBlock} />
         <div className={styles.pBlockSm} />
         <div className={styles.pBlockSm} />
         <div className={styles.pBlock} />
-        <div className={styles.pBlockSm} />
+        {/* Bottom stat */}
+        <div className={styles.pStat}>
+          <span className={styles.pStatVal}>4.8★</span>
+          <span className={styles.pStatTxt}>Google</span>
+        </div>
       </div>
     </div>
   )

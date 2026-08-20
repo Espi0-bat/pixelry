@@ -83,7 +83,7 @@
 
 /* ─── Browser mockup ─── */
 .browser {
-  width: 90%;
+  width: 92%;
   background: #0a0a14;
   border: 1px solid rgba(255,255,255,0.08);
   border-radius: 6px;
@@ -92,7 +92,7 @@
 
 .bar {
   background: #111120;
-  padding: 8px 12px;
+  padding: 7px 10px;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -100,7 +100,7 @@
 }
 
 .dot {
-  width: 8px; height: 8px;
+  width: 7px; height: 7px;
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -110,90 +110,222 @@
 
 .url {
   flex: 1;
-  height: 14px;
-  background: rgba(255,255,255,0.04);
-  border: 1px solid rgba(255,255,255,0.06);
+  height: 13px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.07);
   border-radius: 3px;
-  margin-left: 8px;
+  margin-left: 6px;
+  font-size: 7px;
+  color: rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  padding-left: 6px;
+  font-family: monospace;
+  letter-spacing: 0;
 }
 
 .browserBody {
-  padding: 16px;
+  padding: 10px;
 }
 
-.heroBlock {
-  height: 56px;
-  background: linear-gradient(135deg, rgba(123,53,240,0.2), rgba(0,212,255,0.1));
-  border: 1px solid rgba(123,53,240,0.2);
-  position: relative;
-  overflow: hidden;
-  margin-bottom: 10px;
+/* Nav bar inside browser */
+.bNav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 8px;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  margin-bottom: 8px;
 }
-.heroBlock::after {
-  content: '';
-  position: absolute;
-  left: 12px; top: 50%;
-  transform: translateY(-50%);
-  width: 55%; height: 8px;
-  background: linear-gradient(90deg, rgba(123,53,240,0.6), rgba(0,212,255,0.4));
+.bNavLogo {
+  width: 40px; height: 6px;
+  background: linear-gradient(90deg, rgba(123,53,240,0.8), rgba(0,212,255,0.6));
+  border-radius: 2px;
+}
+.bNavLinks {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.bNavLink {
+  width: 18px; height: 4px;
+  background: rgba(255,255,255,0.12);
   border-radius: 1px;
+}
+.bNavBtn {
+  width: 28px; height: 12px;
+  background: linear-gradient(135deg, rgba(123,53,240,0.7), rgba(0,212,255,0.5));
+  border-radius: 2px;
+}
+
+/* Hero section inside browser */
+.heroBlock {
+  height: 52px;
+  background: linear-gradient(135deg, rgba(123,53,240,0.18), rgba(0,212,255,0.08));
+  border: 1px solid rgba(123,53,240,0.2);
+  border-radius: 3px;
+  padding: 8px 10px;
+  margin-bottom: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.heroText { display: flex; flex-direction: column; gap: 4px; }
+.heroLabel {
+  width: 40px; height: 4px;
+  background: rgba(0,212,255,0.4);
+  border-radius: 1px;
+}
+.heroH1 {
+  width: 75%; height: 5px;
+  background: rgba(255,255,255,0.55);
+  border-radius: 1px;
+}
+.heroH1Short {
+  width: 55%; height: 5px;
+  background: rgba(255,255,255,0.4);
+  border-radius: 1px;
+}
+.heroCta {
+  width: 50px; height: 10px;
+  background: linear-gradient(90deg, rgba(123,53,240,0.8), rgba(0,212,255,0.7));
+  border-radius: 2px;
+  margin-top: 2px;
+}
+
+/* Metrics strip */
+.metricsStrip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 8px;
+  background: rgba(255,255,255,0.02);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 3px;
+  margin-bottom: 8px;
+}
+.metric {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+.metricVal {
+  font-size: 8px;
+  font-weight: 700;
+  color: rgba(0,212,255,0.9);
+  font-family: monospace;
+  line-height: 1;
+  margin-bottom: 1px;
+}
+.metricLabel {
+  font-size: 5.5px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: monospace;
+}
+.metricDiv {
+  width: 1px; height: 18px;
+  background: rgba(255,255,255,0.06);
+  flex-shrink: 0;
 }
 
 .twoCol {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px;
+  gap: 6px;
 }
 
 .block {
-  height: 32px;
+  height: 28px;
   background: rgba(255,255,255,0.04);
   border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 2px;
 }
 .blockSm {
-  height: 24px;
+  height: 20px;
   background: rgba(255,255,255,0.03);
   border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 2px;
 }
 
 /* ─── Phone mockup ─── */
 .phone {
-  width: 52%;
+  width: 50%;
   background: #0a0a14;
-  border: 2px solid rgba(255,255,255,0.12);
-  border-radius: 24px;
+  border: 2px solid rgba(255,255,255,0.14);
+  border-radius: 22px;
   overflow: hidden;
 }
 
 .notch {
   display: block;
-  width: 38%; height: 4px;
+  width: 36%; height: 4px;
   background: rgba(255,255,255,0.15);
   border-radius: 2px;
-  margin: 10px auto 0;
+  margin: 8px auto 0;
 }
 
-.phoneBody { padding: 10px 10px; }
+.phoneBody { padding: 8px; }
 
 .pHero {
-  height: 44px;
+  height: 52px;
   background: linear-gradient(135deg, rgba(123,53,240,0.25), rgba(0,212,255,0.12));
   border: 1px solid rgba(123,53,240,0.2);
-  margin-bottom: 7px;
-  position: relative;
-  overflow: hidden;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  padding: 7px 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
 }
-.pHero::after {
-  content: '';
-  position: absolute;
-  left: 8px; top: 50%;
-  transform: translateY(-50%);
-  width: 50%; height: 6px;
-  background: linear-gradient(90deg, rgba(155,95,255,0.7), rgba(0,212,255,0.5));
+.pHeroLabel {
+  width: 35%; height: 3px;
+  background: rgba(0,212,255,0.45);
   border-radius: 1px;
 }
-.pBlock   { height: 24px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); margin-bottom: 5px; }
-.pBlockSm { height: 18px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.04); margin-bottom: 5px; }
+.pHeroH1 {
+  width: 85%; height: 4px;
+  background: rgba(255,255,255,0.5);
+  border-radius: 1px;
+}
+
+.pCtaBtn {
+  height: 14px;
+  background: linear-gradient(90deg, rgba(123,53,240,0.8), rgba(0,212,255,0.7));
+  border-radius: 3px;
+  margin-bottom: 7px;
+}
+
+.pBlock   { height: 20px; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.06); border-radius: 2px; margin-bottom: 4px; }
+.pBlockSm { height: 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.04); border-radius: 2px; margin-bottom: 4px; }
+
+/* Mobile stat badge */
+.pStat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: rgba(255,215,0,0.06);
+  border: 1px solid rgba(255,215,0,0.15);
+  border-radius: 3px;
+  margin-top: 4px;
+}
+.pStatVal {
+  font-size: 7px;
+  font-weight: 700;
+  color: rgba(255,215,0,0.9);
+  font-family: monospace;
+}
+.pStatTxt {
+  font-size: 6px;
+  color: rgba(255,255,255,0.3);
+  text-transform: uppercase;
+  font-family: monospace;
+}
 
 /* ─── Responsive ─── */
 @media (max-width: 900px) {

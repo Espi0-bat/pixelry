@@ -215,7 +215,7 @@ export default function Hero() {
 
       </div>
 
-      <LeadCaptureModal isOpen={modalOpen} onClose={() => setModalOpen(false)} waLink={WA_LINK} />
+      <LeadCaptureModal isOpen={modalOpen} onClose={() => setModalOpen(false)} waLink={WA_LINK} source="hero_cta" />
     </section>
   )
 }
