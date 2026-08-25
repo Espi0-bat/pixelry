@@ -17,22 +17,6 @@
   backdrop-filter: blur(20px);
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-}
-
-.logoText {
-  display: none;
-}
-
-.logoImage {
-  display: block;
-  height: 36px;
-  width: auto;
-  border-radius: 8px; /* caso tenha fundo preenchido e fique quadrado */
-}
-
 .cta {
   display: flex;
   align-items: center;
@@ -65,18 +49,6 @@
 
 @media (max-width: 900px) {
   .nav { padding: 16px 20px; }
-  
-  .brand { gap: 8px; }
-  
-  .logoText { 
-    display: none; 
-  }
-  
-  .logoImage { 
-    display: block;
-    height: 32px;
-    border-radius: 6px;
-  }
   
   .cta { padding: 8px 16px; font-size: 10px; }
   .ctaFull   { display: none; }
