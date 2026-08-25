@@ -21,7 +21,6 @@
 .carouselCards {
   position: relative;
   width: 100%;
-  min-height: 850px;
   padding-top: 24px;
   box-sizing: border-box;
   display: flex;
@@ -51,10 +50,11 @@
 /* --- COVERFLOW POSITIONS --- */
 
 .activeConfig {
+  position: relative;
   opacity: 1;
   z-index: 10;
   transform: translateX(0) scale(1);
-  cursor: default; /* Disable pointer when active */
+  cursor: default;
 }
 
 .leftConfig {
@@ -329,17 +329,19 @@
   margin: 0 auto;
 }
 
+/* Grid assimétrico: hero ocupa 2 linhas na coluna larga */
 .modulosGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: 1.85fr 1fr;
+  grid-template-rows: auto auto;
   gap: 20px;
+  align-items: stretch;
 }
 
 .moduloCard {
   background: var(--bg3);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 32px 28px;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -351,15 +353,42 @@
   box-shadow: 0 8px 32px rgba(0, 200, 255, 0.08);
 }
 
-.moduloDestaque {
+/* --- Card hero (Agente de IA) --- */
+.moduloHero {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+  padding: 40px 36px;
   border-color: var(--cyan);
+  background:
+    radial-gradient(120% 90% at 0% 0%, rgba(0, 216, 255, 0.07) 0%, transparent 55%),
+    var(--bg3);
   box-shadow: 0 8px 40px rgba(0, 200, 255, 0.12);
+}
+
+/* --- Cards compactos (ADS, Social Media) --- */
+.moduloCompacto {
+  grid-column: 2;
+  padding: 26px 24px;
+}
+
+.moduloTopo {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.moduloTitulos {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
 }
 
 .moduloTag {
   position: absolute;
   top: -10px;
-  left: 20px;
+  left: 24px;
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.15em;
@@ -378,6 +407,7 @@
 .moduloIcon {
   width: 44px;
   height: 44px;
+  flex-shrink: 0;
   background: var(--bg2);
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -385,83 +415,135 @@
   align-items: center;
   justify-content: center;
   color: var(--cyan);
-  margin-bottom: 20px;
+}
+
+.moduloHero .moduloIcon {
+  width: 60px;
+  height: 60px;
+  border-radius: 14px;
+  border-color: rgba(0, 216, 255, 0.3);
+  background: rgba(0, 216, 255, 0.06);
+}
+
+.moduloHero .moduloIcon svg {
+  width: 30px;
+  height: 30px;
 }
 
 .moduloNome {
   font-family: var(--font-display);
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 700;
   color: var(--text);
-  margin-bottom: 4px;
+  margin: 0;
+  line-height: 1.25;
+}
+
+.moduloHero .moduloNome {
+  font-size: 26px;
+  letter-spacing: -0.02em;
 }
 
 .moduloSub {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--cyan);
   font-family: var(--font-mono);
   letter-spacing: 0.05em;
-  margin-bottom: 16px;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.moduloHero .moduloSub {
+  font-size: 12px;
 }
 
 .moduloDesc {
   font-size: 13px;
   color: var(--text-dim);
   line-height: 1.65;
-  flex-grow: 1;
-  margin-bottom: 24px;
+  margin: 0 0 20px;
 }
 
-.moduloPrecos {
-  border-top: 1px solid var(--border);
-  padding-top: 20px;
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
+.moduloHero .moduloDesc {
+  font-size: 15px;
+  line-height: 1.7;
+  max-width: 52ch;
+  margin-bottom: 28px;
+}
+
+/* Bullets de capacidade — só no card hero */
+.moduloBullets {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 32px;
+  display: grid;
   gap: 12px;
 }
 
-.moduloPrecoItem {
+.moduloBullets li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.5;
+}
+
+.moduloBullets li::before {
+  content: '';
+  flex-shrink: 0;
+  width: 18px;
+  height: 18px;
+  margin-top: 2px;
+  border-radius: 50%;
+  background: rgba(0, 216, 255, 0.12);
+  border: 1px solid rgba(0, 216, 255, 0.35);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300D8FF' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'/%3E%3C/svg%3E");
+  background-size: 11px 11px;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Rodapé — empurrado para a base, alinha os CTAs entre cards */
+.moduloRodape {
+  margin-top: auto;
   display: flex;
   flex-direction: column;
-}
-
-.moduloPrecoItem span {
-  font-size: 10px;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: var(--text-dim);
-  margin-bottom: 2px;
-}
-
-.moduloPrecoItem strong {
-  font-size: 16px;
-  color: var(--cyan);
-  font-family: var(--font-mono);
+  gap: 14px;
+  align-items: flex-start;
 }
 
 .moduloRequisito {
-  font-size: 11px;
+  font-size: 10px;
+  font-family: var(--font-mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--text-dim);
-  font-style: italic;
-  margin-bottom: 20px;
-  padding: 8px 12px;
+  padding: 5px 10px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
   background: var(--bg2);
-  border-radius: 6px;
-  border-left: 2px solid var(--border);
+}
+
+.moduloHero .moduloRequisito {
+  color: var(--cyan);
+  border-color: rgba(0, 216, 255, 0.35);
+  background: rgba(0, 216, 255, 0.07);
 }
 
 .moduloBtn {
-  display: block;
+  width: 100%;
+  min-height: 44px;
   text-align: center;
   padding: 12px 16px;
   border: 1px solid var(--border);
   border-radius: 8px;
+  background: transparent;
   color: var(--text);
+  font-family: inherit;
   font-size: 13px;
   font-weight: 500;
-  text-decoration: none;
-  transition: all 0.25s ease;
+  transition: border-color 0.25s ease, color 0.25s ease, background 0.25s ease;
   cursor: pointer;
 }
 
@@ -471,17 +553,39 @@
   background: rgba(0, 200, 255, 0.05);
 }
 
-.moduloDestaque .moduloBtn {
-  background: var(--cyan);
-  border-color: var(--cyan);
+.moduloHero .moduloBtn {
+  background: var(--grad);
+  border-color: transparent;
   color: var(--bg);
   font-weight: 700;
+  font-size: 14px;
+  min-height: 52px;
 }
 
-.moduloDestaque .moduloBtn:hover {
+.moduloHero .moduloBtn:hover {
   background: #fff;
   border-color: #fff;
   color: var(--bg);
+}
+
+/* Tablet — hero passa a ocupar a largura toda, compactos lado a lado */
+@media (max-width: 1024px) {
+  .modulosGrid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .moduloHero {
+    grid-column: 1 / -1;
+    grid-row: auto;
+    padding: 32px 28px;
+  }
+
+  .moduloCompacto {
+    grid-column: auto;
+  }
+
+  .moduloHero .moduloNome { font-size: 22px; }
+  .moduloHero .moduloDesc { font-size: 14px; max-width: none; }
 }
 
 @media (max-width: 900px) {
@@ -489,6 +593,27 @@
     grid-template-columns: 1fr;
     max-width: 420px;
     margin: 0 auto;
+  }
+
+  .moduloHero {
+    padding: 28px 24px;
+  }
+
+  .moduloHero .moduloIcon {
+    width: 52px;
+    height: 52px;
+  }
+
+  .moduloHero .moduloNome { font-size: 20px; }
+  .moduloHero .moduloDesc { font-size: 14px; }
+  .moduloBullets li { font-size: 13.5px; }
+
+  .moduloRodape {
+    align-items: stretch;
+  }
+
+  .moduloRequisito {
+    align-self: flex-start;
   }
 
   .modulosSection {

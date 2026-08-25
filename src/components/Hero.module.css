@@ -261,8 +261,6 @@
   font-size: 12px;
   color: var(--text-dim);
   font-family: var(--font-body);
-  opacity: 0;
-  animation: fadeUp 1s cubic-bezier(0.16,1,0.3,1) forwards 1.1s;
 }
 
 /* Availability strip */
@@ -275,8 +273,6 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--text-faint);
-  opacity: 0;
-  animation: fadeUp 1s cubic-bezier(0.16,1,0.3,1) forwards 1.2s;
 }
 
 .proofDot {

@@ -33,7 +33,6 @@ export default function StickyCta() {
           onClick={() => setModalOpen(true)}
           title="Falar com Especialista"
           aria-label="Agendar diagnóstico via WhatsApp"
-          style={{ background: 'none', border: 'none', cursor: 'pointer', padding: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
         >
           <WaIcon />
         </button>

@@ -10,6 +10,7 @@ const WA_MESSAGES = {
   ELITE: 'Oi Erick! Tenho interesse no plano ELITE da Pixelry. Quero a Pixelry como parceira estratégica completa. Quando podemos conversar?',
   AI:    'Oi Erick! Quero saber mais sobre o módulo de Agente de IA para WhatsApp da Pixelry. Podemos conversar?',
   ADS:   'Oi Erick! Quero saber mais sobre o PIXELRY ADS — gestão de tráfego pago. Podemos conversar?',
+  SM:    'Oi Erick! Quero saber mais sobre o módulo de Social Media da Pixelry. Podemos conversar?',
 }
 
 const PLANOS = [
@@ -84,10 +85,14 @@ const MODULOS = [
     ),
     nome: 'Agente de IA',
     subtitulo: 'Atendimento autônomo via WhatsApp',
-    desc: 'O agente qualifica leads, responde dúvidas e apoia agendamentos de forma autônoma — 24h por dia. Ele entende o contexto de cada conversa e encaminha o lead no momento certo, sem depender de alguém disponível.',
-    setup: 'R$ 4.500,00',
-    recorrencia: 'R$ 997,00/mês',
-    requisito: 'Requer plano PRO ou ELITE ativo',
+    desc: 'O agente entende o contexto de cada conversa, qualifica o lead e encaminha no momento certo — sem depender de alguém disponível para responder.',
+    bullets: [
+      'Qualifica leads sem intervenção humana',
+      'Responde 24h por dia, todos os dias',
+      'Apoia o agendamento até a confirmação'
+    ],
+    requisito: 'Exclusivo para PRO e ELITE',
+    cta: 'Quero o agente',
     waKey: 'AI'
   },
   {
@@ -100,10 +105,9 @@ const MODULOS = [
     ),
     nome: 'PIXELRY ADS',
     subtitulo: 'Tráfego pago gerenciado',
-    desc: 'Gestão de campanhas no Meta Ads e Google Ads com estratégia, direção criativa e relatório mensal. Combustível para o sistema — nunca vendido sem CORE ativo.',
-    setup: null,
-    recorrencia: 'R$ 700/mês ou 15% da verba',
-    requisito: 'Requer plano CORE ativo',
+    desc: 'Campanhas no Meta Ads e Google Ads com estratégia, direção criativa e relatório mensal. O combustível que alimenta o sistema.',
+    requisito: 'Requer o CORE ativo',
+    cta: 'Quero tráfego',
     waKey: 'ADS'
   },
   {
@@ -116,11 +120,10 @@ const MODULOS = [
     ),
     nome: 'Social Media',
     subtitulo: 'Gestão de redes sociais',
-    desc: 'Calendário editorial, produção de conteúdo e gestão das redes sociais. Módulo complementar para quem quer presença orgânica além do sistema de captação.',
-    setup: null,
-    recorrencia: 'R$ 800,00/mês',
-    requisito: 'Pode ser contratado com qualquer plano',
-    waKey: 'ADS'
+    desc: 'Calendário editorial, produção de conteúdo e gestão das redes. Presença orgânica somada ao sistema de captação.',
+    requisito: 'Complementa qualquer plano',
+    cta: 'Quero conteúdo',
+    waKey: 'SM'
   }
 ]
 
@@ -186,57 +189,54 @@ export default function Planos() {
               const positionClass = getPositionClass(i)
               const isDestaque = i === activeIndex
 
+              const cardInner = (
+                <div className={`${styles.card} ${isDestaque ? styles.destaque : ''}`}>
+                  {p.nome === 'PRO' && <div className={styles.badge}>MAIS RECOMENDADO</div>}
+                  <h3 className={styles.nome}>{p.nome}</h3>
+                  <p className={styles.desc}>{p.desc}</p>
+                  <div className={styles.featuresWrapper}>
+                    <div className={styles.featuresGroup}>
+                      <p className={styles.featureTitle}>INCLUSO NO SETUP:</p>
+                      <ul className={styles.features}>
+                        {p.setupFeatures.map(f => <li key={f}>{f}</li>)}
+                      </ul>
+                    </div>
+                    <div className={styles.featuresGroup}>
+                      <p className={styles.featureTitle}>ACOMPANHAMENTO MENSAL:</p>
+                      <ul className={styles.features}>
+                        {p.recorrenciaFeatures.map(f => <li key={f}>{f}</li>)}
+                      </ul>
+                    </div>
+                  </div>
+                  {isDestaque && (
+                    <button
+                      type="button"
+                      className={styles.btn}
+                      onClick={() => openModal(p.nome, p.nome)}
+                    >
+                      Aplicar para o plano {p.nome} →
+                    </button>
+                  )}
+                </div>
+              )
+
+              if (isDestaque) {
+                return (
+                  <div key={p.nome} className={`${styles.cardCover} ${positionClass}`}>
+                    {cardInner}
+                  </div>
+                )
+              }
+
               return (
                 <button
                   key={p.nome}
                   type="button"
                   className={`${styles.cardCover} ${positionClass}`}
                   onClick={() => setActiveIndex(i)}
-                  aria-pressed={i === activeIndex}
                   aria-label={`Ver plano ${p.nome}`}
                 >
-                  <div className={`${styles.card} ${isDestaque ? styles.destaque : ''}`}>
-                    {p.nome === 'PRO' && <div className={styles.badge}>MAIS RECOMENDADO</div>}
-                    <h3 className={styles.nome}>{p.nome}</h3>
-                    <p className={styles.desc}>{p.desc}</p>
-                    <div className={styles.valores}>
-                      <div className={styles.valorItem}>
-                        <span>Setup</span>
-                        <strong>{p.setup}</strong>
-                      </div>
-                      <div className={styles.valorItem}>
-                        <span>Acompanhamento</span>
-                        <strong>{p.recorrencia}</strong>
-                      </div>
-                    </div>
-                    <div className={styles.featuresWrapper}>
-                      <div className={styles.featuresGroup}>
-                        <p className={styles.featureTitle}>INCLUSO NO SETUP:</p>
-                        <ul className={styles.features}>
-                          {p.setupFeatures.map(f => <li key={f}>{f}</li>)}
-                        </ul>
-                      </div>
-                      <div className={styles.featuresGroup}>
-                        <p className={styles.featureTitle}>ACOMPANHAMENTO MENSAL:</p>
-                        <ul className={styles.features}>
-                          {p.recorrenciaFeatures.map(f => <li key={f}>{f}</li>)}
-                        </ul>
-                      </div>
-                    </div>
-                    {isDestaque && (
-                      <a
-                        href="#"
-                        className={styles.btn}
-                        onClick={(e) => {
-                          e.preventDefault()
-                          e.stopPropagation()
-                          openModal(p.nome, p.nome)
-                        }}
-                      >
-                        Aplicar para o plano {p.nome} →
-                      </a>
-                    )}
-                  </div>
+                  {cardInner}
                 </button>
               )
             })}
@@ -267,42 +267,49 @@ export default function Planos() {
           </div>
 
           <div className={styles.modulosGrid}>
-            {MODULOS.map((m) => (
-              <div key={m.key} className={`${styles.moduloCard} ${m.key === 'AI' ? styles.moduloDestaque : ''}`}>
-                {m.tag && (
-                  <span className={`${styles.moduloTag} ${m.tagColor === 'cyan' ? styles.moduloTagCyan : ''}`}>
-                    {m.tag}
-                  </span>
-                )}
-                <div className={styles.moduloIcon}>{m.icon}</div>
-                <div className={styles.moduloNome}>{m.nome}</div>
-                <div className={styles.moduloSub}>{m.subtitulo}</div>
-                <p className={styles.moduloDesc}>{m.desc}</p>
-                <div className={styles.moduloPrecos}>
-                  {m.setup && (
-                    <div className={styles.moduloPrecoItem}>
-                      <span>Setup</span>
-                      <strong>{m.setup}</strong>
-                    </div>
+            {MODULOS.map((m) => {
+              const isHero = m.key === 'AI'
+
+              return (
+                <div
+                  key={m.key}
+                  className={`${styles.moduloCard} ${isHero ? styles.moduloHero : styles.moduloCompacto}`}
+                >
+                  {m.tag && (
+                    <span className={`${styles.moduloTag} ${m.tagColor === 'cyan' ? styles.moduloTagCyan : ''}`}>
+                      {m.tag}
+                    </span>
                   )}
-                  <div className={styles.moduloPrecoItem}>
-                    <span>{m.setup ? 'Recorrência' : 'Investimento'}</span>
-                    <strong>{m.recorrencia}</strong>
+
+                  <div className={styles.moduloTopo}>
+                    <div className={styles.moduloIcon}>{m.icon}</div>
+                    <div className={styles.moduloTitulos}>
+                      <h4 className={styles.moduloNome}>{m.nome}</h4>
+                      <p className={styles.moduloSub}>{m.subtitulo}</p>
+                    </div>
+                  </div>
+
+                  <p className={styles.moduloDesc}>{m.desc}</p>
+
+                  {m.bullets && (
+                    <ul className={styles.moduloBullets}>
+                      {m.bullets.map(b => <li key={b}>{b}</li>)}
+                    </ul>
+                  )}
+
+                  <div className={styles.moduloRodape}>
+                    <span className={styles.moduloRequisito}>{m.requisito}</span>
+                    <button
+                      type="button"
+                      className={styles.moduloBtn}
+                      onClick={() => openModal(m.nome, m.waKey)}
+                    >
+                      {m.cta} →
+                    </button>
                   </div>
                 </div>
-                <p className={styles.moduloRequisito}>{m.requisito}</p>
-                <a
-                  href="#"
-                  className={styles.moduloBtn}
-                  onClick={(e) => {
-                    e.preventDefault()
-                    openModal(m.nome, m.waKey)
-                  }}
-                >
-                  Saber mais →
-                </a>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
 
