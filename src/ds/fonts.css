@@ -1,0 +1,11 @@
+/**
+ * Fontes da marca para o bundle do design system.
+ *
+ * O site carrega estas famílias via <link> no index.html. Telas construídas
+ * a partir do design system não têm esse HTML, então o bundle precisa
+ * carregá-las por conta própria — sem isso tudo renderiza em fonte de sistema.
+ *
+ * Este arquivo é importado só pela biblioteca (src/ds/index.js); o caminho de
+ * carregamento do site permanece inalterado.
+ */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&family=JetBrains+Mono:wght@400;500&display=swap");

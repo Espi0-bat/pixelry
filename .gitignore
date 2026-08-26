@@ -4,6 +4,7 @@ node_modules/
 # Build
 dist/
 dist-ssr/
+dist-ds/
 *.local
 .vite-dev*.log
 
@@ -42,3 +43,12 @@ __pycache__/
 
 # Supabase CLI temp files
 supabase/.temp/
+
+# design-sync — scripts encenados e saída gerada (recriados a cada sync).
+# O que fica versionado em .design-sync/: config.json, NOTES.md,
+# conventions.md e previews/ — são as entradas do sync, não saída.
+.ds-sync/
+ds-bundle/
+.design-sync/.cache/
+.design-sync/learnings/
+.design-sync/node_modules
