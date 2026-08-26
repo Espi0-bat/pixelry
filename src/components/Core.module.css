@@ -111,7 +111,7 @@
 .tagBase::before { background: var(--cyan); }
 
 .tagAlavanca {
-  color: var(--purple);
+  color: var(--purple-text);
 }
 .tagAlavanca::before { background: var(--purple); }
 

@@ -188,6 +188,9 @@
 @media (max-width: 768px) {
   .mobile-menu-button {
     display: flex;
+    /* área de toque mínima de 44px */
+    width: 44px;
+    height: 44px;
   }
 }
 

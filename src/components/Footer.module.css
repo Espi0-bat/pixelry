@@ -117,6 +117,20 @@ a.navLink:hover { color: var(--text); }
   .footer { padding: 56px 24px 32px; }
   .top { grid-template-columns: 1fr 1fr; gap: 40px; }
   .brand { grid-column: span 2; }
+
+  /* Áreas de toque de 44px — o gap encolhe para compensar a altura extra */
+  .nav, .contact { gap: 2px; }
+
+  .navLink, .waLink {
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .adminLink {
+    min-width: 44px;
+    min-height: 44px;
+  }
 }
 
 @media (max-width: 480px) {

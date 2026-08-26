@@ -87,7 +87,7 @@
   font-family: var(--font-mono);
   font-size: 9px;
   letter-spacing: 0.15em;
-  color: var(--purple);
+  color: var(--purple-text);
   border: 1px solid rgba(128, 64, 245, 0.35);
   padding: 4px 10px;
   margin-bottom: 16px;

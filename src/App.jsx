@@ -12,6 +12,7 @@ import LoginModal   from './components/LoginModal'
 import { isSupabaseConfigured, supabase, ADMIN_EMAILS } from './config/supabase'
 
 // Lazy Loading para componentes abaixo da dobra (ganho de performance substancial de LCP e FCP)
+const Transformacao = React.lazy(() => import('./components/Transformacao'))
 const Core = React.lazy(() => import('./components/Core'))
 const Processo = React.lazy(() => import('./components/Processo'))
 const Diferenciais = React.lazy(() => import('./components/Diferenciais'))
@@ -52,6 +53,7 @@ const Home = () => (
     <Problema />
     <Servicos />
     <Suspense fallback={<div style={{ minHeight: '100dvh', background: 'var(--bg)' }}></div>}>
+      <Transformacao />
       <Core />
       <Processo />
       <BrasilMap />

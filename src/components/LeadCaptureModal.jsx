@@ -2,8 +2,56 @@ import { useState } from 'react'
 import { supabase } from '../config/supabase'
 import styles from './LeadCaptureModal.module.css'
 
+const CLINIC_TYPES = [
+  'Clínica Médica',
+  'Odontologia',
+  'Estética Avançada',
+  'Fisioterapia',
+  'Dermatologia',
+  'Psicologia / Terapia',
+  'Profissional Liberal',
+  'Outro',
+]
+
+const REVENUE_RANGES = [
+  'Até R$ 20 mil',
+  'R$ 20 mil a R$ 50 mil',
+  'R$ 50 mil a R$ 100 mil',
+  'R$ 100 mil a R$ 200 mil',
+  'Acima de R$ 200 mil',
+  'Prefiro não informar',
+]
+
+const INVESTMENT_RANGES = [
+  'Ainda estou avaliando',
+  'Até R$ 1 mil',
+  'R$ 1 mil a R$ 3 mil',
+  'R$ 3 mil a R$ 5 mil',
+  'Acima de R$ 5 mil',
+]
+
+const EMPTY_FORM = {
+  name: '', email: '', whatsapp: '', instagram: '',
+  clinicType: '', revenueRange: '', investmentRange: '',
+}
+
+function buildQualifiedLink(baseLink, form) {
+  const extras = [
+    form.clinicType && `Segmento: ${form.clinicType}`,
+    form.revenueRange && `Faturamento: ${form.revenueRange}`,
+    form.investmentRange && `Investimento: ${form.investmentRange}`,
+  ].filter(Boolean)
+
+  if (!extras.length) return baseLink
+
+  const [url, query] = baseLink.split('?text=')
+  if (!query) return baseLink
+  const message = decodeURIComponent(query)
+  return `${url}?text=${encodeURIComponent(`${message}\n\n${extras.join('\n')}`)}`
+}
+
 export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'diagnostico_hero' }) {
-  const [form, setForm] = useState({ name: '', email: '', whatsapp: '', instagram: '' })
+  const [form, setForm] = useState(EMPTY_FORM)
   const [loading, setLoading] = useState(false)
 
   if (!isOpen) return null
@@ -21,11 +69,14 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'di
       email: form.email.trim(),
       whatsapp: form.whatsapp.trim() || null,
       instagram: form.instagram.trim() || null,
+      clinic_type: form.clinicType || null,
+      revenue_range: form.revenueRange || null,
+      investment_range: form.investmentRange || null,
       source,
     })
     setLoading(false)
-    window.open(waLink, '_blank', 'noreferrer')
-    setForm({ name: '', email: '', whatsapp: '', instagram: '' })
+    window.open(buildQualifiedLink(waLink, form), '_blank', 'noreferrer')
+    setForm(EMPTY_FORM)
     onClose()
   }
 
@@ -102,6 +153,57 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'di
               value={form.instagram}
               onChange={handleChange}
             />
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="lead-clinic-type">
+              Segmento
+              <span className={styles.labelOptional}>(opcional)</span>
+            </label>
+            <select
+              id="lead-clinic-type"
+              className={styles.select}
+              name="clinicType"
+              value={form.clinicType}
+              onChange={handleChange}
+            >
+              <option value="">Selecione o segmento</option>
+              {CLINIC_TYPES.map(t => <option key={t} value={t}>{t}</option>)}
+            </select>
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="lead-revenue">
+              Faturamento mensal
+              <span className={styles.labelOptional}>(opcional)</span>
+            </label>
+            <select
+              id="lead-revenue"
+              className={styles.select}
+              name="revenueRange"
+              value={form.revenueRange}
+              onChange={handleChange}
+            >
+              <option value="">Selecione a faixa</option>
+              {REVENUE_RANGES.map(r => <option key={r} value={r}>{r}</option>)}
+            </select>
+          </div>
+
+          <div className={styles.field}>
+            <label className={styles.label} htmlFor="lead-investment">
+              Investimento mensal previsto
+              <span className={styles.labelOptional}>(opcional)</span>
+            </label>
+            <select
+              id="lead-investment"
+              className={styles.select}
+              name="investmentRange"
+              value={form.investmentRange}
+              onChange={handleChange}
+            >
+              <option value="">Selecione a faixa</option>
+              {INVESTMENT_RANGES.map(i => <option key={i} value={i}>{i}</option>)}
+            </select>
           </div>
 
           <button
