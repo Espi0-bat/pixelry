@@ -15,6 +15,8 @@
   --text-faint: rgba(240, 240, 250, 0.48);
 
   --purple: #8040F5;
+  /* Variante clara do roxo para texto pequeno — o --purple puro fica em 3.5:1 */
+  --purple-text: #A065FF;
   --cyan:   #00D8FF;
   --grad:       linear-gradient(135deg, #8040F5, #00D8FF);
   --grad-text:  linear-gradient(90deg, #A065FF, #00D8FF);
@@ -375,6 +377,7 @@ body {
   --border:         rgba(255, 215, 0, 0.07);
   --border-bright:  rgba(255, 215, 0, 0.22);
   --purple: #FFD700;
+  --purple-text: #FFD700;
   --cyan:   #FDB931;
   --grad:       linear-gradient(135deg, #FFD700, #FDB931);
   --grad-text:  linear-gradient(90deg, #FFF2A8, #FFD700);
@@ -389,6 +392,7 @@ body {
   --border:         rgba(157, 0, 255, 0.07);
   --border-bright:  rgba(157, 0, 255, 0.22);
   --purple: #9d00ff;
+  --purple-text: #b84dff;
   --cyan:   #b84dff;
   --grad:       linear-gradient(135deg, #9d00ff, #5e00b3);
   --grad-text:  linear-gradient(90deg, #b84dff, #9d00ff);

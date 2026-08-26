@@ -50,7 +50,11 @@
 @media (max-width: 900px) {
   .nav { padding: 16px 20px; }
   
-  .cta { padding: 8px 16px; font-size: 10px; }
+  .cta {
+    padding: 8px 16px;
+    font-size: 10px;
+    min-height: 44px;
+  }
   .ctaFull   { display: none; }
   .ctaMobile { display: inline; }
 }

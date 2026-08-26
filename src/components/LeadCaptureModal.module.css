@@ -8,6 +8,8 @@
   align-items: center;
   justify-content: center;
   padding: 16px;
+  /* rede de segurança para telas muito baixas (paisagem no celular) */
+  overflow-y: auto;
   opacity: 0;
   animation: fadeIn 0.35s ease forwards;
 }
@@ -19,9 +21,15 @@
   padding: 40px;
   width: 100%;
   max-width: 460px;
+  /* desconta o padding do overlay — sem isso o modal vaza em telas baixas */
+  max-height: calc(100dvh - 32px);
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6), 0 0 40px rgba(100, 60, 255, 0.12);
   position: relative;
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  /* centraliza quando cabe, sem cortar o topo quando o overlay rola */
+  margin: auto;
   transform: translateY(20px);
   animation: slideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
@@ -61,6 +69,7 @@
 
 .header {
   margin-bottom: 28px;
+  flex-shrink: 0;
 }
 
 .eyebrow {
@@ -91,6 +100,10 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+  overflow-y: auto;
+  /* espaço para o foco não ser cortado pela borda de scroll */
+  padding: 2px;
+  margin: -2px;
 }
 
 .field {
@@ -111,7 +124,7 @@
 .labelOptional {
   font-size: 11px;
   font-weight: 400;
-  color: rgba(240, 240, 250, 0.3);
+  color: rgba(240, 240, 250, 0.55);
   text-transform: none;
   letter-spacing: 0;
   margin-left: 4px;
@@ -138,6 +151,39 @@
   border-color: rgba(140, 100, 255, 0.7);
   background: rgba(100, 60, 255, 0.06);
   box-shadow: 0 0 0 3px rgba(100, 60, 255, 0.15);
+}
+
+.select {
+  width: 100%;
+  min-height: 46px;
+  background-color: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 13px 40px 13px 16px;
+  color: #fff;
+  font-size: 15px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+  outline: none;
+  box-sizing: border-box;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='0.4' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px 16px;
+}
+
+.select:focus {
+  border-color: rgba(140, 100, 255, 0.7);
+  background-color: rgba(100, 60, 255, 0.06);
+  box-shadow: 0 0 0 3px rgba(100, 60, 255, 0.15);
+}
+
+/* O menu nativo herda o tema do SO — sem isso, texto branco em fundo branco */
+.select option {
+  background: #14131f;
+  color: #fff;
 }
 
 .submitBtn {
@@ -189,6 +235,7 @@
   font-size: 12px;
   color: rgba(240, 240, 250, 0.35);
   line-height: 1.5;
+  flex-shrink: 0;
 }
 
 @keyframes fadeIn {
@@ -209,5 +256,11 @@
   .modal {
     padding: 28px 24px;
     border-radius: 20px;
+  }
+
+  /* iOS amplia a página ao focar campo com fonte menor que 16px */
+  .input,
+  .select {
+    font-size: 16px;
   }
 }

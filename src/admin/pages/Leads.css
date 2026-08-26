@@ -96,6 +96,18 @@
   color: rgba(240,240,250,0.3);
 }
 
+.leads-chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 20px;
+  background: rgba(140, 100, 255, 0.12);
+  border: 1px solid rgba(140, 100, 255, 0.25);
+  color: rgba(180, 150, 255, 0.95);
+  font-size: 0.76rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
 .leads-date {
   font-size: 0.8rem;
   color: rgba(240,240,250,0.45);
@@ -145,10 +157,11 @@
     padding: 20px 16px;
   }
 
-  .leads-table th:nth-child(3),
-  .leads-table td:nth-child(3),
-  .leads-table th:nth-child(4),
-  .leads-table td:nth-child(4) {
+  /* Esconde WhatsApp e Instagram; qualificação e data seguem via scroll horizontal */
+  .leads-table th:nth-child(6),
+  .leads-table td:nth-child(6),
+  .leads-table th:nth-child(7),
+  .leads-table td:nth-child(7) {
     display: none;
   }
 }

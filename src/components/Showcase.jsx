@@ -3,7 +3,8 @@ import styles from './Showcase.module.css'
 
 function DesktopMockup() {
   return (
-    <div className={styles.browser}>
+    // Ilustração de interface — o texto miúdo é figurativo, não conteúdo
+    <div className={styles.browser} aria-hidden="true">
       <div className={styles.bar}>
         <span className={`${styles.dot} ${styles.dotRed}`}   />
         <span className={`${styles.dot} ${styles.dotYellow}`}/>
@@ -60,7 +61,7 @@ function DesktopMockup() {
 
 function MobileMockup() {
   return (
-    <div className={styles.phone}>
+    <div className={styles.phone} aria-hidden="true">
       <span className={styles.notch} />
       <div className={styles.phoneBody}>
         {/* Mobile hero */}
