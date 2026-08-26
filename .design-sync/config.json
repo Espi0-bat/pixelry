@@ -1,0 +1,21 @@
+{
+  "projectId": "3adc5358-71d0-4a47-b50a-60a35f3f8462",
+  "shape": "package",
+  "pkg": "pixelry",
+  "globalName": "PixelryDS",
+  "buildCmd": "npm run build:ds",
+  "srcDir": "src",
+  "cssEntry": "dist-ds/index.css",
+  "readmeHeader": ".design-sync/conventions.md",
+  "provider": {
+    "component": "DSProvider"
+  },
+  "componentSrcMap": {
+    "DSProvider": null
+  },
+  "overrides": {
+    "PillNav": {
+      "cardMode": "column"
+    }
+  }
+}
