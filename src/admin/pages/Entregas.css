@@ -560,3 +560,50 @@
   border-radius: 20px;
   flex-shrink: 0;
 }
+
+/* ─── Ações de arquivo na linha da entrega ─── */
+.delivery-file {
+  color: var(--cyan);
+  opacity: 0.85;
+}
+
+.delivery-file-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  margin-right: 4px;
+}
+
+.delivery-file-btn {
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(0, 216, 255, 0.08);
+  border: 1px solid rgba(0, 216, 255, 0.22);
+  color: var(--cyan);
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease, transform 0.18s ease;
+}
+
+.delivery-file-btn:hover:not(:disabled) {
+  background: rgba(0, 216, 255, 0.16);
+  border-color: rgba(0, 216, 255, 0.45);
+  transform: translateY(-1px);
+}
+
+.delivery-file-btn:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.delivery-file-btn:focus-visible {
+  outline: 2px solid var(--cyan);
+  outline-offset: 2px;
+}
+
+@media (max-width: 640px) {
+  .delivery-file-actions { margin-right: 0; }
+}

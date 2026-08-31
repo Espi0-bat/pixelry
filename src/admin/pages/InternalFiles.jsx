@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { FileArchive, Download, Clock } from 'lucide-react';
 import { useOutletContext } from 'react-router-dom';
 import { supabase } from '../../config/supabase';
+import { BUCKETS, downloadFile } from '../../config/storage';
 import './InternalFiles.css';
 
 function formatTime(iso) {
@@ -94,16 +95,14 @@ export default function InternalFiles() {
                     }
                   </div>
                 </div>
-                <a
-                  href={file.file_url}
-                  target="_blank"
-                  rel="noreferrer"
+                <button
+                  type="button"
                   className="ifile-dl"
-                  download
+                  onClick={() => downloadFile(BUCKETS.internalFiles, file.file_url, file.file_name)}
                 >
                   <Download size={15} />
                   Baixar
-                </a>
+                </button>
               </motion.div>
             );
           })}
