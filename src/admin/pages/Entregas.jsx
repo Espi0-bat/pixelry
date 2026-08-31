@@ -1,10 +1,12 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import {
   Upload, FileText, Palette, Film, BarChart2, X, Check,
-  Plus, ChevronDown, Clock, CheckCircle2, XCircle, Zap, Image, Paperclip
+  Plus, ChevronDown, Clock, CheckCircle2, XCircle, Zap, Image, Paperclip,
+  Download, Eye
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { supabase, STORAGE_BUCKET } from '../../config/supabase';
+import { BUCKETS, downloadFile, openFile, fileNameFrom } from '../../config/storage';
 import './Entregas.css';
 
 const DELIVERY_TYPES = ['Design', 'Vídeo', 'Documento', 'Relatório', 'Imagem'];
@@ -88,14 +90,54 @@ const DeliveryRow = React.memo(function DeliveryRow({ d, s, Icon, SIcon }) {
       </div>
       <div className="delivery-info">
         <div className="delivery-title">{d.title}</div>
-        <div className="delivery-meta">{d.clientName} · {d.type} · {d.date}</div>
+        <div className="delivery-meta">
+          {d.clientName} · {d.type} · {d.date}
+          {d.file_url && <> · <span className="delivery-file">{fileNameFrom(d.file_url)}</span></>}
+        </div>
       </div>
+      {d.file_url && <DeliveryFileActions fileUrl={d.file_url} />}
       <div className="status-badge" style={{ background: s.bg, border: `1px solid ${s.border}`, color: s.color }}>
         <SIcon size={13} /> {s.label}
       </div>
     </motion.div>
   );
 });
+
+/** Ver / baixar o anexo da entrega (bucket privado → URL assinada). */
+function DeliveryFileActions({ fileUrl }) {
+  const [busy, setBusy] = useState(false);
+
+  const run = async (action) => {
+    setBusy(true);
+    await action(BUCKETS.deliveries, fileUrl);
+    setBusy(false);
+  };
+
+  return (
+    <div className="delivery-file-actions" onClick={e => e.stopPropagation()}>
+      <button
+        type="button"
+        className="delivery-file-btn"
+        title="Abrir arquivo"
+        aria-label="Abrir arquivo da entrega"
+        disabled={busy}
+        onClick={() => run(openFile)}
+      >
+        <Eye size={16} strokeWidth={1.7} />
+      </button>
+      <button
+        type="button"
+        className="delivery-file-btn"
+        title="Baixar arquivo"
+        aria-label="Baixar arquivo da entrega"
+        disabled={busy}
+        onClick={() => run((b, u) => downloadFile(b, u))}
+      >
+        <Download size={16} strokeWidth={1.7} />
+      </button>
+    </div>
+  );
+}
 
 export default function Entregas() {
   const [showModal, setShowModal]     = useState(false);
@@ -115,7 +157,7 @@ export default function Entregas() {
       supabase.from('profiles').select('id, full_name, company_name, email').eq('role', 'client').order('full_name'),
       supabase
         .from('deliveries')
-        .select('id, title, type, status, created_at, client_id, profiles!deliveries_client_id_profiles_fkey(full_name, company_name)')
+        .select('id, title, type, status, created_at, client_id, file_url, profiles!deliveries_client_id_profiles_fkey(full_name, company_name)')
         .order('created_at', { ascending: false }),
     ]);
     setClients(profilesData || []);
@@ -189,8 +231,8 @@ export default function Entregas() {
         return;
       }
 
-      const { data: { publicUrl } } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(path);
-      fileUrl = publicUrl;
+      // Bucket privado: guardamos o caminho; o link é assinado na hora do download.
+      fileUrl = path;
       setUploads(prev => prev.map(u => ({ ...u, progress: 100, done: true })));
     }
 
@@ -212,7 +254,7 @@ export default function Entregas() {
         description: form.description,
         file_url: fileUrl,
       })
-      .select('id, title, type, status, created_at, client_id, profiles!deliveries_client_id_profiles_fkey(full_name, company_name)')
+      .select('id, title, type, status, created_at, client_id, file_url, profiles!deliveries_client_id_profiles_fkey(full_name, company_name)')
       .single();
 
     if (insertError) {
