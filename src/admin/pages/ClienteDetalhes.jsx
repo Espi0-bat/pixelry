@@ -7,6 +7,7 @@ import {
   CreditCard,
 } from 'lucide-react';
 import { supabase } from '../../config/supabase';
+import { BUCKETS, downloadFile } from '../../config/storage';
 import './ClienteDetalhes.css';
 
 const STATUS_MAP = {
@@ -417,7 +418,11 @@ export default function ClienteDetalhes() {
               </div>
               <div className="entrega-actions">
                 {d.file_url && (
-                  <button className="btn-icon" onClick={() => window.open(d.file_url, '_blank')}>
+                  <button
+                    className="btn-icon"
+                    title="Baixar entrega"
+                    onClick={() => downloadFile(BUCKETS.deliveries, d.file_url)}
+                  >
                     <Download size={18} />
                   </button>
                 )}
@@ -450,7 +455,11 @@ export default function ClienteDetalhes() {
                   <h4>{f.name}</h4>
                   <span>{f.type}{f.size_label ? ` · ${f.size_label}` : ''} · {new Date(f.created_at).toLocaleDateString('pt-BR')}</span>
                 </div>
-                <button className="btn-icon" title="Abrir arquivo" onClick={() => window.open(f.file_url, '_blank')}>
+                <button
+                  className="btn-icon"
+                  title="Baixar arquivo"
+                  onClick={() => downloadFile(BUCKETS.clientUploads, f.file_url, f.name)}
+                >
                   <Download size={16} />
                 </button>
               </div>

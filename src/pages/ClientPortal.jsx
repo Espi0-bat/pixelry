@@ -34,6 +34,14 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import pixelryLogo from "../components/images/pixelryicone.jpeg";
 import { isSupabaseConfigured, supabase } from "../config/supabase";
+import {
+  BUCKETS,
+  downloadFile,
+  openFile,
+  fileNameFrom,
+  isImagePath,
+} from "../config/storage";
+import { useSignedUrl } from "../hooks/useSignedUrl";
 import styles from "./ClientPortal.module.css";
 
 /* ─────────────────────────────────────────────
@@ -171,23 +179,6 @@ function getFileTypeName(name) {
   return "Documento";
 }
 
-function mapAsset(row) {
-  const typeLower = String(row.file_type || "").toLowerCase();
-  const nameLower = String(row.name || "").toLowerCase();
-  let icon = FileText;
-  if (typeLower.includes("design") || nameLower.includes(".fig") || nameLower.includes(".psd")) icon = Palette;
-  else if (typeLower.includes("relat") || typeLower.includes("report") || nameLower.includes("relat")) icon = BarChart2;
-  else if (["imagem","zip","media"].some(t => typeLower.includes(t)) || nameLower.includes(".zip")) icon = Image;
-  return {
-    id: row.id,
-    name: row.name,
-    type: row.file_type || "Documento",
-    size: row.size || "—",
-    date: formatPortalDate(row.created_at),
-    icon,
-    url: row.url,
-  };
-}
 
 function mapClientFile(row) {
   const nameLower = String(row.name || "").toLowerCase();
@@ -202,7 +193,29 @@ function mapClientFile(row) {
     date: formatPortalDate(row.created_at),
     icon,
     url: row.file_url,
+    bucket: BUCKETS.clientUploads,
     fromClient: true,
+  };
+}
+
+/** Entrega com anexo → item da lista de arquivos do portal. */
+function mapDeliveryFile(row) {
+  const name = fileNameFrom(row.file_url, row.title || "Arquivo");
+  const lower = name.toLowerCase();
+  let icon = FileText;
+  if (lower.match(/\.(jpg|jpeg|png|gif|webp|svg)$/)) icon = Image;
+  else if (lower.match(/\.(fig|psd|ai|sketch)$/)) icon = Palette;
+  else if (String(row.type).toLowerCase().includes("relat")) icon = BarChart2;
+  return {
+    id: `delivery-${row.id}`,
+    name,
+    type: row.type || "Documento",
+    size: "—",
+    date: formatPortalDate(row.created_at),
+    icon,
+    url: row.file_url,
+    bucket: BUCKETS.deliveries,
+    title: row.title,
   };
 }
 
@@ -273,18 +286,10 @@ function mapDelivery(row) {
   };
 }
 
-function downloadPortalFile(file) {
-  if (file.url) {
-    window.open(file.url, "_blank", "noopener,noreferrer");
-    return;
-  }
-  // fallback para arquivos sem URL (não deve ocorrer em produção)
-  const link = document.createElement("a");
-  link.href = "#";
-  link.download = file.name;
-  document.body.appendChild(link);
-  link.click();
-  link.remove();
+/** Baixa o arquivo gerando uma URL assinada (buckets são privados). */
+async function downloadPortalFile(file) {
+  if (!file?.url) return false;
+  return downloadFile(file.bucket || BUCKETS.clientUploads, file.url, file.name);
 }
 
 /* ─────────────────────────────────────────────
@@ -628,6 +633,138 @@ function DeliveryRow({ item, onClick }) {
 }
 
 /** Delivery modal */
+/** Preview + download do arquivo da entrega (bucket privado → URL assinada). */
+function DeliveryFilePanel({ fileUrl, type }) {
+  const isImage = isImagePath(fileUrl);
+  const { url: previewUrl, loading } = useSignedUrl(BUCKETS.deliveries, fileUrl, { enabled: isImage });
+  const [downloading, setDownloading] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const Icon = TYPE_ICON[type] || FileText;
+  const name = fileUrl ? fileNameFrom(fileUrl) : null;
+
+  async function handleDownload() {
+    setDownloading(true);
+    setFailed(false);
+    const ok = await downloadFile(BUCKETS.deliveries, fileUrl, name);
+    if (!ok) setFailed(true);
+    setDownloading(false);
+  }
+
+  // Entrega ainda sem arquivo anexado
+  if (!fileUrl) {
+    return (
+      <div style={{
+        background: "rgba(128, 64, 245, 0.03)",
+        border: "1px dashed rgba(128, 64, 245, 0.15)",
+        borderRadius: 11, height: 120,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        flexDirection: "column", gap: 8, marginBottom: 20,
+        color: C.textSub, fontFamily: FONT_BODY,
+      }}>
+        <Icon size={26} strokeWidth={1} color="rgba(128, 64, 245, 0.3)" />
+        <span style={{ fontSize: 12 }}>Nenhum arquivo anexado a esta entrega</span>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ marginBottom: 20 }}>
+      {/* Preview: miniatura real para imagem, cartão de arquivo para o resto */}
+      <div style={{
+        background: "rgba(128, 64, 245, 0.04)",
+        border: `1px solid ${C.border}`,
+        borderRadius: 11,
+        overflow: "hidden",
+        marginBottom: 12,
+      }}>
+        {isImage ? (
+          <div style={{
+            minHeight: 170, display: "flex", alignItems: "center", justifyContent: "center",
+            background: "rgba(0,0,0,0.25)",
+          }}>
+            {loading && (
+              <span style={{ fontSize: 12, color: C.textSub, fontFamily: FONT_BODY }}>
+                Carregando pré-visualização…
+              </span>
+            )}
+            {!loading && previewUrl && (
+              <img
+                src={previewUrl}
+                alt={name}
+                style={{ width: "100%", maxHeight: 260, objectFit: "contain", display: "block" }}
+              />
+            )}
+            {!loading && !previewUrl && (
+              <span style={{ fontSize: 12, color: C.textSub, fontFamily: FONT_BODY }}>
+                Não foi possível carregar a imagem
+              </span>
+            )}
+          </div>
+        ) : (
+          <div style={{ display: "flex", alignItems: "center", gap: 12, padding: "16px 18px" }}>
+            <div style={{
+              width: 40, height: 40, borderRadius: 9, flexShrink: 0,
+              background: "rgba(0, 216, 255, 0.1)",
+              border: "1px solid rgba(0, 216, 255, 0.25)",
+              display: "flex", alignItems: "center", justifyContent: "center",
+            }}>
+              <Icon size={18} color={C.cyan} strokeWidth={1.5} />
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={{
+                fontFamily: FONT_BODY, fontSize: 13.5, fontWeight: 600, color: C.text,
+                whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis",
+              }}>{name}</div>
+              <div style={{ fontSize: 11, color: C.textSub, fontFamily: FONT_BODY, marginTop: 2 }}>
+                Arquivo pronto para download
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div style={{ display: "flex", gap: 10 }}>
+        <button
+          type="button"
+          onClick={handleDownload}
+          disabled={downloading}
+          style={{
+            flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            padding: "12px 16px", borderRadius: 10,
+            background: "rgba(0, 216, 255, 0.1)",
+            border: `1px solid rgba(0, 216, 255, 0.3)`,
+            color: C.cyan, fontFamily: FONT_BODY, fontSize: 13.5, fontWeight: 600,
+            cursor: downloading ? "wait" : "pointer",
+            opacity: downloading ? 0.7 : 1,
+          }}
+        >
+          <Download size={15} strokeWidth={1.8} />
+          {downloading ? "Preparando…" : "Baixar arquivo"}
+        </button>
+        <button
+          type="button"
+          onClick={() => openFile(BUCKETS.deliveries, fileUrl)}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            padding: "12px 18px", borderRadius: 10,
+            background: "transparent", border: `1px solid ${C.border}`,
+            color: C.textSub, fontFamily: FONT_BODY, fontSize: 13.5, fontWeight: 500,
+            cursor: "pointer",
+          }}
+        >
+          <Eye size={15} strokeWidth={1.8} /> Abrir
+        </button>
+      </div>
+
+      {failed && (
+        <p role="alert" style={{ marginTop: 10, fontSize: 12, color: C.red, fontFamily: FONT_BODY }}>
+          Não foi possível gerar o link. Recarregue a página e tente novamente.
+        </p>
+      )}
+    </div>
+  );
+}
+
 function Modal({ item, onClose, onApprove, onRequestRevision, actionStatus }) {
   useEffect(() => {
     if (!item) return;
@@ -732,21 +869,8 @@ function Modal({ item, onClose, onApprove, onRequestRevision, actionStatus }) {
           </div>
         </div>
 
-        {/* Preview area */}
-        <div style={{
-          background: "rgba(128, 64, 245, 0.03)",
-          border: `1px dashed rgba(128, 64, 245, 0.15)`,
-          borderRadius: 11,
-          height: 150,
-          display: "flex", alignItems: "center", justifyContent: "center",
-          flexDirection: "column", gap: 8,
-          marginBottom: 20,
-          color: C.textSub,
-          fontFamily: FONT_BODY,
-        }}>
-          <Icon size={28} strokeWidth={1} color="rgba(128, 64, 245, 0.3)" />
-          <span style={{ fontSize: 12 }}>Pré-visualização do arquivo</span>
-        </div>
+        {/* Arquivo da entrega — preview real + download */}
+        <DeliveryFilePanel fileUrl={item.source?.file_url} type={item.type} />
 
         {/* Action buttons — only for pending items */}
         {item.status === "pending" ? (
@@ -879,13 +1003,12 @@ function UploadZone({ uploads, setUploads, user, onUploadComplete }) {
         continue;
       }
 
-      const { data: { publicUrl } } = supabase.storage.from("client-uploads").getPublicUrl(path);
-
+      // Bucket é privado: guardamos o caminho, não uma URL pública (que seria inválida).
       const { error: insertError } = await supabase.from("client_files").insert({
         client_id: user.id,
         name: f.name,
         type: getFileTypeName(f.name),
-        file_url: publicUrl,
+        file_url: path,
         size_label: (f.size / 1024 / 1024).toFixed(1) + " MB",
       });
 
@@ -1074,6 +1197,11 @@ function FileRow({ f, onDownload, isImage }) {
    IMAGE PREVIEW MODAL
 ───────────────────────────────────────────── */
 function ImagePreviewModal({ file, onClose }) {
+  const { url: signedUrl, loading, error } = useSignedUrl(
+    file?.bucket || BUCKETS.clientUploads,
+    file?.url,
+  );
+
   useEffect(() => {
     if (!file) return;
     const handler = (e) => { if (e.key === "Escape") onClose(); };
@@ -1108,17 +1236,33 @@ function ImagePreviewModal({ file, onClose }) {
         >
           <X size={16} />
         </button>
-        <img
-          src={file.url}
-          alt={file.name}
-          style={{
-            width: "100%", maxHeight: "75vh",
-            objectFit: "contain",
-            borderRadius: 14,
-            border: `1px solid ${C.border}`,
-            boxShadow: "0 0 80px rgba(0,0,0,0.5)",
-          }}
-        />
+        {loading && (
+          <div style={{
+            height: 320, display: "flex", alignItems: "center", justifyContent: "center",
+            borderRadius: 14, border: `1px solid ${C.border}`, background: "rgba(0,0,0,0.3)",
+            fontFamily: FONT_BODY, fontSize: 13, color: C.textSub,
+          }}>Carregando imagem…</div>
+        )}
+        {!loading && signedUrl && (
+          <img
+            src={signedUrl}
+            alt={file.name}
+            style={{
+              width: "100%", maxHeight: "75vh",
+              objectFit: "contain",
+              borderRadius: 14,
+              border: `1px solid ${C.border}`,
+              boxShadow: "0 0 80px rgba(0,0,0,0.5)",
+            }}
+          />
+        )}
+        {!loading && error && (
+          <div role="alert" style={{
+            height: 200, display: "flex", alignItems: "center", justifyContent: "center",
+            borderRadius: 14, border: `1px solid ${C.border}`, background: "rgba(0,0,0,0.3)",
+            fontFamily: FONT_BODY, fontSize: 13, color: C.red, textAlign: "center", padding: 20,
+          }}>Não foi possível carregar esta imagem.</div>
+        )}
         <div style={{
           marginTop: 12, textAlign: "center",
           fontFamily: FONT_BODY, fontSize: 13, color: C.textSub,
@@ -1146,20 +1290,17 @@ function FilesView({ user }) {
       setLoadingAssets(false);
       return;
     }
-    // Busca projetos do cliente, depois assets de cada projeto
+    // Arquivos enviados pela Pixelry: vêm das entregas com anexo.
+    // (A tabela `assets` existe no schema mas nunca é populada — a publicação
+    // de arquivo acontece em `deliveries`, no painel admin.)
     supabase
-      .from("projects")
-      .select("id")
+      .from("deliveries")
+      .select("id, title, type, file_url, created_at")
       .eq("client_id", user.id)
-      .then(async ({ data: projects }) => {
-        if (!projects?.length) { setLoadingAssets(false); return; }
-        const projectIds = projects.map((p) => p.id);
-        const { data } = await supabase
-          .from("assets")
-          .select("id, name, file_type, size, url, created_at")
-          .in("project_id", projectIds)
-          .order("created_at", { ascending: false });
-        setAssets((data || []).map(mapAsset));
+      .not("file_url", "is", null)
+      .order("created_at", { ascending: false })
+      .then(({ data }) => {
+        setAssets((data || []).map(mapDeliveryFile));
         setLoadingAssets(false);
       });
   }, [user?.id]);
@@ -1534,8 +1675,9 @@ function SupportView({ user }) {
         setUploadError("Falha ao enviar o arquivo. Verifique sua conexão e tente novamente.");
         return;
       }
-      const { data: { publicUrl } } = supabase.storage.from("client-uploads").getPublicUrl(path);
-      fileUrl = publicUrl;
+      // Bucket privado: guardamos o caminho. O download acontece na aba
+      // Arquivos, com URL assinada — não dá para colar link fixo na mensagem.
+      fileUrl = path;
 
       // Salva em client_files para aparecer na aba de Arquivos em tempo real
       const { data: newFile } = await supabase.from("client_files").insert({
@@ -1549,7 +1691,7 @@ function SupportView({ user }) {
     }
 
     setUploadError(null);
-    const fileLabel = attachFile ? `\n📎 Arquivo anexado: ${attachFile.name}\n${fileUrl}` : "";
+    const fileLabel = attachFile ? `\n📎 Arquivo anexado: ${attachFile.name}` : "";
     const messageContent = (content + fileLabel).trim() || `[Arquivo: ${attachFile?.name}]`;
     setMsg("");
     setAttachFile(null);
