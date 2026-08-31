@@ -222,6 +222,30 @@
   margin: 16px 0 12px;
 }
 
+/* ── Ações ── */
+.pp-action {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 4px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--text-dim);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+  text-align: left;
+}
+.pp-action:hover {
+  background: rgba(128, 64, 245, 0.1);
+  border-color: rgba(128, 64, 245, 0.22);
+  color: var(--purple-text);
+}
+
 /* ── Logout ── */
 .pp-logout {
   display: flex;

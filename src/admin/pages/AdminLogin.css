@@ -124,6 +124,26 @@
   box-shadow: 0 12px 32px rgba(128, 64, 245, 0.5);
 }
 
+.login-forgot {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 8px;
+  min-height: 44px;
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.login-forgot:hover {
+  color: var(--purple-text);
+  text-decoration: underline;
+}
+
 .login-card--shattering {
   animation: card-pulse 0.2s ease-out;
 }

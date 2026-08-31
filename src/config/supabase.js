@@ -11,6 +11,11 @@ export const MANAGER_EMAILS = (import.meta.env.VITE_MANAGER_EMAILS || '')
 
 export const ADMIN_EMAILS = [...SUPER_ADMIN_EMAILS, ...MANAGER_EMAILS]
 
+// true se o e-mail pertence à equipe (super_admin ou manager).
+export function isAdminEmail(email) {
+  return Boolean(email) && ADMIN_EMAILS.includes(email)
+}
+
 export const ROLE_LEVELS = {
   super_admin: 4,
   manager:     3,

@@ -9,6 +9,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark" />
 
+    <!-- SPA fallback (GitHub Pages): restaura a URL real vinda do 404.html -->
+    <script>
+      (function () {
+        var l = window.location;
+        if (l.search[1] === '/') {
+          var decoded = l.search.slice(1).split('&').map(function (s) {
+            return s.replace(/~and~/g, '&');
+          }).join('?');
+          window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);
+        }
+      })();
+    </script>
+
     <!-- SEO Básico -->
     <title>PIXELRY — Engenharia Digital e Aquisição de Clientes</title>
     <meta name="description" content="PIXELRY — Empresa de engenharia digital em Brasília. Construímos sistemas previsíveis de aquisição de clientes para clínicas e negócios locais que precisam encher a agenda." />
