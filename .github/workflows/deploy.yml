@@ -36,8 +36,8 @@ jobs:
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
           VITE_WHATSAPP_NUMBER: ${{ secrets.VITE_WHATSAPP_NUMBER }}
           VITE_CLIENT_WHATSAPP_NUMBER: ${{ secrets.VITE_CLIENT_WHATSAPP_NUMBER }}
-          VITE_ADMIN_EMAIL: ${{ secrets.VITE_ADMIN_EMAIL }}
-          VITE_ADMIN_EMAILS: ${{ secrets.VITE_ADMIN_EMAILS }}
+          VITE_SUPER_ADMIN_EMAILS: ${{ secrets.VITE_SUPER_ADMIN_EMAILS }}
+          VITE_MANAGER_EMAILS: ${{ secrets.VITE_MANAGER_EMAILS }}
         run: npm run build
 
       - name: Upload artifact
