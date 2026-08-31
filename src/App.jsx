@@ -154,7 +154,7 @@ export default function App() {
   const isDashboard = location.pathname.startsWith('/admin') || location.pathname.startsWith('/portal')
 
   // Portal do cliente — admin logado não acessa automaticamente
-  const isAdminUser = user && ADMIN_EMAILS.includes(user.email)
+  const isAdminUser = user && isAdminEmail(user.email)
   const portalElement = authLoading
     ? PORTAL_FALLBACK
     : !user || isAdminUser
