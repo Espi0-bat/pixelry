@@ -227,11 +227,11 @@ export default function Equipe() {
       .from('internal-files')
       .upload(path, file, { contentType: file.type });
     if (!uploadErr) {
-      const { data: { publicUrl } } = supabase.storage.from('internal-files').getPublicUrl(path);
+      // Bucket privado: guardamos o caminho; o link é assinado no download.
       await supabase.from('internal_files').insert({
         from_id: currentUser.id,
         to_id: selected.id,
-        file_url: publicUrl,
+        file_url: path,
         file_name: file.name,
         file_size: `${(file.size / 1024).toFixed(1)} KB`,
         message: uploadMsg.trim() || null,
