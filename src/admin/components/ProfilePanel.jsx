@@ -1,12 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { Camera, LogOut, User, X } from 'lucide-react';
+import { Camera, LogOut, User, X, KeyRound } from 'lucide-react';
 import { supabase } from '../../config/supabase';
+import ChangePassword from '../../components/ChangePassword';
 import './ProfilePanel.css';
 
 export default function ProfilePanel({ user, avatarUrl, onAvatarUpdate, onLogout, userRole }) {
   const [open, setOpen]         = useState(false);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview]   = useState(avatarUrl);
+  const [showChangePw, setShowChangePw] = useState(false);
   const panelRef = useRef(null);
   const fileRef  = useRef(null);
 
@@ -151,11 +153,17 @@ export default function ProfilePanel({ user, avatarUrl, onAvatarUpdate, onLogout
 
           <div className="pp-divider" />
 
+          <button className="pp-action" onClick={() => { setOpen(false); setShowChangePw(true); }}>
+            <KeyRound size={14} /> Alterar senha
+          </button>
+
           <button className="pp-logout" onClick={onLogout}>
             <LogOut size={14} /> Sair do painel
           </button>
         </div>
       )}
+
+      {showChangePw && <ChangePassword onClose={() => setShowChangePw(false)} />}
     </div>
   );
 }

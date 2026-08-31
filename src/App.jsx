@@ -9,7 +9,10 @@ import Footer       from './components/Footer'
 import StickyCta    from './components/StickyCta'
 import CookieConsent from './components/CookieConsent'
 import LoginModal   from './components/LoginModal'
-import { isSupabaseConfigured, supabase, ADMIN_EMAILS } from './config/supabase'
+import ResetPasswordScreen from './components/ResetPasswordScreen'
+import NotFound     from './components/NotFound'
+import { useRecoveryMode } from './hooks/usePasswordRecovery'
+import { isSupabaseConfigured, supabase, ADMIN_EMAILS, isAdminEmail } from './config/supabase'
 
 // Lazy Loading para componentes abaixo da dobra (ganho de performance substancial de LCP e FCP)
 const Transformacao = React.lazy(() => import('./components/Transformacao'))
@@ -94,6 +97,19 @@ export default function App() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
+  const { active: recoveryMode, clear: clearRecovery } = useRecoveryMode()
+
+  const finishRecovery = () => {
+    clearRecovery()
+    navigate(isAdminEmail(user?.email) ? '/admin' : '/portal')
+  }
+
+  const cancelRecovery = async () => {
+    clearRecovery()
+    if (supabase) await supabase.auth.signOut()
+    setUser(null)
+    navigate('/')
+  }
 
   // Inicializa sessão e escuta mudanças de auth
   useEffect(() => {
@@ -166,6 +182,9 @@ export default function App() {
 
   return (
     <>
+      {recoveryMode && (
+        <ResetPasswordScreen onSuccess={finishRecovery} onCancel={cancelRecovery} />
+      )}
       {!isDashboard && <Nav />}
       <main>
         <Routes>
@@ -202,6 +221,7 @@ export default function App() {
             <Route path="leads" element={<Suspense fallback={PORTAL_FALLBACK}><Leads /></Suspense>} />
             <Route path="arquivos" element={<Suspense fallback={PORTAL_FALLBACK}><InternalFiles /></Suspense>} />
           </Route>
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
       {!isDashboard && <Footer />}
