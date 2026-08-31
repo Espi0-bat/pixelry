@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { isSupabaseConfigured, supabase, ADMIN_EMAILS } from '../../config/supabase';
+import { isSupabaseConfigured, supabase, isAdminEmail } from '../../config/supabase';
 import PasswordInput from '../../components/PasswordInput';
 import ForgotPassword from '../../components/ForgotPassword';
 import logoImg from '../../components/images/pixelryicone.jpeg';
@@ -32,7 +32,7 @@ export default function AdminLogin({ onLogin }) {
       return;
     }
 
-    if (!ADMIN_EMAILS.includes(data.user.email)) {
+    if (!isAdminEmail(data.user.email)) {
       await supabase.auth.signOut();
       setError('Acesso restrito à equipe Pixelry.');
       setIsLoggingIn(false);

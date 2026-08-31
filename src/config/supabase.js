@@ -3,17 +3,25 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-export const SUPER_ADMIN_EMAILS = (import.meta.env.VITE_SUPER_ADMIN_EMAILS || '')
-  .split(',').map(e => e.trim()).filter(Boolean)
+// Lista da equipe. NÃO é segredo: o allowlist é verificado no cliente e já vai
+// no bundle. Ficam fixos aqui como fonte da verdade; a env var (quando definida)
+// SUBSTITUI o padrão — útil para adicionar alguém sem novo deploy.
+const DEFAULT_SUPER_ADMIN_EMAILS = ['moutinhoezer@gmail.com', 'erickvin49@gmail.com']
+const DEFAULT_MANAGER_EMAILS = ['sofiagramelich@icloud.com']
 
-export const MANAGER_EMAILS = (import.meta.env.VITE_MANAGER_EMAILS || '')
-  .split(',').map(e => e.trim()).filter(Boolean)
+const parseEmails = (raw) => String(raw || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean)
+
+const envSuper = parseEmails(import.meta.env.VITE_SUPER_ADMIN_EMAILS)
+const envManager = parseEmails(import.meta.env.VITE_MANAGER_EMAILS)
+
+export const SUPER_ADMIN_EMAILS = envSuper.length ? envSuper : DEFAULT_SUPER_ADMIN_EMAILS
+export const MANAGER_EMAILS = envManager.length ? envManager : DEFAULT_MANAGER_EMAILS
 
 export const ADMIN_EMAILS = [...SUPER_ADMIN_EMAILS, ...MANAGER_EMAILS]
 
-// true se o e-mail pertence à equipe (super_admin ou manager).
+// true se o e-mail pertence à equipe (super_admin ou manager). Case-insensitive.
 export function isAdminEmail(email) {
-  return Boolean(email) && ADMIN_EMAILS.includes(email)
+  return Boolean(email) && ADMIN_EMAILS.includes(String(email).trim().toLowerCase())
 }
 
 export const ROLE_LEVELS = {
