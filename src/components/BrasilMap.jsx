@@ -35,17 +35,15 @@ const BRASIL_PATH =
 
 // Geographic coordinates → SVG coordinates
 // x = (lon + 73.9) / 39.1 * 500, y = (5.3 - lat) / 39 * 560
+// Só cidades onde existe cliente de verdade. Antes eram dez — Rio, BH,
+// Fortaleza, Recife, Salvador, Curitiba e Manaus entre elas — enquanto o
+// portfólio exibia dois projetos. Com a lista verdadeira, a afirmação "cada
+// ponto é um cliente" volta a se sustentar, e o mapa deixa de ser decoração
+// para virar prova.
 const CITIES = [
-  { id: 'brasilia',    name: 'Brasília — DF',       cx: 332, cy: 304, hub: true },
-  { id: 'pirenopolis', name: 'Pirenópolis — GO',    cx: 319, cy: 304 },
-  { id: 'saopaulo',   name: 'São Paulo — SP',        cx: 349, cy: 406 },
-  { id: 'rio',         name: 'Rio de Janeiro — RJ', cx: 393, cy: 399 },
-  { id: 'bh',          name: 'Belo Horizonte — MG', cx: 382, cy: 362 },
-  { id: 'fortaleza',   name: 'Fortaleza — CE',       cx: 452, cy: 126 },
-  { id: 'recife',      name: 'Recife — PE',          cx: 478, cy: 185 },
-  { id: 'salvador',    name: 'Salvador — BA',        cx: 452, cy: 260 },
-  { id: 'curitiba',    name: 'Curitiba — PR',        cx: 308, cy: 456 },
-  { id: 'manaus',      name: 'Manaus — AM',          cx: 179, cy: 118 },
+  { id: 'brasilia',    name: 'Brasília — DF',    cx: 332, cy: 304, hub: true },
+  { id: 'pirenopolis', name: 'Pirenópolis — GO', cx: 319, cy: 304 },
+  { id: 'saopaulo',    name: 'São Paulo — SP',   cx: 349, cy: 406 },
 ]
 
 const HUB = CITIES.find(c => c.hub)
@@ -78,18 +76,21 @@ export default function BrasilMap() {
 
         {/* Left — copy */}
         <div className={`${styles.text} reveal`}>
-          <span className="label">PRESENÇA NACIONAL</span>
+          <span className="label">CLIENTES</span>
           <h2 className={styles.h2}>
             De Brasília<br />
             <span className="grad-text">para o Brasil.</span>
           </h2>
           <p className={styles.sub}>
-            Operamos em Brasília — DF com clientes em todo o
-            território nacional. Cada ponto no mapa é um negócio
-            que decidiu parar de improvisar.
+            Nossa base é Brasília — DF, e cada ponto no mapa é um cliente
+            atendido. O sistema que construímos não depende de presença física
+            para funcionar.
           </p>
+          {/* A lista inclui o hub: Brasília é sede e cliente ao mesmo tempo,
+              e mostrar só os spokes deixaria a carteira incompleta. */}
+          <p className={styles.cityCaption}>Cidades atendidas</p>
           <ul className={styles.cityList}>
-            {SPOKES.map(c => (
+            {CITIES.map(c => (
               <li key={c.id} className={styles.cityItem}>
                 <span className={styles.cityDot} />
                 {c.name}
@@ -140,20 +141,13 @@ export default function BrasilMap() {
               />
             ))}
 
-            {/* Spoke city dots */}
-            {SPOKES.map((city, i) => (
-              <g
-                key={city.id}
-                className={styles.cityGroup}
-                style={{ '--delay': `${0.9 + i * 0.08}s` }}
-              >
-                <circle cx={city.cx} cy={city.cy} r="14" fill="url(#mapCityGlow)" />
-                <circle cx={city.cx} cy={city.cy} r="2.8" fill="#00D8FF" fillOpacity="0.95" />
-                <circle cx={city.cx} cy={city.cy} r="6" fill="none" stroke="#00D8FF" strokeWidth="0.8" strokeOpacity="0.45" className={styles.cityPulse} />
-              </g>
-            ))}
-
-            {/* Hub — Brasília */}
+            {/* Hub — Brasília.
+                Pintado ANTES dos spokes de propósito. Pirenópolis fica a 13
+                unidades de Brasília (as duas cidades ficam mesmo a ~130 km, e a
+                projeção está correta), enquanto o glow do hub tem raio 28: com o
+                hub por cima, o marcador de Pirenópolis desaparecia dentro dele.
+                Invertendo a ordem, o ponto ciano pinta sobre o glow roxo e as
+                duas cidades continuam legíveis — sem mexer em coordenada. */}
             <g className={`${styles.hubGroup} ${mapVisible ? styles.hubVisible : ''}`}>
               {/* Outer ambient glow */}
               <circle cx={HUB.cx} cy={HUB.cy} r="28" fill="url(#mapHubGlow)" filter="url(#mapBlur)" />
@@ -173,6 +167,19 @@ export default function BrasilMap() {
                 PIXELRY HQ
               </text>
             </g>
+
+            {/* Spoke city dots — por cima do hub, ver comentário acima */}
+            {SPOKES.map((city, i) => (
+              <g
+                key={city.id}
+                className={styles.cityGroup}
+                style={{ '--delay': `${0.9 + i * 0.08}s` }}
+              >
+                <circle cx={city.cx} cy={city.cy} r="14" fill="url(#mapCityGlow)" />
+                <circle cx={city.cx} cy={city.cy} r="2.8" fill="#00D8FF" fillOpacity="0.95" />
+                <circle cx={city.cx} cy={city.cy} r="6" fill="none" stroke="#00D8FF" strokeWidth="0.8" strokeOpacity="0.45" className={styles.cityPulse} />
+              </g>
+            ))}
           </svg>
         </div>
 

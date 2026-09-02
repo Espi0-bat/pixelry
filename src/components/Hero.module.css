@@ -88,9 +88,13 @@
   letter-spacing: 0.04em;
 }
 
+/* Rótulo do painel-exemplo do Hero. Era um "SISTEMA ATIVO" em verde com ponto
+   pulsante — o vocabulário visual de dado ao vivo, ao lado de números que são
+   ilustrativos. Neutro de propósito: identifica o painel sem fingir medição. */
 .dashStatus {
-  background: rgba(37, 211, 102, 0.15);
-  color: #25D366;
+  background: rgba(240, 240, 250, 0.06);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
   font-family: var(--font-mono);
   font-size: 10px;
   padding: 4px 10px;
@@ -102,14 +106,8 @@
   gap: 6px;
 }
 
-.dashStatus::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  background: #25D366;
-  border-radius: 50%;
-  box-shadow: 0 0 6px rgba(37, 211, 102, 0.8);
-}
+/* Sem o ponto verde pulsante: era o sinal mais forte de "dado ao vivo"
+   num painel cujos números são ilustrativos. */
 
 .dashChart {
   height: 140px;

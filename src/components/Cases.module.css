@@ -122,6 +122,40 @@
   margin: 0 0 2rem 0;
 }
 
+/* Números do cliente. Só renderiza quando o case tem métrica apurada — ver o
+   comentário de portfolioData em Cases.jsx. */
+.cardMetrics {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+  margin: 0 0 2rem 0;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border);
+}
+
+.cardMetric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cardMetricValue {
+  font-family: var(--font-mono);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--cyan);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.cardMetricLabel {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+
 .cardFooter {
   margin-top: auto;
   display: flex;
