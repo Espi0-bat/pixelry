@@ -6,6 +6,15 @@ import drRogerioImg from './images/Dr Rogerio Furtado-74.jpg'
 
 const BASE_URL = import.meta.env.BASE_URL || '/'
 
+/**
+ * `metrics` é o que transforma portfólio em case: número do negócio do cliente,
+ * não da nossa entrega. Ex.: { value: '12 → 34', label: 'Agendamentos/mês' } ou
+ * { value: '−54%', label: 'Custo por lead' }.
+ *
+ * Fica vazio até haver apuração real — card sem métrica simplesmente não
+ * renderiza o bloco. Preencher com número inventado é o erro que este trabalho
+ * inteiro está desfazendo.
+ */
 const portfolioData = [
   {
     id: 'casarao',
@@ -14,7 +23,8 @@ const portfolioData = [
     tags: ['Design de Conversão', 'Integração de Reservas', 'High-end'],
     image: `${BASE_URL}chale_fachada_colonial.jpg`,
     link: 'https://www.fazendacasaraodospireneus.com.br/',
-    status: 'live'
+    status: 'live',
+    metrics: []
   },
   {
     id: 'dr-rogerio',
@@ -23,7 +33,8 @@ const portfolioData = [
     tags: ['Saúde', 'Autoridade Médica', 'Institucional'],
     image: drRogerioImg,
     link: 'https://espi0-bat.github.io/site-rogerio/',
-    status: 'live'
+    status: 'live',
+    metrics: []
   }
 ]
 
@@ -65,6 +76,17 @@ export default function Cases() {
                     ? item.description.substring(0, 110) + '...' 
                     : item.description}
                 </p>
+                {item.metrics?.length > 0 && (
+                  <div className={styles.cardMetrics}>
+                    {item.metrics.map((m) => (
+                      <div key={m.label} className={styles.cardMetric}>
+                        <span className={styles.cardMetricValue}>{m.value}</span>
+                        <span className={styles.cardMetricLabel}>{m.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 <div className={styles.cardFooter}>
                   <div className={styles.cardTags}>
                     {item.tags.slice(0, 2).map((tag, i) => (

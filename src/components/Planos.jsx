@@ -39,7 +39,7 @@ const PLANOS = [
     setupFeatures: [
       'Site com até 4 páginas (principal + complementares)',
       'Tagueamento avançado com eventos customizados por conversão',
-      'Google Meu Negócio — revisão e otimização completa',
+      'Perfil da Empresa no Google — revisão e otimização completa',
       'Performance técnica premium (React · mobile-first · animações)',
       'Atendimento automatizado — qualificação de lead e lembrete de consulta'
     ],
@@ -189,7 +189,16 @@ export default function Planos() {
               const positionClass = getPositionClass(i)
               const isDestaque = i === activeIndex
 
-              const cardInner = (
+              // Wrapper sempre <div>, nunca <button>: no desktop cada card
+              // exibe o próprio CTA, e botão dentro de botão é HTML inválido.
+              // O clique para trazer o card à frente é conveniência de ponteiro
+              // do coverflow mobile — no teclado, quem navega são as setas.
+              return (
+                <div
+                  key={p.nome}
+                  className={`${styles.cardCover} ${positionClass} ${p.nome === 'PRO' ? styles.isPro : ''}`}
+                  onClick={isDestaque ? undefined : () => setActiveIndex(i)}
+                >
                 <div className={`${styles.card} ${isDestaque ? styles.destaque : ''}`}>
                   {p.nome === 'PRO' && <div className={styles.badge}>MAIS RECOMENDADO</div>}
                   <h3 className={styles.nome}>{p.nome}</h3>
@@ -208,36 +217,18 @@ export default function Planos() {
                       </ul>
                     </div>
                   </div>
-                  {isDestaque && (
-                    <button
-                      type="button"
-                      className={styles.btn}
-                      onClick={() => openModal(p.nome, p.nome)}
-                    >
-                      Aplicar para o plano {p.nome} →
-                    </button>
-                  )}
+                  {/* CTA sempre presente. No coverflow mobile os cards laterais
+                      escondem o seu por CSS (visibility), o que também o tira da
+                      ordem de tabulação. */}
+                  <button
+                    type="button"
+                    className={styles.btn}
+                    onClick={(e) => { e.stopPropagation(); openModal(p.nome, p.nome) }}
+                  >
+                    Aplicar para o plano {p.nome} →
+                  </button>
                 </div>
-              )
-
-              if (isDestaque) {
-                return (
-                  <div key={p.nome} className={`${styles.cardCover} ${positionClass}`}>
-                    {cardInner}
-                  </div>
-                )
-              }
-
-              return (
-                <button
-                  key={p.nome}
-                  type="button"
-                  className={`${styles.cardCover} ${positionClass}`}
-                  onClick={() => setActiveIndex(i)}
-                  aria-label={`Ver plano ${p.nome}`}
-                >
-                  {cardInner}
-                </button>
+                </div>
               )
             })}
           </div>

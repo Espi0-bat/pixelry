@@ -88,9 +88,13 @@
   letter-spacing: 0.04em;
 }
 
+/* Rótulo do painel-exemplo do Hero. Era um "SISTEMA ATIVO" em verde com ponto
+   pulsante — o vocabulário visual de dado ao vivo, ao lado de números que são
+   ilustrativos. Neutro de propósito: identifica o painel sem fingir medição. */
 .dashStatus {
-  background: rgba(37, 211, 102, 0.15);
-  color: #25D366;
+  background: rgba(240, 240, 250, 0.06);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
   font-family: var(--font-mono);
   font-size: 10px;
   padding: 4px 10px;
@@ -102,14 +106,8 @@
   gap: 6px;
 }
 
-.dashStatus::before {
-  content: '';
-  width: 6px;
-  height: 6px;
-  background: #25D366;
-  border-radius: 50%;
-  box-shadow: 0 0 6px rgba(37, 211, 102, 0.8);
-}
+/* Sem o ponto verde pulsante: era o sinal mais forte de "dado ao vivo"
+   num painel cujos números são ilustrativos. */
 
 .dashChart {
   height: 140px;
@@ -133,7 +131,10 @@
 .dashBar:nth-child(3) { height: 40%; animation-delay: 1.2s; }
 .dashBar:nth-child(4) { height: 65%; animation-delay: 1.3s; }
 .dashBar:nth-child(5) { height: 85%; animation-delay: 1.4s; }
-.dashBar:nth-child(6) { height: 100%; animation-delay: 1.5s; background: linear-gradient(to top, rgba(37, 211, 102, 0.4), #25D366); box-shadow: 0 0 20px rgba(37, 211, 102, 0.2);}
+/* A barra de destaque era verde WhatsApp — depois de tirar o verde do CTA e do
+   botão flutuante, ela ficaria como o único verde da primeira dobra. Continua
+   sendo o ponto alto do gráfico, agora em ciano da marca. */
+.dashBar:nth-child(6) { height: 100%; animation-delay: 1.5s; background: linear-gradient(to top, rgba(0, 216, 255, 0.45), #00D8FF); box-shadow: 0 0 20px rgba(0, 216, 255, 0.28); }
 
 @keyframes barRise {
   from { transform: scaleY(0); opacity: 0; }

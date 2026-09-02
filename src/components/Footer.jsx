@@ -25,7 +25,7 @@ export default function Footer() {
           </p>
           <a href={WA_LINK} target="_blank" rel="noreferrer" className={styles.waLink}>
             <WaIcon />
-            (61) 9372-0900
+            (61) 99141-0161
           </a>
         </div>
 
