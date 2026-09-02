@@ -2,11 +2,18 @@ import { useEffect, useRef, useState } from 'react'
 import { useRevealContainer } from '../hooks/useReveal'
 import styles from './Numeros.module.css'
 
+// Números conferidos com a operação. Antes eram "18+ projetos" e "3x média de
+// crescimento de leads" — o primeiro sem apuração, o segundo uma afirmação
+// sobre resultado do cliente que nada no site sustentava.
+//
+// Todas as quatro falam da PIXELRY, não do cliente. Falta aqui uma métrica de
+// resultado (agendamentos, custo por lead, conversão) — seria a única da página
+// que prova o efeito do sistema, e não a competência do fornecedor.
 const METRICS = [
-  { value: 18, suffix: '+', label: 'Projetos entregues' },
+  { value: 10,  suffix: '+', label: 'Projetos entregues' },
+  { value: 2,   suffix: '',  label: 'Cases de sucesso' },
   { value: 100, suffix: '%', label: 'Entregas no prazo' },
   { value: 2,   suffix: 'h', label: 'Tempo médio de resposta' },
-  { value: 3,   suffix: 'x', label: 'Média de crescimento de leads' },
 ]
 
 function Counter({ value, suffix, duration = 1400 }) {
@@ -52,14 +59,17 @@ export default function Numeros() {
     <section className={styles.section}>
       <div className={styles.inner} ref={ref}>
         <div className={`${styles.header} reveal`}>
-          <span className="label">RESULTADOS</span>
+          {/* Era "RESULTADOS" e "gera resultado mensurável". Nenhuma das quatro
+              métricas mede resultado do cliente — todas medem como a PIXELRY
+              entrega. O rótulo agora diz o que os números realmente são. */}
+          <span className="label">NOSSA OPERAÇÃO</span>
           <h2 className={styles.h2}>
             Números que<br />
             <span className="grad-text">falam por si só.</span>
           </h2>
           <p className={styles.sub}>
-            Cada projeto entregue é a prova de que engenharia
-            digital séria gera resultado mensurável.
+            Projeto entregue no prazo combinado e resposta rápida quando
+            você precisa. Sem isso, nenhum sistema de aquisição se sustenta.
           </p>
         </div>
 
