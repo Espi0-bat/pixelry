@@ -74,12 +74,23 @@ export const ORIGENS_PERMITIDAS = [
   'http://localhost:3000',
 ]
 
+/**
+ * Origem fora da lista NÃO recebe Access-Control-Allow-Origin.
+ *
+ * Antes o fallback era devolver 'https://www.pixelry.com.br' para qualquer
+ * origem. Não era explorável (o navegador compara com a origem real e bloqueia
+ * de qualquer jeito), mas mascarava a rejeição: a resposta parecia liberada.
+ * Sem o header, o bloqueio fica explícito no console de quem chamou.
+ */
 export function cors(req: Request): Record<string, string> {
   const origem = req.headers.get('origin') ?? ''
-  return {
-    'Access-Control-Allow-Origin': ORIGENS_PERMITIDAS.includes(origem)
-      ? origem
-      : 'https://www.pixelry.com.br',
+  const headers: Record<string, string> = {
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Vary': 'Origin',
   }
+  if (ORIGENS_PERMITIDAS.includes(origem)) {
+    headers['Access-Control-Allow-Origin'] = origem
+  }
+  return headers
 }
