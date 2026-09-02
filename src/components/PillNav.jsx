@@ -6,6 +6,7 @@ import './PillNav.css';
 const PillNav = ({
   logo,
   logoAlt = 'Logo',
+  wordmark,
   items,
   activeHref,
   className = '',
@@ -310,6 +311,10 @@ const PillNav = ({
             </a>
           )
         )}
+
+        {/* Marca em construção precisa repetir o nome: só o símbolo deixa a
+            interface limpa mas não fixa "PIXELRY" em quem visita. */}
+        {wordmark && <span className="pill-wordmark">{wordmark}</span>}
 
         <div className="pill-nav-items desktop-only" ref={navItemsRef}>
           <ul className="pill-list" role="menubar">

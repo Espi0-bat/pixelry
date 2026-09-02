@@ -39,6 +39,7 @@ export default function Nav() {
         <PillNav
           logo={logoImg}
           logoAlt="PIXELRY"
+          wordmark="PIXELRY"
           items={[
             { label: 'Início',   href: '/' },
             { label: 'Serviços', href: '/#servicos' },

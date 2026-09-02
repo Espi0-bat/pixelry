@@ -44,8 +44,10 @@ const LAYERS = [
     num: '04',
     tag: 'BASE OBRIGATÓRIA',
     tagType: 'base',
-    title: 'Google Meu Negócio & SEO Local',
-    body: 'Domínio na busca regional. Quando um potencial cliente pesquisa sua especialidade em Brasília, você precisa aparecer antes da concorrência — de forma orgânica e confiável.',
+    // "Google Meu Negócio" virou "Perfil da Empresa no Google" em 2022. Mantemos
+    // o nome antigo no corpo porque continua sendo o termo que as pessoas buscam.
+    title: 'Perfil da Empresa no Google & SEO Local',
+    body: 'Domínio na busca regional. Quando um potencial cliente pesquisa sua especialidade em Brasília, você precisa aparecer antes da concorrência — de forma orgânica e confiável. É o antigo Google Meu Negócio, configurado como infraestrutura.',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
         <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
