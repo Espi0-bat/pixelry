@@ -6,7 +6,9 @@
   "types": "./dist-ds/index.es.d.ts",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run build:client && npm run build:ssr && node scripts/prerender.mjs",
+    "build:client": "vite build",
+    "build:ssr": "vite build --ssr src/entry-server.jsx --outDir dist-ssr",
     "build:ds": "vite build --config vite.lib.config.js && node scripts/copy-ds-types.mjs",
     "preview": "vite preview"
   },

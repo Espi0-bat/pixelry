@@ -9,6 +9,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="dark" />
 
+    <!-- Marca que o JS rodou. O estado oculto das animações de entrada
+         (.reveal) é escopado em html.js — sem esta classe o conteúdo
+         nasce visível, então JS quebrado não apaga a página. -->
+    <script>
+      document.documentElement.classList.add('js');
+    </script>
+
     <!-- SPA fallback (GitHub Pages): restaura a URL real vinda do 404.html -->
     <script>
       (function () {
