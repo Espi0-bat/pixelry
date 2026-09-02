@@ -1,0 +1,157 @@
+/* ─────────────────────────────────────────────
+   PIXELRY — Print Styles
+   Carregado por último (main.jsx) para vencer os
+   CSS Modules na cascata.
+
+   O site é dark-first: fundo #070710 com texto
+   #f0f0fa. Ao imprimir, o Chrome descarta fundos
+   por padrão — sem estas regras sobra texto quase
+   branco em papel branco. Aqui o tema é invertido
+   para papel e o cromo do app sai da página.
+   ───────────────────────────────────────────── */
+
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm;
+  }
+
+  /* Imprime as cores que definimos abaixo mesmo com
+     "Gráficos de fundo" desmarcado no diálogo. */
+  html {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* ─── Paleta para papel ─── */
+  :root {
+    --bg:      #ffffff;
+    --bg2:     #ffffff;
+    --bg3:     #ffffff;
+    --surface: #ffffff;
+
+    --border:        rgba(0, 0, 0, 0.18);
+    --border-bright: rgba(0, 0, 0, 0.32);
+
+    --text:       #0d0d14;
+    --text-dim:   #45454f;
+    --text-faint: #55555f;
+
+    --purple:      #5a21b6;
+    --purple-text: #5a21b6;
+    --cyan:        #026b83;
+  }
+
+  html,
+  body {
+    background: #fff !important;
+    color: #0d0d14 !important;
+  }
+
+  /* Overlay de grão (body::after, fixed, z-index 9998):
+     repetiria sobre todas as páginas. */
+  body::after {
+    display: none !important;
+  }
+
+  /* ─────────────────────────────────────────────
+     REVEALS
+     .reveal nasce em opacity:0 e só recebe .visible
+     quando o IntersectionObserver dispara. Quem
+     imprime sem rolar o site inteiro exporta páginas
+     em branco — 51 blocos na home. No papel, tudo
+     nasce visível.
+     ───────────────────────────────────────────── */
+  .reveal,
+  html.js .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* ─────────────────────────────────────────────
+     CROMO DO APP — não pertence ao papel
+     ───────────────────────────────────────────── */
+  nav,
+  [role="dialog"],
+  .sticky-cta,
+  .mobile-menu-popover,
+  .no-print {
+    display: none !important;
+  }
+
+  /* ─────────────────────────────────────────────
+     TEXTO EM GRADIENTE
+     .grad-text pinta o texto com background-clip e
+     -webkit-text-fill-color: transparent. Sem fundo
+     impresso, o texto some. Vira sólido.
+     ───────────────────────────────────────────── */
+  .grad-text {
+    background: none !important;
+    -webkit-background-clip: initial !important;
+    background-clip: initial !important;
+    -webkit-text-fill-color: #5a21b6 !important;
+    color: #5a21b6 !important;
+  }
+
+  /* ─── CTAs: gradiente/verde viram contorno legível ─── */
+  .btn-primary,
+  .btn-whatsapp,
+  .btn-hero-cta,
+  .btn-client-area {
+    background: none !important;
+    color: #0d0d14 !important;
+    border: 1px solid #0d0d14 !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .grad-line {
+    background: rgba(0, 0, 0, 0.25) !important;
+    opacity: 1 !important;
+  }
+
+  /* ─────────────────────────────────────────────
+     LAYOUT
+     ───────────────────────────────────────────── */
+
+  /* O Hero usa min-height:100vh — no papel, vh vira
+     altura de página e gera uma folha quase vazia. */
+  section {
+    min-height: 0 !important;
+  }
+
+  .section-wrap {
+    padding: 24px 0 !important;
+    max-width: none !important;
+  }
+
+  /* Não usar `animation: none`: no Hero o conteúdo nasce em opacity:0
+     e quem o revela é `animation: fadeUp ... forwards`. Desligar a
+     animação congelaria a dobra inteira invisível. Zeramos delay e
+     duração para saltar direto ao estado final. */
+  *,
+  *::before,
+  *::after {
+    animation-delay: 0s !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition: none !important;
+  }
+
+  /* Quebras de página */
+  h1, h2, h3 {
+    break-after: avoid-page;
+    page-break-after: avoid;
+  }
+
+  img, svg, figure, table, blockquote {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  img, svg {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
