@@ -2,6 +2,14 @@ import { serve } from 'https://deno.land/std@0.224.0/http/server.ts'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { sendEmail, templatePaymentConfirmed, templateAdminPaymentAlert } from '../_shared/resend.ts'
 
+/** Comparação em tempo constante — evita vazar informação pelo tempo de resposta. */
+function igualdadeSegura(a: string, b: string): boolean {
+  if (a.length !== b.length) return false
+  let diff = 0
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i)
+  return diff === 0
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { status: 200 })
@@ -10,44 +18,65 @@ serve(async (req) => {
   try {
     const body = await req.text()
 
-    // Validate HMAC-SHA256 signature sent by MercadoPago
+    // SEC-03 — a validação inteira ficava dentro de `if (webhookSecret)`. Sem a
+    // variável definida — não configurada ainda, removida num redeploy, com o
+    // nome trocado — a função aceitava qualquer requisição e marcava fatura como
+    // paga. Endpoint de pagamento precisa falhar fechado.
     const webhookSecret = Deno.env.get('MERCADOPAGO_WEBHOOK_SECRET')
-    if (webhookSecret) {
-      const xSignature = req.headers.get('x-signature') ?? ''
-      const xRequestId = req.headers.get('x-request-id') ?? ''
-      const url = new URL(req.url)
-      const dataId = url.searchParams.get('data.id') ?? ''
+    if (!webhookSecret) {
+      console.error('[payment-webhook] MERCADOPAGO_WEBHOOK_SECRET ausente — recusando')
+      return new Response('Webhook not configured', { status: 503 })
+    }
 
-      // Signature format: "ts=<timestamp>,v1=<hash>"
-      const sigParts = Object.fromEntries(xSignature.split(',').map(p => p.split('=')))
-      const ts = sigParts['ts'] ?? ''
-      const v1 = sigParts['v1'] ?? ''
+    const xSignature = req.headers.get('x-signature') ?? ''
+    const xRequestId = req.headers.get('x-request-id') ?? ''
+    const url = new URL(req.url)
+    const dataId = url.searchParams.get('data.id') ?? ''
 
-      if (!ts || !v1) {
-        console.warn('[payment-webhook] Missing or malformed signature — request rejected')
-        return new Response('Invalid signature', { status: 401 })
-      }
+    // Formato da assinatura: "ts=<timestamp>,v1=<hash>"
+    const sigParts = Object.fromEntries(xSignature.split(',').map(p => p.split('=')))
+    const ts = sigParts['ts'] ?? ''
+    const v1 = sigParts['v1'] ?? ''
 
-      const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`
-      const key = await crypto.subtle.importKey(
-        'raw',
-        new TextEncoder().encode(webhookSecret),
-        { name: 'HMAC', hash: 'SHA-256' },
-        false,
-        ['sign']
-      )
-      const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(manifest))
-      const computed = Array.from(new Uint8Array(sig))
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('')
+    if (!ts || !v1) {
+      console.warn('[payment-webhook] assinatura ausente ou malformada — recusada')
+      return new Response('Invalid signature', { status: 401 })
+    }
 
-      if (computed !== v1) {
-        console.warn('[payment-webhook] Invalid signature — request rejected')
-        return new Response('Invalid signature', { status: 401 })
-      }
+    const manifest = `id:${dataId};request-id:${xRequestId};ts:${ts};`
+    const key = await crypto.subtle.importKey(
+      'raw',
+      new TextEncoder().encode(webhookSecret),
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign']
+    )
+    const sig = await crypto.subtle.sign('HMAC', key, new TextEncoder().encode(manifest))
+    const computed = Array.from(new Uint8Array(sig))
+      .map(b => b.toString(16).padStart(2, '0'))
+      .join('')
+
+    if (!igualdadeSegura(computed, v1)) {
+      console.warn('[payment-webhook] assinatura inválida — recusada')
+      return new Response('Invalid signature', { status: 401 })
+    }
+
+    // Frescor: sem isto, uma requisição capturada pode ser repetida para sempre.
+    const idadeSegundos = Math.abs(Date.now() / 1000 - Number(ts))
+    if (!Number.isFinite(idadeSegundos) || idadeSegundos > 300) {
+      console.warn('[payment-webhook] assinatura fora da janela de 5 min — recusada')
+      return new Response('Stale signature', { status: 401 })
     }
 
     const payload = JSON.parse(body)
+
+    // O manifesto assina o data.id da query string, mas o código age sobre o
+    // data.id do corpo. Sem comparar os dois, a assinatura garante um id e a
+    // execução usa outro.
+    if (String(payload.data?.id ?? '') !== String(dataId)) {
+      console.warn('[payment-webhook] id do corpo difere do id assinado — recusada')
+      return new Response('Payload mismatch', { status: 401 })
+    }
 
     // MercadoPago also sends "test" and other types — only handle payments
     if (payload.type !== 'payment') {
