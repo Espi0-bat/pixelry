@@ -103,9 +103,13 @@ export default function Metas() {
 
   async function deleteGoal(id) {
     const goal = goals.find(g => g.id === id);
+    // O sync vem ANTES do delete: a Edge Function passou a ler o
+    // notion_page_id da própria linha em weekly_goals (em vez de aceitá-lo do
+    // corpo da requisição, que permitia apontar para qualquer página do
+    // workspace). Apagando primeiro, ela não teria mais o que consultar.
+    if (goal) await syncNotion('delete', goal);
     await supabase.from('weekly_goals').delete().eq('id', id);
     setDeleteId(null);
-    if (goal) syncNotion('delete', goal);
   }
 
   async function handleCreate(e) {
