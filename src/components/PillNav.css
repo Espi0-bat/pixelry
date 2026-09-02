@@ -64,6 +64,25 @@
   display: block;
 }
 
+/* Wordmark ao lado do símbolo. Acompanha o logo: some junto abaixo de 768px,
+   onde a nav vira só o botão do menu. */
+.pill-wordmark {
+  font-family: var(--font-display, 'Inter', sans-serif);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  color: var(--pill-text, #f0f0fa);
+  margin: 0 20px 0 12px;
+  white-space: nowrap;
+  user-select: none;
+}
+
+@media (max-width: 768px) {
+  .pill-wordmark {
+    display: none;
+  }
+}
+
 .pill-list {
   list-style: none;
   display: flex;

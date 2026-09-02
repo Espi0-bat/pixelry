@@ -669,3 +669,68 @@
     transform: translateX(105%) scale(0.85);
   }
 }
+
+/* ─────────────────────────────────────────────
+   DESKTOP — os três planos lado a lado
+
+   O coverflow resolve espaço no celular, mas no desktop ele escondia dois dos
+   três planos atrás de uma interação: num screenshot, num print, para um
+   crawler e para quem apenas rola a página, os três nunca coexistiam legíveis.
+   Comparar é exatamente a decisão que esta seção precisa suportar — ainda mais
+   numa faixa de R$ 2.500 a R$ 5.000.
+   ───────────────────────────────────────────── */
+@media (min-width: 1025px) {
+  .carouselContainer { max-width: 1120px; }
+
+  .carouselCards {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    align-items: stretch;
+  }
+
+  /* Desfaz o coverflow: sem posicionamento absoluto, sem translate, sem meia
+     opacidade. Todas as posições viram uma célula da grade. */
+  .cardCover,
+  .activeConfig,
+  .leftConfig,
+  .rightConfig,
+  .hiddenConfig {
+    position: relative;
+    width: auto;
+    transform: none;
+    opacity: 1;
+    z-index: auto;
+    pointer-events: auto;
+    cursor: default;
+  }
+
+  .leftConfig:hover,
+  .rightConfig:hover {
+    transform: none;
+    opacity: 1;
+  }
+
+  /* O destaque passa a acompanhar o PRO, e não o card ativo do carrossel —
+     senão a borda roxa migraria conforme o clique. */
+  .card { border-color: var(--border); }
+  .isPro .card {
+    border-color: var(--purple);
+    box-shadow: 0 12px 40px rgba(128, 64, 245, 0.15);
+  }
+  .card:hover,
+  .isPro .card:hover { border-color: var(--cyan); }
+
+  /* Setas não fazem sentido com os três visíveis. */
+  .navControls { display: none; }
+}
+
+/* No coverflow, o CTA dos cards laterais fica oculto — visibility (e não
+   opacity) para sair também da ordem de tabulação. */
+@media (max-width: 1024px) {
+  .leftConfig .btn,
+  .rightConfig .btn,
+  .hiddenConfig .btn {
+    visibility: hidden;
+  }
+}

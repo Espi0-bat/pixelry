@@ -34,7 +34,11 @@
   --lh-body:    1.75;
   --fs-body:    15px;
   --fs-intro:   16px;
-  --fs-label:   10px;
+  /* 11px, não 10px. Aos 10 com tracking largo o rótulo de seção virava textura
+     em vez de informação — era isso que uma revisão externa leu como "contraste
+     baixo". Os tokens de cor passam todos em WCAG AA (o --text-dim fica em
+     5,5:1); o que faltava era corpo. */
+  --fs-label:   11px;
 }
 
 *, *::before, *::after {
@@ -97,8 +101,8 @@ body {
 
 .label {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.28em;
+  font-size: var(--fs-label);
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--cyan);
   display: inline-flex;
@@ -186,8 +190,13 @@ body {
   align-items: center;
   justify-content: center;
   gap: 12px;
-  background: #25D366;
-  color: #000;
+  /* Era verde WhatsApp sólido (#25D366). O sistema visual inteiro é roxo +
+     ciano, e o CTA principal — o elemento mais saturado da primeira dobra —
+     lia como "WhatsApp" antes de ler como "PIXELRY". Agora usa o gradiente da
+     marca, o mesmo padrão do botão do topo; o ícone do WhatsApp preserva a
+     affordance sem que o botão inteiro entregue a identidade. */
+  background: var(--grad);
+  color: var(--bg);
   font-family: var(--font-display);
   font-size: 14px;
   font-weight: 800;
@@ -200,15 +209,15 @@ body {
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.25s ease,
               background 0.25s ease;
-  box-shadow: 0 0 24px rgba(37, 211, 102, 0.3);
+  box-shadow: 0 4px 24px rgba(128, 64, 245, 0.3);
 }
 .btn-hero-cta:hover {
   transform: translateY(-3px);
-  background: #2ae871;
-  box-shadow: 0 8px 40px rgba(37, 211, 102, 0.5);
+  background: #fff;
+  box-shadow: 0 0 32px rgba(0, 216, 255, 0.35), 0 12px 40px rgba(128, 64, 245, 0.3);
 }
 .btn-hero-cta:active { transform: translateY(0); }
-.btn-hero-cta .wa-icon { color: #000; }
+.btn-hero-cta .wa-icon { color: currentColor; }
 
 /* Secondary text link */
 .btn-secondary {
@@ -259,21 +268,24 @@ body {
   justify-content: center;
   width: 64px;
   height: 64px;
-  background: #25D366;
-  color: #fff;
+  /* Também saiu do verde WhatsApp: fixo na tela e pulsando, era o elemento mais
+     saturado de qualquer seção que estivesse visível. Gradiente da marca com
+     ícone escuro mantém a leitura de "fale conosco" sem competir com a página. */
+  background: var(--grad);
+  color: var(--bg);
   border-radius: 50%;
   border: none;
   padding: 0;
   cursor: pointer;
-  box-shadow: 0 4px 24px rgba(37, 211, 102, 0.4);
+  box-shadow: 0 4px 24px rgba(128, 64, 245, 0.4);
   text-decoration: none;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s;
   animation: pulseZap 2s infinite cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .sticky-cta a:hover,
 .sticky-cta button:hover {
-  background: #20b858;
   transform: scale(1.1);
+  box-shadow: 0 0 32px rgba(0, 216, 255, 0.4), 0 8px 32px rgba(128, 64, 245, 0.45);
 }
 
 .sticky-cta svg,
@@ -283,9 +295,9 @@ body {
 }
 
 @keyframes pulseZap {
-  0% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0.7); }
-  60% { box-shadow: 0 0 0 24px rgba(37, 211, 102, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(128, 64, 245, 0.6); }
+  60% { box-shadow: 0 0 0 24px rgba(128, 64, 245, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(128, 64, 245, 0); }
 }
 
 @media (max-width: 768px) {
