@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from 'react'
+import React, { Suspense, startTransition, useEffect, useState } from 'react'
 import { Routes, Route, useLocation, Navigate, useNavigate, useOutletContext } from 'react-router-dom'
 import Nav          from './components/Nav'
 import Hero         from './components/Hero'
@@ -117,12 +117,20 @@ export default function App() {
       setAuthLoading(false)
       return
     }
+    // startTransition: getSession() resolve fora do nosso controle e atualiza
+    // estado no topo da árvore, o que re-renderiza a home inteira. Como a home
+    // agora chega pré-renderizada e hidrata dentro de um Suspense, uma
+    // atualização urgente que chegue antes da hidratação terminar faz o React
+    // descartar o HTML do servidor e renderizar tudo no cliente (erro #421).
+    // Marcada como transição, ela espera a hidratação concluir.
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      setAuthLoading(false)
+      startTransition(() => {
+        setUser(session?.user ?? null)
+        setAuthLoading(false)
+      })
     })
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null)
+      startTransition(() => setUser(session?.user ?? null))
     })
     return () => subscription.unsubscribe()
   }, [])

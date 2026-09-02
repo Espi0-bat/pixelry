@@ -36,6 +36,17 @@
   margin-bottom: 32px;
 }
 
+/* Sem legenda, a lista de cidades com marcador lê como carteira de clientes.
+   Esta linha diz o que ela é. */
+.cityCaption {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin-bottom: 14px;
+}
+
 .cityList {
   list-style: none;
   display: flex;
@@ -48,10 +59,12 @@
   align-items: center;
   gap: 10px;
   font-family: var(--font-mono);
-  font-size: 10px;
+  /* Nomes de cidade são a prova desta seção, não metadado decorativo —
+     sobem junto com --fs-label e ganham a cor de texto secundário. */
+  font-size: var(--fs-label);
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: var(--text-faint);
+  color: var(--text-dim);
 }
 
 .cityDot {

@@ -111,7 +111,10 @@ export default function Hero() {
         <div className={styles.dashboard}>
           <div className={styles.dashHeader}>
             <span className={styles.dashTitle}>Desempenho de Aquisição</span>
-            <span className={styles.dashStatus}>SISTEMA ATIVO</span>
+            {/* Os números deste painel são ilustrativos — o rótulo precisa dizer
+                isso. Um "SISTEMA ATIVO" em verde pulsante ao lado de +34% e
+                −18% apresenta enfeite como se fosse dado medido. */}
+            <span className={styles.dashStatus}>EXEMPLO</span>
           </div>
           <div className={styles.dashMetrics}>
             <div className={styles.dashMetric}>
@@ -175,23 +178,24 @@ export default function Hero() {
             </Link>
           </div>
 
-          <div className={styles.socialProof}>
-            <div className={styles.avatars}>
-              <span className={styles.avatar}>C</span>
-              <span className={styles.avatar}>M</span>
-              <span className={styles.avatar}>D</span>
-            </div>
-            <span className={styles.socialText}>
-              3 clínicas iniciaram diagnóstico essa semana
-            </span>
-          </div>
+          {/* Aqui havia "3 clínicas iniciaram diagnóstico essa semana" com três
+              avatares — texto fixo no código, sem nada por trás. Era uma
+              afirmação de fato sobre a semana corrente, verdadeira só por
+              coincidência, e os avatares sugeriam clínicas específicas.
+              Removido em vez de mantido: o slot volta quando houver um número
+              real para colocar nele (a tabela `leads` no Supabase já dá base
+              para contar de verdade). Os estilos .socialProof/.avatars/.avatar/
+              .socialText seguem em Hero.module.css esperando isso. */}
         </div>
 
         {/* Dashboard inline — visible only on mobile */}
         <div className={styles.dashboardMobile} aria-hidden="true">
           <div className={styles.dashHeader}>
             <span className={styles.dashTitle}>Desempenho de Aquisição</span>
-            <span className={styles.dashStatus}>SISTEMA ATIVO</span>
+            {/* Os números deste painel são ilustrativos — o rótulo precisa dizer
+                isso. Um "SISTEMA ATIVO" em verde pulsante ao lado de +34% e
+                −18% apresenta enfeite como se fosse dado medido. */}
+            <span className={styles.dashStatus}>EXEMPLO</span>
           </div>
           <div className={styles.dashMetrics}>
             <div className={styles.dashMetric}>
