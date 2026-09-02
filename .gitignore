@@ -7,6 +7,13 @@ dist-ssr/
 dist-ds/
 *.local
 .vite-dev*.log
+npm-debug.log*
+yarn-error.log*
+
+# Ferramentas
+coverage/
+.eslintcache
+*.tsbuildinfo
 
 # Environment variables
 .env
@@ -33,6 +40,11 @@ __pycache__/
 # MCP config (contains secrets)
 .mcp.json
 
+# Certificados e chaves — nunca devem entrar por acidente
+*.pem
+*.key
+*.p12
+
 # Office documents
 *.docx
 *.doc
@@ -41,8 +53,10 @@ __pycache__/
 *.pptx
 *.ppt
 
-# Supabase CLI temp files
+# Supabase CLI
 supabase/.temp/
+supabase/.branches/
+.supabase/
 
 # design-sync — scripts encenados e saída gerada (recriados a cada sync).
 # O que fica versionado em .design-sync/: config.json, NOTES.md,
