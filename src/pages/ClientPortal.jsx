@@ -2150,6 +2150,7 @@ function FinancialView({ user }) {
       .from("invoices")
       .select("*")
       .eq("client_id", user.id)
+      .neq("status", "draft")
       .order("created_at", { ascending: false })
       .then(({ data }) => {
         setInvoices(data || []);
@@ -2168,9 +2169,16 @@ function FinancialView({ user }) {
         filter: `client_id=eq.${user.id}`,
       }, (payload) => {
         if (payload.eventType === "INSERT") {
+          if (payload.new.status === "draft") return; // rascunho transitório do create-invoice
           setInvoices((prev) => [payload.new, ...prev]);
         } else if (payload.eventType === "UPDATE") {
-          setInvoices((prev) => prev.map((inv) => inv.id === payload.new.id ? payload.new : inv));
+          if (payload.new.status === "draft") return;
+          setInvoices((prev) => {
+            const exists = prev.some((inv) => inv.id === payload.new.id);
+            return exists
+              ? prev.map((inv) => inv.id === payload.new.id ? payload.new : inv)
+              : [payload.new, ...prev]; // draft -> pending: entra agora
+          });
           setSelectedInvoice((prev) => prev?.id === payload.new.id ? payload.new : prev);
         }
       })

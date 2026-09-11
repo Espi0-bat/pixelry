@@ -188,6 +188,7 @@ export default function ClienteDetalhes() {
       .from('invoices')
       .select('id, client_id, description, amount, due_date, status, paid_at, payment_url, created_at')
       .eq('client_id', id)
+      .neq('status', 'draft')
       .order('created_at', { ascending: false })
       .then(({ data }) => { if (mounted) { setInvoices(data || []); setLoadingInvoices(false); } });
 
@@ -195,8 +196,12 @@ export default function ClienteDetalhes() {
       .channel(`admin:invoices:${id}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'invoices', filter: `client_id=eq.${id}` },
         (payload) => {
+          if (payload.new?.status === 'draft') return; // rascunho transitório
           if (payload.eventType === 'INSERT') setInvoices(prev => [payload.new, ...prev]);
-          else if (payload.eventType === 'UPDATE') setInvoices(prev => prev.map(inv => inv.id === payload.new.id ? payload.new : inv));
+          else if (payload.eventType === 'UPDATE') setInvoices(prev => {
+            const exists = prev.some(inv => inv.id === payload.new.id);
+            return exists ? prev.map(inv => inv.id === payload.new.id ? payload.new : inv) : [payload.new, ...prev];
+          });
         }
       )
       .subscribe();

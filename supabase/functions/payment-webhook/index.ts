@@ -88,6 +88,25 @@ serve(async (req) => {
       return new Response('ok', { status: 200 })
     }
 
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
+    )
+
+    // IDEMPOTÊNCIA (1/3) — curto-circuito. O Mercado Pago manda várias
+    // notificações por pagamento e reentrega em caso de erro. Sem esta trava,
+    // cada re-entrega reprocessava a fatura e reenviava os e-mails.
+    const { data: jaProcessado } = await supabase
+      .from('processed_payments')
+      .select('payment_id')
+      .eq('payment_id', String(paymentId))
+      .maybeSingle()
+
+    if (jaProcessado) {
+      console.log('[payment-webhook] pagamento já processado, ignorando:', paymentId)
+      return new Response('ok', { status: 200 })
+    }
+
     const mpToken = Deno.env.get('MERCADOPAGO_ACCESS_TOKEN')!
 
     const paymentRes = await fetch(`https://api.mercadopago.com/v1/payments/${paymentId}`, {
@@ -105,33 +124,63 @@ serve(async (req) => {
       return new Response('ok', { status: 200 })
     }
 
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL')!,
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!,
-    )
+    const prefId = payment.preference_id
+    if (!prefId) {
+      console.error('[payment-webhook] pagamento aprovado sem preference_id:', paymentId)
+      return new Response('ok', { status: 200 })
+    }
 
-    // Match invoice by preference_id (all payment methods share the same preference)
-    const { error } = await supabase
+    // IDEMPOTÊNCIA (2/3) — a transição é guardada por status e o .select() diz
+    // se ELA de fato aconteceu. Sem o .select(), um update que casa 0 linhas
+    // volta com error:null e o código seguia para o envio de e-mail.
+    const agora = new Date().toISOString()
+    const { data: transicionou, error } = await supabase
       .from('invoices')
-      .update({
-        status: 'paid',
-        paid_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq('mp_preference_id', payment.preference_id)
+      .update({ status: 'paid', paid_at: agora, updated_at: agora })
+      .eq('mp_preference_id', prefId)
       .eq('status', 'pending')
+      .select('id')
 
     if (error) {
       console.error('[payment-webhook] Update error:', error)
-    } else {
-      console.log('[payment-webhook] Invoice marked as paid for preference:', payment.preference_id)
+      return new Response('db error', { status: 500 })
+    }
 
-      // Send confirmation emails — failure must not affect the 200 response
+    if (!transicionou?.length) {
+      // Nada mudou. Duas causas possíveis, com desfechos opostos.
+      const { data: existente } = await supabase
+        .from('invoices')
+        .select('id, status')
+        .eq('mp_preference_id', prefId)
+        .maybeSingle()
+
+      if (existente?.status === 'paid') {
+        // Já estava paga (re-entrega concorrente). Idempotente: registra e sai.
+        await supabase.from('processed_payments')
+          .upsert({ payment_id: String(paymentId), preference_id: prefId })
+        return new Response('ok', { status: 200 })
+      }
+
+      // Fatura ainda não existe/não está pending — o webhook chegou antes de o
+      // create-invoice terminar. NÃO registramos como processado: 409 faz o
+      // Mercado Pago reentregar, e aí a fatura já estará lá.
+      console.warn('[payment-webhook] fatura não pronta para a preferência', prefId, '— pedindo reentrega')
+      return new Response('invoice not ready', { status: 409 })
+    }
+
+    // IDEMPOTÊNCIA (3/3) — só marca depois de confirmar que o trabalho foi feito.
+    await supabase.from('processed_payments')
+      .upsert({ payment_id: String(paymentId), preference_id: prefId })
+
+    console.log('[payment-webhook] Invoice marked as paid for preference:', prefId)
+
+    // E-mails só aqui: uma única vez, na transição real pending -> paid.
+    {
       try {
         const { data: invoice } = await supabase
           .from('invoices')
           .select('amount, description, paid_at, client_id, profiles(email, full_name, company_name, contact_info)')
-          .eq('mp_preference_id', payment.preference_id)
+          .eq('mp_preference_id', prefId)
           .single()
 
         const profile = (invoice as any)?.profiles
@@ -160,11 +209,13 @@ serve(async (req) => {
       }
     }
 
-    // Always return 200 so MercadoPago does not retry
     return new Response('ok', { status: 200 })
 
   } catch (err) {
+    // Antes devolvia 200 aqui para o Mercado Pago não reentregar — o que também
+    // engolia falha real e perdia a confirmação em silêncio. Com a trava de
+    // idempotência acima, reentrega é segura: o pior caso é um no-op.
     console.error('[payment-webhook] Unhandled error:', err)
-    return new Response('ok', { status: 200 })
+    return new Response('error', { status: 500 })
   }
 })
