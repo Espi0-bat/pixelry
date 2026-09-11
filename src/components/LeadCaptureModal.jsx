@@ -33,6 +33,7 @@ const INVESTMENT_RANGES = [
 const EMPTY_FORM = {
   name: '', email: '', whatsapp: '', instagram: '',
   clinicType: '', revenueRange: '', investmentRange: '',
+  company: '', // honeypot — deve ficar sempre vazio
 }
 
 function buildQualifiedLink(baseLink, form) {
@@ -64,16 +65,23 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'di
     e.preventDefault()
     if (!form.name.trim() || !form.email.trim()) return
     setLoading(true)
-    await supabase.from('leads').insert({
-      name: form.name.trim(),
-      email: form.email.trim(),
-      whatsapp: form.whatsapp.trim() || null,
-      instagram: form.instagram.trim() || null,
-      clinic_type: form.clinicType || null,
-      revenue_range: form.revenueRange || null,
-      investment_range: form.investmentRange || null,
-      source,
-    })
+    // Grava via Edge Function (honeypot + rate limit + validação no servidor).
+    // Falha de rede não bloqueia o usuário — ele segue para o WhatsApp.
+    try {
+      await supabase.functions.invoke('submit-lead', {
+        body: {
+          name: form.name.trim(),
+          email: form.email.trim(),
+          whatsapp: form.whatsapp.trim() || null,
+          instagram: form.instagram.trim() || null,
+          clinic_type: form.clinicType || null,
+          revenue_range: form.revenueRange || null,
+          investment_range: form.investmentRange || null,
+          company: form.company || '', // honeypot
+          source,
+        },
+      })
+    } catch (_) { /* silencioso — o lead já vai pelo WhatsApp */ }
     setLoading(false)
     window.open(buildQualifiedLink(waLink, form), '_blank', 'noreferrer')
     setForm(EMPTY_FORM)
@@ -94,6 +102,18 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'di
         </div>
 
         <form className={styles.form} onSubmit={handleSubmit}>
+          {/* Honeypot: invisível para humanos, atrai bots. Não remover. */}
+          <input
+            type="text"
+            name="company"
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            value={form.company}
+            onChange={handleChange}
+            style={{ position: 'absolute', left: '-9999px', width: 1, height: 1, opacity: 0 }}
+          />
+
           <div className={styles.field}>
             <label className={styles.label} htmlFor="lead-name">Nome</label>
             <input
