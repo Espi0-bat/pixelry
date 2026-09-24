@@ -297,7 +297,7 @@ export default function Metas() {
                 </div>
                 <div className="modal-field">
                   <label><User size={13} /> Responsável</label>
-                  <input type="text" placeholder="Ex: Ezer, CK, Sofia"
+                  <input type="text" placeholder="Ex: Ezer, CK"
                     value={form.assignee} onChange={e => setForm(f => ({ ...f, assignee: e.target.value }))} />
                 </div>
 

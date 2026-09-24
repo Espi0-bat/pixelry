@@ -40,7 +40,6 @@ function getGreeting() {
 function getUserName(email = '') {
   if (email.includes('moutinhoezer'))   return 'Ezer';
   if (email.includes('erickvin49'))     return 'CK';
-  if (email.includes('sofiagramelich')) return 'Sofia';
   return email.split('@')[0];
 }
 

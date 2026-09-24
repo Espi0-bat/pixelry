@@ -44,7 +44,8 @@ export default function EmployeeDashboard({ userProfile, user }) {
   const [loading, setLoading]                 = useState(true);
 
   const firstName = userProfile?.full_name?.split(' ')[0]
-    || (user?.email?.includes('sofiagramelich') ? 'Sofia' : user?.email?.split('@')[0] || 'Designer');
+    || user?.email?.split('@')[0]
+    || 'Designer';
 
   const jobTitle = userProfile?.job_title || 'Designer';
 

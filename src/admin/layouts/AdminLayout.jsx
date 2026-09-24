@@ -16,7 +16,6 @@ const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
 function getRoleFromEmail(email = '') {
   if (email.includes('moutinhoezer') || email.includes('erickvin49')) return 'super_admin';
-  if (email.includes('sofiagramelich')) return 'manager';
   return 'employee';
 }
 
