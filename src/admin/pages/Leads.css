@@ -1,6 +1,6 @@
 .leads-container {
   padding: 32px;
-  max-width: 1100px;
+  max-width: 1240px;
 }
 
 .leads-header {
@@ -158,10 +158,170 @@
   }
 
   /* Esconde WhatsApp e Instagram; qualificação e data seguem via scroll horizontal */
-  .leads-table th:nth-child(6),
-  .leads-table td:nth-child(6),
   .leads-table th:nth-child(7),
-  .leads-table td:nth-child(7) {
+  .leads-table td:nth-child(7),
+  .leads-table th:nth-child(8),
+  .leads-table td:nth-child(8) {
     display: none;
   }
+
+  .leads-ranks {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ─── Origem do lead: rankings e coluna da tabela ─── */
+
+.leads-ranks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.leads-rank {
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.02);
+  padding: 18px 18px 12px;
+}
+
+.leads-rank-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.leads-rank-head h2 {
+  font-size: 0.9rem;
+  font-weight: 650;
+  color: var(--text-primary, #fff);
+  margin: 0;
+}
+
+.leads-rank-head span {
+  font-size: 0.72rem;
+  color: var(--text-secondary, rgba(240,240,250,0.45));
+  white-space: nowrap;
+}
+
+.leads-rank-vazio {
+  font-size: 0.8rem;
+  color: var(--text-secondary, rgba(240,240,250,0.45));
+  margin: 0 0 8px;
+}
+
+.leads-rank-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 72px auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  margin-bottom: 2px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.leads-rank-item:hover { background: rgba(255,255,255,0.04); }
+
+.leads-rank-item.is-active {
+  background: rgba(128,64,245,0.12);
+  border-color: rgba(128,64,245,0.45);
+}
+
+.leads-rank-item:focus-visible {
+  outline: 2px solid #00D8FF;
+  outline-offset: 2px;
+}
+
+.leads-rank-label {
+  font-size: 0.82rem;
+  color: var(--text-primary, #fff);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.leads-rank-bar {
+  height: 6px;
+  border-radius: 3px;
+  background: rgba(255,255,255,0.07);
+  overflow: hidden;
+}
+
+.leads-rank-bar > span {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: linear-gradient(90deg, #8040F5, #00D8FF);
+}
+
+.leads-rank-num {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--text-secondary, rgba(240,240,250,0.55));
+  white-space: nowrap;
+}
+
+.leads-ranks-nota {
+  grid-column: 1 / -1;
+  margin: -4px 0 0;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  color: var(--text-secondary, rgba(240,240,250,0.45));
+}
+
+.leads-filtro {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+  padding: 7px 14px;
+  border: 1px solid rgba(128,64,245,0.45);
+  border-radius: 20px;
+  background: rgba(128,64,245,0.12);
+  color: var(--text-primary, #fff);
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.leads-filtro:hover { background: rgba(128,64,245,0.2); }
+
+/* Com a coluna Origem a tabela ficou apertada: nome, contato e data nao podem
+   quebrar em tres linhas — o scroll horizontal do wrapper resolve o resto. */
+.leads-name,
+.leads-date,
+.leads-table td:nth-child(7),
+.leads-table td:nth-child(8) {
+  white-space: nowrap;
+}
+
+.leads-origem {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  min-width: 180px;
+}
+
+.leads-origem-lugar {
+  font-size: 0.78rem;
+  color: var(--text-primary, #fff);
+}
+
+.leads-origem-desafio {
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--text-secondary, rgba(240,240,250,0.5));
 }
