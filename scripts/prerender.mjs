@@ -21,12 +21,13 @@ const SSR_ENTRY = join(raiz, 'dist-ssr', 'entry-server.js')
 
 // Só rotas públicas. /admin e /portal exigem sessão e estão bloqueadas no
 // robots.txt — pré-renderizar as duas só publicaria a casca da tela de login.
-const ROTAS = ['/', '/privacidade', '/termos']
+const ROTAS = ['/', '/clinicas', '/privacidade', '/termos']
 
 const SITE = 'https://www.pixelry.com.br'
 
 // Prioridade e frequência por rota; o resto do sitemap sai daqui.
 const SEO = {
+  '/clinicas': { changefreq: 'monthly', priority: '0.9' },
   '/':            { changefreq: 'weekly', priority: '1.0' },
   '/privacidade': { changefreq: 'yearly', priority: '0.5' },
   '/termos':      { changefreq: 'yearly', priority: '0.5' },
@@ -109,10 +110,6 @@ function trocarTitulo(html, tag) {
   return html.replace(/<title>[\s\S]*?<\/title>/, () => tag)
 }
 
-function trocarDescricao(html, tag) {
-  if (!tag || !tag.trim()) return html
-  return html.replace(/<meta\s+name="description"[^>]*>/, () => tag)
-}
 
 function main() {
   const template = join(DIST, 'index.html')
@@ -137,11 +134,18 @@ function main() {
 
       let saida = base.replace('<div id="root"></div>', `<div id="root">${html}</div>`)
 
-      // As rotas legais definem o próprio <title>/<meta> via react-helmet-async.
+      // As páginas com Helmet definem seus próprios metadados.
       // A home usa o que já está estático no index.html.
       if (helmet) {
         saida = trocarTitulo(saida, helmet.title?.toString())
-        saida = trocarDescricao(saida, helmet.meta?.toString())
+        const metas = helmet.meta?.toString() || ''
+        for (const tag of metas.match(/<meta\b[^>]*>/g) || []) {
+          const key = tag.match(/(?:name|property)="([^"]+)"/)?.[1]
+          if (key) saida = saida.replace(new RegExp(`<meta\\s+[^>]*(?:name|property)="${key}"[^>]*>`, 'g'), '')
+        }
+        const links = helmet.link?.toString() || ''
+        if (links.includes('canonical')) saida = saida.replace(/<link\s+[^>]*rel="canonical"[^>]*>/g, '')
+        saida = saida.replace('</head>', `${metas}\n${links}\n</head>`)
       }
 
       const arquivos = destinos(rota)

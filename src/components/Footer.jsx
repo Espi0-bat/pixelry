@@ -33,6 +33,7 @@ export default function Footer() {
         <nav className={styles.nav} aria-label="Footer navigation">
           <p className={styles.navTitle}>Navegação</p>
           <a href="#servicos" className={styles.navLink}>Serviços</a>
+          <Link to="/clinicas" className={styles.navLink}>Soluções para clínicas</Link>
           <a href="#processo" className={styles.navLink}>Processo</a>
           <a href={WA_LINK} target="_blank" rel="noreferrer" className={styles.navLink}>Contato</a>
         </nav>

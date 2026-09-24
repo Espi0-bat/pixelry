@@ -30,6 +30,7 @@ const Faq = React.lazy(() => import('./components/Faq'))
 const CtaFinal = React.lazy(() => import('./components/CtaFinal'))
 const PoliticaPrivacidade = React.lazy(() => import('./pages/PoliticaPrivacidade'))
 const TermosUso = React.lazy(() => import('./pages/TermosUso'))
+const Clinicas = React.lazy(() => import('./pages/Clinicas'))
 const ClientPortal = React.lazy(() => import('./pages/ClientPortal'))
 
 // Admin panel — lazy loaded
@@ -159,6 +160,7 @@ export default function App() {
     setUser(null)
   }
 
+  const isClinicsLanding = /^\/clinicas\/?$/.test(location.pathname)
   const isDashboard = location.pathname.startsWith('/admin') || location.pathname.startsWith('/portal')
 
   // Portal do cliente — admin logado não acessa automaticamente
@@ -193,10 +195,11 @@ export default function App() {
       {recoveryMode && (
         <ResetPasswordScreen onSuccess={finishRecovery} onCancel={cancelRecovery} />
       )}
-      {!isDashboard && <Nav />}
+      {!isDashboard && !isClinicsLanding && <Nav />}
       <main>
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/clinicas" element={<Suspense fallback={PORTAL_FALLBACK}><Clinicas /></Suspense>} />
           <Route
             path="/privacidade"
             element={
@@ -232,8 +235,8 @@ export default function App() {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
-      {!isDashboard && <Footer />}
-      {!isDashboard && <StickyCta />}
+      {!isDashboard && !isClinicsLanding && <Footer />}
+      {!isDashboard && !isClinicsLanding && <StickyCta />}
       {!isDashboard && <CookieConsent />}
     </>
   )
