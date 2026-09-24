@@ -38,6 +38,8 @@ jobs:
           VITE_CLIENT_WHATSAPP_NUMBER: ${{ secrets.VITE_CLIENT_WHATSAPP_NUMBER }}
           VITE_SUPER_ADMIN_EMAILS: ${{ secrets.VITE_SUPER_ADMIN_EMAILS }}
           VITE_MANAGER_EMAILS: ${{ secrets.VITE_MANAGER_EMAILS }}
+          VITE_GA4_ID: ${{ secrets.VITE_GA4_ID }}
+          VITE_META_PIXEL_ID: ${{ secrets.VITE_META_PIXEL_ID }}
         run: npm run build
 
       - name: Upload artifact

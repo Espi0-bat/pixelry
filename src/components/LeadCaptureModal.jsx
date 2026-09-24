@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../config/supabase'
+import { registrarLead } from '../config/analytics'
 import styles from './LeadCaptureModal.module.css'
 
 const CLINIC_TYPES = [
@@ -118,6 +119,7 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'di
       return
     }
     setLoading(false)
+    registrarLead(source)
     window.location.assign(buildQualifiedLink(waLink, form))
     setForm(EMPTY_FORM)
     onClose()
