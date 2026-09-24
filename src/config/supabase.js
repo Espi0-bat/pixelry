@@ -7,7 +7,7 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 // no bundle. Ficam fixos aqui como fonte da verdade; a env var (quando definida)
 // SUBSTITUI o padrão — útil para adicionar alguém sem novo deploy.
 const DEFAULT_SUPER_ADMIN_EMAILS = ['socio1@exemplo.com', 'ex-membro-1@exemplo.com']
-const DEFAULT_MANAGER_EMAILS = ['ex-membro-2@exemplo.com']
+const DEFAULT_MANAGER_EMAILS = []
 
 const parseEmails = (raw) => String(raw || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean)
 

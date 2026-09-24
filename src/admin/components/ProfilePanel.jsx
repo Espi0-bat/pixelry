@@ -20,7 +20,6 @@ export default function ProfilePanel({ user, avatarUrl, onAvatarUpdate, onLogout
     const e = user?.email || '';
     if (e.includes('socio1')) return 'Ezer';
     if (e.includes('ex-membro-1'))   return 'ex-membro-1';
-    if (e.includes('ex-membro-2')) return 'ex-membro-2';
     return e.split('@')[0];
   })();
 
