@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../config/supabase'
 import styles from './LeadCaptureModal.module.css'
 
@@ -38,6 +38,10 @@ const EMPTY_FORM = {
 
 function buildQualifiedLink(baseLink, form) {
   const extras = [
+    form.name && `Nome: ${form.name}`,
+    form.email && `E-mail: ${form.email}`,
+    form.whatsapp && `WhatsApp: ${form.whatsapp}`,
+    form.instagram && `Instagram: ${form.instagram}`,
     form.clinicType && `Segmento: ${form.clinicType}`,
     form.revenueRange && `Faturamento: ${form.revenueRange}`,
     form.investmentRange && `Investimento: ${form.investmentRange}`,
@@ -51,9 +55,33 @@ function buildQualifiedLink(baseLink, form) {
   return `${url}?text=${encodeURIComponent(`${message}\n\n${extras.join('\n')}`)}`
 }
 
-export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'diagnostico_hero' }) {
+export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'diagnostico_hero', context = '' }) {
   const [form, setForm] = useState(EMPTY_FORM)
   const [loading, setLoading] = useState(false)
+
+  const [error, setError] = useState('')
+  const modalRef = useRef(null)
+  useEffect(() => {
+    if (!isOpen) return
+    setError('')
+    const previous = document.activeElement
+    const overflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const onKey = e => {
+      if (e.key === 'Escape') onClose()
+      if (e.key !== 'Tab') return
+      const items = [...modalRef.current.querySelectorAll('button:not([disabled]), input:not([tabindex="-1"]), select, a[href]')]
+      const first = items[0], last = items[items.length - 1]
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last?.focus() }
+      if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first?.focus() }
+    }
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.body.style.overflow = overflow
+      document.removeEventListener('keydown', onKey)
+      previous?.focus?.()
+    }
+  }, [isOpen, onClose])
 
   if (!isOpen) return null
 
@@ -65,10 +93,12 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'di
     e.preventDefault()
     if (!form.name.trim() || !form.email.trim()) return
     setLoading(true)
+    setError('')
     // Grava via Edge Function (honeypot + rate limit + validação no servidor).
-    // Falha de rede não bloqueia o usuário — ele segue para o WhatsApp.
+    // Só confirma a captura após a resposta do servidor; oferece alternativa explícita em caso de falha.
     try {
-      await supabase.functions.invoke('submit-lead', {
+      if (!supabase) throw new Error('Cadastro indisponível')
+      const { error: submitError } = await supabase.functions.invoke('submit-lead', {
         body: {
           name: form.name.trim(),
           email: form.email.trim(),
@@ -81,16 +111,21 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'di
           source,
         },
       })
-    } catch (_) { /* silencioso — o lead já vai pelo WhatsApp */ }
+      if (submitError) throw submitError
+    } catch (_) {
+      setError('Não conseguimos salvar seu cadastro. Tente novamente ou fale diretamente pelo WhatsApp abaixo.')
+      setLoading(false)
+      return
+    }
     setLoading(false)
-    window.open(buildQualifiedLink(waLink, form), '_blank', 'noreferrer')
+    window.location.assign(buildQualifiedLink(waLink, form))
     setForm(EMPTY_FORM)
     onClose()
   }
 
   return (
     <div className={styles.overlay} role="dialog" aria-modal="true" aria-labelledby="lead-modal-title" onClick={e => e.target === e.currentTarget && onClose()}>
-      <div className={styles.modal}>
+      <div className={styles.modal} ref={modalRef}>
         <button className={styles.closeBtn} onClick={onClose} aria-label="Fechar">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M12 4L4 12M4 4l8 8" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" fill="none"/></svg>
         </button>
@@ -98,8 +133,10 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'di
         <div className={styles.header}>
           <p className={styles.eyebrow}>Diagnóstico Gratuito</p>
           <h2 className={styles.title} id="lead-modal-title">Antes de falar com a gente,<br />nos conta um pouco sobre você.</h2>
-          <p className={styles.subtitle}>Leva menos de 1 minuto. Usamos para entender sua clínica antes da conversa.</p>
+          <p className={styles.subtitle}>Essas informações ajudam nossa equipe a preparar uma conversa sobre a sua clínica.</p>
         </div>
+
+        {context && <p className={styles.context}>Seu desafio: {context}</p>}
 
         <form className={styles.form} onSubmit={handleSubmit}>
           {/* Honeypot: invisível para humanos, atrai bots. Não remover. */}
@@ -238,6 +275,7 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'di
           </button>
         </form>
 
+        {error && <div className={styles.error} role="alert"><p>{error}</p><a href={buildQualifiedLink(waLink, form)} target="_blank" rel="noreferrer">Falar no WhatsApp sem salvar o cadastro →</a></div>}
         <p className={styles.note}>Nenhum spam. Seus dados são usados apenas pela equipe Pixelry.</p>
       </div>
     </div>
