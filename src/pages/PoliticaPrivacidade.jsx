@@ -23,7 +23,7 @@ export default function PoliticaPrivacidade() {
       <h1 style={{ fontSize: '2.5rem', marginBottom: '24px', fontWeight: 'bold' }}>Política de Privacidade</h1>
       
       <p style={{ marginBottom: '16px', color: 'var(--text-secondary, #a0a0a0)' }}>
-        Última atualização: 02 de junho de 2026
+        Última atualização: 24 de setembro de 2026
       </p>
 
       <p style={{ marginBottom: '24px' }}>
@@ -45,8 +45,11 @@ export default function PoliticaPrivacidade() {
       </p>
 
       <h2 style={{ fontSize: '1.5rem', marginTop: '32px', marginBottom: '16px' }}>3. Compartilhamento de Dados</h2>
-      <p style={{ marginBottom: '24px' }}>
+      <p style={{ marginBottom: '16px' }}>
         Não compartilhamos informações de identificação pessoal publicamente ou com terceiros, exceto quando exigido por lei.
+      </p>
+      <p style={{ marginBottom: '24px' }}>
+        Podemos usar ferramentas de medição de terceiros — Google Analytics (Google) e Meta Pixel (Meta) — para entender como o site é usado e avaliar nossas campanhas. Elas só são carregadas se você autorizar no banner de cookies: o Google Analytics depende da categoria "Análise" e o Meta Pixel da categoria "Marketing". Enquanto você não autorizar, nenhum dado é enviado a essas empresas. Você pode rever sua escolha limpando os dados do site no navegador.
       </p>
 
       <h2 style={{ fontSize: '1.5rem', marginTop: '32px', marginBottom: '16px' }}>4. Seus Direitos (LGPD)</h2>

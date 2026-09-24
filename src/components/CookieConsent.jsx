@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { Check, ChevronDown, ChevronUp, Cookie, X } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import styles from './CookieConsent.module.css'
+import { iniciarMedicao } from '../config/analytics'
 
 export default function CookieConsent() {
   const [isOpen, setIsOpen] = useState(false)
@@ -27,11 +28,13 @@ export default function CookieConsent() {
     localStorage.setItem('pixelry_cookie_consent', JSON.stringify(allAccepted))
     setPreferences(allAccepted)
     setIsOpen(false)
+    iniciarMedicao()
   }
 
   const handleSavePreferences = () => {
     localStorage.setItem('pixelry_cookie_consent', JSON.stringify(preferences))
     setIsOpen(false)
+    iniciarMedicao()
   }
 
   const handleTogglePreference = (key) => {

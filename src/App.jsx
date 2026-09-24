@@ -13,6 +13,7 @@ import ResetPasswordScreen from './components/ResetPasswordScreen'
 import NotFound     from './components/NotFound'
 import { useRecoveryMode } from './hooks/usePasswordRecovery'
 import { isSupabaseConfigured, supabase, ADMIN_EMAILS, isAdminEmail } from './config/supabase'
+import { iniciarMedicao, registrarNavegacao } from './config/analytics'
 
 // Lazy Loading para componentes abaixo da dobra (ganho de performance substancial de LCP e FCP)
 const Transformacao = React.lazy(() => import('./components/Transformacao'))
@@ -135,6 +136,15 @@ export default function App() {
     })
     return () => subscription.unsubscribe()
   }, [])
+
+  // Medição: carrega o que o consentimento já autorizou e conta a troca de rota.
+  useEffect(() => {
+    iniciarMedicao()
+  }, [])
+
+  useEffect(() => {
+    registrarNavegacao(location.pathname)
+  }, [location.pathname])
 
   // Scroll para o elemento do hash após navegação (ex: /#servicos)
   useEffect(() => {
