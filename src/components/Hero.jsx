@@ -1,14 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
 import styles from './Hero.module.css'
 import { WA_LINK_HERO as WA_LINK, WaIconHero as WaIcon } from './common/WhatsApp'
 import LeadCaptureModal from './LeadCaptureModal'
 
+const heroImage = `${import.meta.env.BASE_URL}assets/pixelry-recepcao.webp`
+
 export default function Hero() {
+  const [modalOpen, setModalOpen] = useState(false)
   const canvasRef = useRef(null)
   const mouseRef  = useRef({ x: 0.5, y: 0.5 })
   const targetRef = useRef({ x: 0.5, y: 0.5 })
-  const [modalOpen, setModalOpen] = useState(false)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -103,120 +104,50 @@ export default function Hero() {
   }, [])
 
   return (
-    <section className={styles.hero}>
+    <section className={styles.hero} aria-labelledby="hero-title">
+      {/* Malha de pontos que acende sob o cursor e brilho pulsante: o efeito
+          original do hero, preservado. Não roda em telas <=900px nem com
+          prefers-reduced-motion. */}
       <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
       <div className={styles.glow} aria-hidden="true" />
 
-      <div className={styles.dashboardWrap} aria-hidden="true">
-        <div className={styles.dashboard}>
-          <div className={styles.dashHeader}>
-            <span className={styles.dashTitle}>Desempenho de Aquisição</span>
-            {/* Os números deste painel são ilustrativos — o rótulo precisa dizer
-                isso. Um "SISTEMA ATIVO" em verde pulsante ao lado de +34% e
-                −18% apresenta enfeite como se fosse dado medido. */}
-            <span className={styles.dashStatus}>EXEMPLO</span>
-          </div>
-          <div className={styles.dashMetrics}>
-            <div className={styles.dashMetric}>
-              <div className={styles.dashMetricLabel}>Leads Qualificados</div>
-              <div className={styles.dashMetricValue}>+34%</div>
-            </div>
-            <div className={styles.dashMetric}>
-              <div className={styles.dashMetricLabel}>Custo por Aquisição</div>
-              <div className={styles.dashMetricValue}>-18%</div>
-            </div>
-          </div>
-          <div className={styles.dashChart}>
-            <div className={styles.dashBar} />
-            <div className={styles.dashBar} />
-            <div className={styles.dashBar} />
-            <div className={styles.dashBar} />
-            <div className={styles.dashBar} />
-            <div className={styles.dashBar} />
-          </div>
-        </div>
-      </div>
-
       <div className={styles.content}>
         <p className={styles.eyebrow}>
-          <span className={styles.eyebrowDot} />
-          PIXELRY · BRASÍLIA — DF
+          <span className={styles.pixel} aria-hidden="true" />
+          MARKETING E PRESENÇA DIGITAL PARA CLÍNICAS
         </p>
 
-        <h1 className={styles.h1}>
-          Sua clínica atende bem.{' '}
-          <br className={styles.brDesktop} />
-          <span className="grad-text">Só que a agenda ainda tem buracos.</span>
+        <h1 id="hero-title" className={styles.h1}>
+          Conectamos sua clínica{' '}
+          <span className={styles.highlight}>a quem precisa do seu cuidado.</span>
         </h1>
 
         <p className={styles.sub}>
-          Construímos o sistema digital que muda isso — sem depender de sorte,
-          indicação ou mais posts.
+          Unimos estratégia, design e tecnologia para sua clínica ser encontrada,
+          transmitir confiança e transformar interesse em pedidos de agendamento.
         </p>
 
         <div className={styles.ctas}>
-          <div className={styles.ctaGroupPrimary}>
-            <button type="button" onClick={() => setModalOpen(true)} className="btn-hero-cta">
-              <WaIcon />
-              Agendar Diagnóstico
-            </button>
-            
-            <p className={styles.microcopy}>Diagnóstico real do que está falhando. Resposta rápida.</p>
-            
-            <div className={styles.proof}>
-              <span className={styles.proofDot} />
-              Disponível em Brasília — DF
-            </div>
-          </div>
-
-          <div className={styles.ctaGroupSecondary}>
-            <a href="#servicos" className="btn-secondary" aria-label="Rolar para os serviços da Pixelry">
-              Ver serviços ↓
-            </a>
-            <Link to="/portal" className="btn-secondary btn-client-area" aria-label="Abrir área do cliente Pixelry">
-              Área do Cliente
-            </Link>
-          </div>
-
-          {/* Aqui havia "3 clínicas iniciaram diagnóstico essa semana" com três
-              avatares — texto fixo no código, sem nada por trás. Era uma
-              afirmação de fato sobre a semana corrente, verdadeira só por
-              coincidência, e os avatares sugeriam clínicas específicas.
-              Removido em vez de mantido: o slot volta quando houver um número
-              real para colocar nele (a tabela `leads` no Supabase já dá base
-              para contar de verdade). Os estilos .socialProof/.avatars/.avatar/
-              .socialText seguem em Hero.module.css esperando isso. */}
+          <button type="button" onClick={() => setModalOpen(true)} className={`btn-hero-cta ${styles.primary}`}>
+            <WaIcon />
+            Quero um diagnóstico da minha clínica
+          </button>
+          <p className={styles.microcopy}>Vamos identificar o próximo passo para sua presença digital.</p>
+          <a href="#cases" className={styles.projectLink}>
+            Conheça nossos projetos <span aria-hidden="true">↗</span>
+          </a>
         </div>
+      </div>
 
-        {/* Dashboard inline — visible only on mobile */}
-        <div className={styles.dashboardMobile} aria-hidden="true">
-          <div className={styles.dashHeader}>
-            <span className={styles.dashTitle}>Desempenho de Aquisição</span>
-            {/* Os números deste painel são ilustrativos — o rótulo precisa dizer
-                isso. Um "SISTEMA ATIVO" em verde pulsante ao lado de +34% e
-                −18% apresenta enfeite como se fosse dado medido. */}
-            <span className={styles.dashStatus}>EXEMPLO</span>
-          </div>
-          <div className={styles.dashMetrics}>
-            <div className={styles.dashMetric}>
-              <div className={styles.dashMetricLabel}>Leads Qualificados</div>
-              <div className={styles.dashMetricValue}>+34%</div>
-            </div>
-            <div className={styles.dashMetric}>
-              <div className={styles.dashMetricLabel}>Custo por Aquisição</div>
-              <div className={styles.dashMetricValue}>-18%</div>
-            </div>
-          </div>
-          <div className={styles.dashChart}>
-            <div className={styles.dashBar} />
-            <div className={styles.dashBar} />
-            <div className={styles.dashBar} />
-            <div className={styles.dashBar} />
-            <div className={styles.dashBar} />
-            <div className={styles.dashBar} />
-          </div>
-        </div>
+      {/* O arquivo original tem bordas retas e margem escura embutidas; por isso
+          a versão recortada, que fecha com a moldura em qualquer tamanho. */}
+      <div className={styles.visual}>
+        <img src={heroImage} width="726" height="546" alt="Cena conceitual de acolhimento na recepção de uma clínica" fetchpriority="high" loading="eager" />
+      </div>
 
+      <div className={styles.foot}>
+        <span>PIXELRY <span className={styles.slash} aria-hidden="true">/</span> CADA CONEXÃO IMPORTA.</span>
+        <span>ESTRATÉGIA · DESIGN · TECNOLOGIA — BRASÍLIA, DF</span>
       </div>
 
       <LeadCaptureModal isOpen={modalOpen} onClose={() => setModalOpen(false)} waLink={WA_LINK} source="hero_cta" />

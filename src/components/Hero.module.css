@@ -1,14 +1,20 @@
+/* Os tokens de src/index.css são a fonte da verdade: roxo → ciano, fundo
+   escuro, Inter/DM Sans/JetBrains Mono. O hero usa a mesma linguagem da
+   LP /clinicas — moldura escura para a foto, trilho mono no rodapé. */
+
 .hero {
   position: relative;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 160px 48px 120px;
+  isolation: isolate;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 26px 56px;
+  padding: 150px max(24px, calc((100vw - 1320px) / 2)) 40px;
+  background: radial-gradient(ellipse at 92% 78%, rgba(0, 216, 255, .05), transparent 55%), var(--bg);
   overflow: hidden;
 }
 
-/* ─── Canvas ─── */
+/* ─── Malha de pontos (canvas) e brilho pulsante ─── */
 .canvas {
   position: absolute;
   inset: 0;
@@ -18,7 +24,6 @@
   pointer-events: none;
 }
 
-/* ─── Radial glow behind content ─── */
 .glow {
   position: absolute;
   left: -10%;
@@ -40,374 +45,170 @@
 }
 
 @keyframes glowPulse {
-  0%, 100% { opacity: 0.8; transform: scale(1); }
-  50%       { opacity: 1.0; transform: scale(1.06); }
+  0%, 100% { opacity: .8; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.06); }
 }
 
-/* ─── Dashboard Mockup ─── */
-.dashboardWrap {
-  position: absolute;
-  right: 2%;
-  top: 30%;
-  transform: translateY(-20%) rotateY(-5deg) rotateX(5deg);
-  perspective: 1200px;
-  width: 440px;
-  z-index: 10;
-  opacity: 0;
-  animation: fadeUp 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.6s;
-  pointer-events: none;
+@media (prefers-reduced-motion: reduce) {
+  .glow { animation: none; }
 }
 
-.dashboard {
-  background: rgba(20, 20, 48, 0.5);
-  -webkit-backdrop-filter: blur(24px);
-  backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  padding: 24px;
-  box-shadow: 0 32px 64px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(128, 64, 245, 0.1) inset;
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-  transform-style: preserve-3d;
-}
-
-.dashHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  padding-bottom: 16px;
-}
-
-.dashTitle {
-  font-family: var(--font-display);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--text);
-  letter-spacing: 0.04em;
-}
-
-/* Rótulo do painel-exemplo do Hero. Era um "SISTEMA ATIVO" em verde com ponto
-   pulsante — o vocabulário visual de dado ao vivo, ao lado de números que são
-   ilustrativos. Neutro de propósito: identifica o painel sem fingir medição. */
-.dashStatus {
-  background: rgba(240, 240, 250, 0.06);
-  color: var(--text-dim);
-  border: 1px solid var(--border);
-  font-family: var(--font-mono);
-  font-size: 10px;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-weight: 600;
-  letter-spacing: 0.05em;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-/* Sem o ponto verde pulsante: era o sinal mais forte de "dado ao vivo"
-   num painel cujos números são ilustrativos. */
-
-.dashChart {
-  height: 140px;
-  position: relative;
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-}
-
-.dashBar {
-  flex: 1;
-  background: linear-gradient(to top, rgba(128, 64, 245, 0.2), rgba(0, 216, 255, 0.7));
-  border-radius: 4px 4px 0 0;
-  transform-origin: bottom;
-  animation: barRise 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-  opacity: 0;
-}
-
-.dashBar:nth-child(1) { height: 30%; animation-delay: 1.0s; }
-.dashBar:nth-child(2) { height: 45%; animation-delay: 1.1s; }
-.dashBar:nth-child(3) { height: 40%; animation-delay: 1.2s; }
-.dashBar:nth-child(4) { height: 65%; animation-delay: 1.3s; }
-.dashBar:nth-child(5) { height: 85%; animation-delay: 1.4s; }
-/* A barra de destaque era verde WhatsApp — depois de tirar o verde do CTA e do
-   botão flutuante, ela ficaria como o único verde da primeira dobra. Continua
-   sendo o ponto alto do gráfico, agora em ciano da marca. */
-.dashBar:nth-child(6) { height: 100%; animation-delay: 1.5s; background: linear-gradient(to top, rgba(0, 216, 255, 0.45), #00D8FF); box-shadow: 0 0 20px rgba(0, 216, 255, 0.28); }
-
-@keyframes barRise {
-  from { transform: scaleY(0); opacity: 0; }
-  to { transform: scaleY(1); opacity: 1; }
-}
-
-.dashMetrics {
-  display: flex;
-  gap: 12px;
-}
-
-.dashMetric {
-  flex: 1;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  border-radius: 8px;
-  padding: 16px;
-}
-
-.dashMetricLabel {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  color: var(--text-faint);
-  letter-spacing: 0.05em;
-  margin-bottom: 4px;
-}
-
-.dashMetricValue {
-  font-family: var(--font-display);
-  font-size: 22px;
-  font-weight: 700;
-  color: #fff;
-}
-
-/* ─── Content ─── */
-.content {
-  position: relative;
-  z-index: 2;
-  max-width: 640px;
-}
-
-/* Oculto no desktop, ativado via media query mobile */
-.dashboardMobile {
-  display: none;
-}
+.content { position: relative; z-index: 1; max-width: 620px; }
 
 .eyebrow {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.3em;
-  text-transform: uppercase;
-  color: var(--text-faint);
-  margin-bottom: 32px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  opacity: 0;
-  transform: translateY(16px);
-  animation: fadeUp 0.8s cubic-bezier(0.16,1,0.3,1) forwards 0.3s;
+  gap: 12px;
+  margin-bottom: 26px;
+  color: var(--cyan);
+  font-family: var(--font-mono);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  line-height: 1.8;
+  letter-spacing: .2em;
 }
 
-.eyebrowDot {
-  width: 6px; height: 6px;
-  border-radius: 50%;
-  background: var(--cyan);
+.pixel {
+  width: 9px;
+  height: 9px;
   flex-shrink: 0;
-  animation: dotBlink 2s ease-in-out infinite;
-}
-
-@keyframes dotBlink {
-  0%, 100% { opacity: 1; }
-  50%       { opacity: 0.3; }
+  background: var(--purple);
+  box-shadow: 5px -5px 0 rgba(128, 64, 245, .25);
 }
 
 .h1 {
   font-family: var(--font-display);
-  font-size: clamp(36px, 5vw, 84px);
+  font-size: clamp(40px, 4.3vw, 64px);
   font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.025em;
-  margin-bottom: 36px;
-  opacity: 0;
-  transform: translateY(24px);
-  animation: fadeUp 1s cubic-bezier(0.16,1,0.3,1) forwards 0.55s;
+  line-height: 1.09;
+  letter-spacing: -.045em;
+  margin-bottom: 24px;
+  text-wrap: balance;
+}
+
+/* Gradiente da marca no fecho da headline, igual ao h1 da LP. */
+.highlight {
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
 .sub {
-  font-size: clamp(16px, 1.4vw, 18px);
+  max-width: 470px;
+  font-size: var(--fs-intro);
   color: var(--text-dim);
-  max-width: 540px;
-  line-height: 1.8;
-  font-weight: 300;
-  margin-bottom: 52px;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeUp 1s cubic-bezier(0.16,1,0.3,1) forwards 0.8s;
+  line-height: var(--lh-body);
+  margin-bottom: 32px;
 }
 
-.ctas {
-  display: flex;
-  gap: 20px;
-  flex-wrap: wrap;
-  align-items: center;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeUp 1s cubic-bezier(0.16,1,0.3,1) forwards 1.0s;
+.ctas { display: flex; flex-direction: column; align-items: flex-start; }
+
+/* Só geometria: o fundo continua sendo var(--grad) de .btn-hero-cta. */
+.ctas .primary {
+  max-width: 100%;
+  padding: 19px 30px;
+  border-radius: 6px;
+  font-size: 14px;
+  letter-spacing: .02em;
+  line-height: 1.5;
 }
 
-.ctaGroupPrimary {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-}
-
-.ctaGroupSecondary {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  justify-content: flex-start;
-}
+.primary svg { flex-shrink: 0; }
 
 .microcopy {
+  margin-top: 14px;
   font-size: 12px;
-  color: var(--text-dim);
-  font-family: var(--font-body);
-}
-
-/* Availability strip */
-.proof {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
   color: var(--text-faint);
+  line-height: 1.7;
 }
 
-.proofDot {
-  width: 7px; height: 7px;
-  border-radius: 50%;
-  background: #25D366;
-  flex-shrink: 0;
-  box-shadow: 0 0 8px rgba(37, 211, 102, 0.7);
-  animation: proofPulse 2.5s ease-in-out infinite;
-}
-
-@keyframes proofPulse {
-  0%, 100% { box-shadow: 0 0 6px rgba(37, 211, 102, 0.6); }
-  50%       { box-shadow: 0 0 14px rgba(37, 211, 102, 1.0); }
-}
-
-@keyframes fadeUp {
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* Social proof strip */
-.socialProof {
-  display: flex;
+.projectLink {
+  display: inline-flex;
+  gap: 14px;
   align-items: center;
-  gap: 12px;
-  margin-top: 28px;
-  opacity: 0;
-  animation: fadeUp 1s cubic-bezier(0.16,1,0.3,1) forwards 1.35s;
+  min-height: 44px;
+  margin-top: 12px;
+  color: var(--cyan);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
 }
 
-.avatars {
-  display: flex;
+.projectLink span { font-size: 17px; }
+.projectLink:hover { text-decoration: underline; text-underline-offset: 5px; }
+.primary:focus-visible, .projectLink:focus-visible { outline: 3px solid var(--cyan); outline-offset: 5px; }
+
+.visual {
+  position: relative;
+  z-index: 1;
+  aspect-ratio: 726 / 546;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg3);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, .45);
 }
 
-.avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid var(--bg);
+/* object-position à direita: a metade esquerda do arquivo é só fundo escuro
+   com a dissolução em pixels. */
+.visual img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.visual::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(200deg, rgba(128, 64, 245, .12), transparent 45%);
+}
+
+.foot {
+  position: relative;
+  z-index: 1;
+  grid-column: 1 / -1;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 26px;
+  padding-top: 22px;
+  border-top: 1px solid var(--border);
+  color: var(--text-faint);
+  font-family: var(--font-mono);
   font-size: 9px;
-  font-family: var(--font-mono);
-  font-weight: 700;
-  color: var(--text);
-  margin-left: -8px;
-  flex-shrink: 0;
+  letter-spacing: .12em;
 }
 
-.avatar:first-child  { margin-left: 0; background: rgba(128, 64, 245, 0.35); }
-.avatar:nth-child(2) { background: rgba(0, 216, 255, 0.18); }
-.avatar:nth-child(3) { background: rgba(128, 64, 245, 0.22); }
+.slash { color: var(--purple-text); }
 
-.socialText {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.06em;
-  color: var(--text-faint);
+@media (max-width: 1100px) {
+  .hero { gap: 22px 32px; padding-inline: 32px; }
+  .h1 { font-size: clamp(36px, 4.6vw, 48px); }
 }
 
-/* Desktop-only line breaks — hidden on mobile for natural text reflow */
-.brDesktop { display: inline; }
-
-/* ─── Responsive ─── */
 @media (max-width: 900px) {
   .hero {
-    padding: 100px 24px 60px;
-    min-height: 100svh;
+    grid-template-columns: 1fr;
+    align-items: stretch;
+    padding: 120px 24px 32px;
   }
-  .canvas, .glow, .dashboardWrap { display: none !important; }
-  .brDesktop { display: none; }
-  .h1 {
-    font-size: clamp(34px, 8vw, 44px);
-    letter-spacing: -0.015em;
-    line-height: 1.15;
-    margin-bottom: 24px;
-  }
-  .sub {
-    font-size: 14.5px;
-    margin-bottom: 32px;
-    line-height: 1.6;
-  }
-  .ctas {
-    gap: 12px;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .ctaGroupSecondary {
-    flex-wrap: wrap;
-    gap: 12px 18px;
-  }
-
-  /* Dashboard Mobile ─ inline, abaixo dos CTAs */
-  .dashboardMobile {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    margin-top: 40px;
-    background: rgba(20, 20, 48, 0.5);
-    -webkit-backdrop-filter: blur(16px);
-    backdrop-filter: blur(16px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 14px;
-    padding: 20px;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(128, 64, 245, 0.08) inset;
-    opacity: 0;
-    animation: fadeUp 1s cubic-bezier(0.16,1,0.3,1) forwards 1.3s;
-  }
+  .content { max-width: 580px; }
+  .h1 { font-size: clamp(38px, 7vw, 54px); }
+  .sub { max-width: 520px; }
+  .visual { max-width: 580px; width: 100%; }
+  .foot { margin-top: 20px; }
 }
 
 @media (max-width: 480px) {
-  .hero { padding: 90px 20px 40px; }
-
-  .h1 {
-    font-size: clamp(30px, 9vw, 36px);
-    line-height: 1.12;
-    letter-spacing: 0;
-  }
-
-  .eyebrow {
-    font-size: 9px;
-    letter-spacing: 0.18em;
-    margin-bottom: 24px;
-  }
-}
-
-@media (max-width: 360px) {
-  .hero {
-    padding-inline: 16px;
-  }
-
-  .h1 {
-    font-size: 29px;
-  }
+  .hero { padding: 104px 20px 28px; gap: 20px; }
+  .eyebrow { font-size: 10px; letter-spacing: .12em; margin-bottom: 22px; }
+  .h1 { font-size: clamp(32px, 9vw, 42px); }
+  .sub { font-size: 15px; margin-bottom: 26px; }
+  .ctas .primary { width: 100%; padding: 18px 16px; font-size: 13px; }
+  .foot { flex-direction: column; gap: 8px; font-size: 8px; }
 }

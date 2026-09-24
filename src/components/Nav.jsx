@@ -44,7 +44,8 @@ export default function Nav() {
             { label: 'Início',   href: '/' },
             { label: 'Serviços', href: '/#servicos' },
             { label: 'Planos',   href: '/#planos' },
-            { label: 'FAQ',      href: '/#faq' }
+            { label: 'FAQ',      href: '/#faq' },
+            { label: 'Área do Cliente', href: '/portal' }
           ]}
           activeHref={activeHref}
           baseColor="#101022"
