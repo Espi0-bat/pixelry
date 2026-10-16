@@ -2,9 +2,10 @@ import { useEffect, useRef, useState } from 'react';
 import { Camera, LogOut, User, X, KeyRound } from 'lucide-react';
 import { supabase } from '../../config/supabase';
 import ChangePassword from '../../components/ChangePassword';
+import { displayName as nomeExibido } from '../utils/displayName';
 import './ProfilePanel.css';
 
-export default function ProfilePanel({ user, avatarUrl, onAvatarUpdate, onLogout, userRole }) {
+export default function ProfilePanel({ user, avatarUrl, onAvatarUpdate, onLogout, userRole, userProfile }) {
   const [open, setOpen]         = useState(false);
   const [uploading, setUploading] = useState(false);
   const [preview, setPreview]   = useState(avatarUrl);
@@ -16,12 +17,7 @@ export default function ProfilePanel({ user, avatarUrl, onAvatarUpdate, onLogout
     ? user.email.substring(0, 2).toUpperCase()
     : 'AD';
 
-  const displayName = (() => {
-    const e = user?.email || '';
-    if (e.includes('socio1')) return 'Ezer';
-    if (e.includes('ex-membro-1'))   return 'ex-membro-1';
-    return e.split('@')[0];
-  })();
+  const displayName = nomeExibido(userProfile, user);
 
   const roleLabel = {
     super_admin: 'CEO · Pixelry',

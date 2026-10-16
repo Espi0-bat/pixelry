@@ -12,7 +12,7 @@ import LoginModal   from './components/LoginModal'
 import ResetPasswordScreen from './components/ResetPasswordScreen'
 import NotFound     from './components/NotFound'
 import { useRecoveryMode } from './hooks/usePasswordRecovery'
-import { isSupabaseConfigured, supabase, ADMIN_EMAILS, isAdminEmail } from './config/supabase'
+import { isSupabaseConfigured, supabase, fetchUserRole, isTeamRole } from './config/supabase'
 import { iniciarMedicao, registrarNavegacao } from './config/analytics'
 
 // Lazy Loading para componentes abaixo da dobra (ganho de performance substancial de LCP e FCP)
@@ -99,11 +99,18 @@ export default function App() {
   const navigate = useNavigate()
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(true)
+  // Papel (profiles.role) do usuário logado; `id` diz de quem é, para não usar
+  // o papel de uma sessão anterior enquanto o da atual ainda está chegando.
+  const [perfil, setPerfil] = useState({ id: null, role: null })
   const { active: recoveryMode, clear: clearRecovery } = useRecoveryMode()
 
-  const finishRecovery = () => {
+  const roleLoading = Boolean(user) && perfil.id !== user.id
+  const isAdminUser = Boolean(user) && !roleLoading && isTeamRole(perfil.role)
+
+  const finishRecovery = async () => {
     clearRecovery()
-    navigate(isAdminEmail(user?.email) ? '/admin' : '/portal')
+    const role = roleLoading ? await fetchUserRole(user?.id) : perfil.role
+    navigate(isTeamRole(role) ? '/admin' : '/portal')
   }
 
   const cancelRecovery = async () => {
@@ -136,6 +143,15 @@ export default function App() {
     })
     return () => subscription.unsubscribe()
   }, [])
+
+  useEffect(() => {
+    if (!user?.id) return
+    let ativo = true
+    fetchUserRole(user.id).then(role => {
+      if (ativo) startTransition(() => setPerfil({ id: user.id, role }))
+    })
+    return () => { ativo = false }
+  }, [user?.id])
 
   // Medição: carrega o que o consentimento já autorizou e conta a troca de rota.
   useEffect(() => {
@@ -174,8 +190,7 @@ export default function App() {
   const isDashboard = location.pathname.startsWith('/admin') || location.pathname.startsWith('/portal')
 
   // Portal do cliente — admin logado não acessa automaticamente
-  const isAdminUser = user && isAdminEmail(user.email)
-  const portalElement = authLoading
+  const portalElement = authLoading || roleLoading
     ? PORTAL_FALLBACK
     : !user || isAdminUser
       ? (
@@ -194,11 +209,11 @@ export default function App() {
       )
 
   // Painel admin — qualquer usuário autenticado acessa; AdminLayout redireciona clientes para /portal
-  const adminElement = authLoading
+  const adminElement = authLoading || roleLoading
     ? PORTAL_FALLBACK
     : !user
       ? <Suspense fallback={PORTAL_FALLBACK}><AdminLogin onLogin={usr => setUser(usr)} /></Suspense>
-      : <Suspense fallback={PORTAL_FALLBACK}><AdminLayout user={user} onLogout={handleLogout} /></Suspense>
+      : <Suspense fallback={PORTAL_FALLBACK}><AdminLayout user={user} initialRole={perfil.role} onLogout={handleLogout} /></Suspense>
 
   return (
     <>

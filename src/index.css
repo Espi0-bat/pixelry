@@ -401,7 +401,7 @@ html.js .reveal.visible {
   --grad-text:  linear-gradient(90deg, #FFF2A8, #FFD700);
 }
 
-/* socio1 — Tema Obsidiana/Ametista */
+/* Tema Obsidiana/Ametista (padrão da equipe) */
 .theme-obsidian {
   --bg:      #05020a;
   --bg2:     #08040f;

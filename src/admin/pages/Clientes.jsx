@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ChevronRight, CheckCircle, Clock, UserPlus, X, Send, Building2, Mail, User } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { supabase, ADMIN_EMAILS } from '../../config/supabase';
+import { supabase } from '../../config/supabase';
 import './Clientes.css';
 
 const ClientCard = React.memo(function ClientCard({ client, onOpen }) {
@@ -80,7 +80,7 @@ export default function Clientes() {
     const { data: profiles } = await supabase
       .from('profiles')
       .select('id, full_name, company_name, email')
-      .not('email', 'in', `(${ADMIN_EMAILS.map(e => `"${e}"`).join(',')})`)
+      .eq('role', 'client')
       .order('full_name', { ascending: true })
       .limit(200);
 

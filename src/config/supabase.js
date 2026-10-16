@@ -3,27 +3,6 @@ import { createClient } from '@supabase/supabase-js'
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
-// Lista da equipe. NÃO é segredo: o allowlist é verificado no cliente e já vai
-// no bundle. Ficam fixos aqui como fonte da verdade; a env var (quando definida)
-// SUBSTITUI o padrão — útil para adicionar alguém sem novo deploy.
-const DEFAULT_SUPER_ADMIN_EMAILS = ['socio1@exemplo.com', 'ex-membro-1@exemplo.com']
-const DEFAULT_MANAGER_EMAILS = []
-
-const parseEmails = (raw) => String(raw || '').split(',').map(e => e.trim().toLowerCase()).filter(Boolean)
-
-const envSuper = parseEmails(import.meta.env.VITE_SUPER_ADMIN_EMAILS)
-const envManager = parseEmails(import.meta.env.VITE_MANAGER_EMAILS)
-
-export const SUPER_ADMIN_EMAILS = envSuper.length ? envSuper : DEFAULT_SUPER_ADMIN_EMAILS
-export const MANAGER_EMAILS = envManager.length ? envManager : DEFAULT_MANAGER_EMAILS
-
-export const ADMIN_EMAILS = [...SUPER_ADMIN_EMAILS, ...MANAGER_EMAILS]
-
-// true se o e-mail pertence à equipe (super_admin ou manager). Case-insensitive.
-export function isAdminEmail(email) {
-  return Boolean(email) && ADMIN_EMAILS.includes(String(email).trim().toLowerCase())
-}
-
 export const ROLE_LEVELS = {
   super_admin: 4,
   manager:     3,
@@ -33,6 +12,15 @@ export const ROLE_LEVELS = {
 
 export function hasMinRole(userRole, minRole) {
   return (ROLE_LEVELS[userRole] || 0) >= (ROLE_LEVELS[minRole] || 0)
+}
+
+// Papéis que entram pelo login do painel e não usam o portal do cliente.
+// Vem de profiles.role, a mesma coluna que a RLS e as Edge Functions conferem;
+// nenhum e-mail da equipe fica no código nem no bundle.
+export const TEAM_ROLES = ['super_admin', 'manager']
+
+export function isTeamRole(role) {
+  return TEAM_ROLES.includes(role)
 }
 
 export const STORAGE_BUCKET = 'deliveries'
@@ -45,3 +33,10 @@ if (!isSupabaseConfigured) {
 export const supabase = isSupabaseConfigured
   ? createClient(supabaseUrl, supabaseAnonKey)
   : null
+
+// Papel do usuário em profiles.role; null sem sessão ou sem perfil.
+export async function fetchUserRole(userId) {
+  if (!supabase || !userId) return null
+  const { data } = await supabase.from('profiles').select('role').eq('id', userId).maybeSingle()
+  return data?.role ?? null
+}

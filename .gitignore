@@ -40,6 +40,14 @@ __pycache__/
 # MCP config (contains secrets)
 .mcp.json
 
+# Documentos internos: ficam só na máquina, nunca no repositório público
+docs/auditoria-*.md
+docs/lp-clinicas/
+docs/kanban_tasks_migration.sql
+supabase/migrations/APLICAR_NO_SQL_EDITOR/
+.agents/
+skills-lock.json
+
 # Certificados e chaves — nunca devem entrar por acidente
 *.pem
 *.key

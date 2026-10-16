@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { Link, useOutletContext } from 'react-router-dom';
 import { supabase } from '../../config/supabase';
 import EmployeeDashboard from './EmployeeDashboard';
+import { displayName } from '../utils/displayName';
 import './Dashboard.css';
 
 function getMonday(date) {
@@ -35,12 +36,6 @@ function getGreeting() {
   if (h < 12) return 'Bom dia';
   if (h < 18) return 'Boa tarde';
   return 'Boa noite';
-}
-
-function getUserName(email = '') {
-  if (email.includes('socio1'))   return 'Ezer';
-  if (email.includes('ex-membro-1'))     return 'ex-membro-1';
-  return email.split('@')[0];
 }
 
 const StatCard = React.memo(function StatCard({ title, value, sub, iconBg, iconColor, Icon, glowColor, loading, trend }) {
@@ -92,26 +87,19 @@ export default function Dashboard() {
   if (ctx.userRole === 'employee') {
     return <EmployeeDashboard userProfile={ctx.userProfile} user={ctx.user} />;
   }
-  return <AdminDashboard />;
+  return <AdminDashboard userProfile={ctx.userProfile} user={ctx.user} />;
 }
 
-function AdminDashboard() {
+function AdminDashboard({ userProfile, user }) {
   const [stats, setStats]           = useState({ clients: 0, pending: 0, approved: 0 });
   const [events, setEvents]         = useState([]);
   const [loading, setLoading]       = useState(true);
   const [goals, setGoals]           = useState([]);
   const [goalsLoading, setGoalsLoading] = useState(true);
-  const [userEmail, setUserEmail]   = useState('');
 
   const currentDate = new Date().toLocaleDateString('pt-BR', {
     weekday: 'long', day: 'numeric', month: 'long'
   });
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session?.user?.email) setUserEmail(session.user.email);
-    });
-  }, []);
 
   useEffect(() => {
     async function load() {
@@ -185,7 +173,7 @@ function AdminDashboard() {
   const goalsDone  = goals.filter(g => g.status === 'done').length;
   const goalsTotal = goals.length;
   const goalsPct   = goalsTotal ? Math.round((goalsDone / goalsTotal) * 100) : 0;
-  const userName   = getUserName(userEmail);
+  const userName   = displayName(userProfile, user);
 
   return (
     <div className="dashboard-container">

@@ -14,12 +14,7 @@ const GLOW_RADIUS = 160;
 const TARGET_FPS = 30;
 const FRAME_INTERVAL = 1000 / TARGET_FPS;
 
-function getRoleFromEmail(email = '') {
-  if (email.includes('socio1') || email.includes('ex-membro-1')) return 'super_admin';
-  return 'employee';
-}
-
-export default function AdminLayout({ user, onLogout }) {
+export default function AdminLayout({ user, initialRole = null, onLogout }) {
   const navigate = useNavigate();
   const location = useLocation();
   const canvasRef = useRef(null);
@@ -27,11 +22,10 @@ export default function AdminLayout({ user, onLogout }) {
   const targetRef = useRef({ x: 0.5, y: 0.5 });
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(null);
-  const [userRole, setUserRole] = useState(() => getRoleFromEmail(user?.email));
+  const [userRole, setUserRole] = useState(initialRole);
   const [userProfile, setUserProfile] = useState(null);
   const theme = userRole === 'manager' ? 'rose'
     : userRole === 'employee' ? 'slate'
-    : user?.email?.includes('ex-membro-1') ? 'gold'
     : 'obsidian';
   const themeRef = useRef(theme);
   themeRef.current = theme;
@@ -260,6 +254,7 @@ export default function AdminLayout({ user, onLogout }) {
             onAvatarUpdate={setAvatarUrl}
             onLogout={handleLogout}
             userRole={userRole}
+            userProfile={userProfile}
           />
         </header>
         <div className="content-area">
