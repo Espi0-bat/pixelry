@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { buildWhatsAppLink } from '../config/contact'
 import LeadCaptureModal from './LeadCaptureModal'
 
-const WA_LINK = buildWhatsAppLink('Oi Erick! Fiquei lendo sobre a Pixelry e resolvi entrar em contato. Minha clínica precisa de mais pacientes. Podemos conversar?')
+const WA_LINK = buildWhatsAppLink('Oi Ezer! Fiquei lendo sobre a Pixelry e resolvi entrar em contato. Minha clínica precisa de mais pacientes. Podemos conversar?')
 
 const WaIcon = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

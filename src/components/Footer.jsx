@@ -3,7 +3,7 @@ import { Lock } from 'lucide-react'
 import { buildWhatsAppLink } from '../config/contact'
 import styles from './Footer.module.css'
 
-const WA_LINK = buildWhatsAppLink('Olá Erick! Vim pelo rodapé do site da PIXELRY e gostaria de falar sobre as soluções.')
+const WA_LINK = buildWhatsAppLink('Olá Ezer! Vim pelo rodapé do site da PIXELRY e gostaria de falar sobre as soluções.')
 
 const WaIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

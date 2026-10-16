@@ -5,12 +5,12 @@ import styles from './Planos.module.css'
 import LeadCaptureModal from './LeadCaptureModal'
 
 const WA_MESSAGES = {
-  START: 'Oi Erick! Me interessei no plano START da Pixelry — landing page de conversão com rastreamento completo. Posso aplicar?',
-  PRO:   'Oi Erick! Quero o plano PRO da Pixelry. Além do site, quero acompanhamento mensal, automação e consultoria. Podemos conversar sobre minha clínica?',
-  ELITE: 'Oi Erick! Tenho interesse no plano ELITE da Pixelry. Quero a Pixelry como parceira estratégica completa. Quando podemos conversar?',
-  AI:    'Oi Erick! Quero saber mais sobre o módulo de Agente de IA para WhatsApp da Pixelry. Podemos conversar?',
-  ADS:   'Oi Erick! Quero saber mais sobre o PIXELRY ADS — gestão de tráfego pago. Podemos conversar?',
-  SM:    'Oi Erick! Quero saber mais sobre o módulo de Social Media da Pixelry. Podemos conversar?',
+  START: 'Oi Ezer! Me interessei no plano START da Pixelry — landing page de conversão com rastreamento completo. Posso aplicar?',
+  PRO:   'Oi Ezer! Quero o plano PRO da Pixelry. Além do site, quero acompanhamento mensal, automação e consultoria. Podemos conversar sobre minha clínica?',
+  ELITE: 'Oi Ezer! Tenho interesse no plano ELITE da Pixelry. Quero a Pixelry como parceira estratégica completa. Quando podemos conversar?',
+  AI:    'Oi Ezer! Quero saber mais sobre o módulo de Agente de IA para WhatsApp da Pixelry. Podemos conversar?',
+  ADS:   'Oi Ezer! Quero saber mais sobre o PIXELRY ADS — gestão de tráfego pago. Podemos conversar?',
+  SM:    'Oi Ezer! Quero saber mais sobre o módulo de Social Media da Pixelry. Podemos conversar?',
 }
 
 const PLANOS = [
@@ -65,7 +65,7 @@ const PLANOS = [
       'Tudo do PRO + Contato direto prioritário (SLA até 2h úteis)',
       'Roadmap Trimestral de Crescimento Estruturado',
       'Testes A/B Ativos com relatório de resultado',
-      'Mentoria de Vendas com Erick + Reuniões Semanais Opcionais',
+      'Mentoria de Vendas com Ezer + Reuniões Semanais Opcionais',
       'Prioridade de acesso ao módulo Agente de IA'
     ]
   }

@@ -4,7 +4,7 @@ import { buildWhatsAppLink } from '../config/contact'
 import styles from './CtaFinal.module.css'
 import LeadCaptureModal from './LeadCaptureModal'
 
-const WA_LINK = buildWhatsAppLink('Oi Erick! Li tudo sobre a Pixelry. Quero conversar sobre um sistema de captação pra minha clínica. Pode me dar o diagnóstico?')
+const WA_LINK = buildWhatsAppLink('Oi Ezer! Li tudo sobre a Pixelry. Quero conversar sobre um sistema de captação pra minha clínica. Pode me dar o diagnóstico?')
 
 const WaIcon = () => (
   <svg className="wa-icon" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
