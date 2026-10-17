@@ -31,9 +31,5 @@ export default defineConfig({
     // cliente Supabase fica nulo, que é o comportamento já previsto no código.
     'import.meta.env.VITE_SUPABASE_URL': 'undefined',
     'import.meta.env.VITE_SUPABASE_ANON_KEY': 'undefined',
-    'import.meta.env.VITE_SUPER_ADMIN_EMAILS': 'undefined',
-    'import.meta.env.VITE_MANAGER_EMAILS': 'undefined',
-    'import.meta.env.VITE_WHATSAPP_NUMBER': 'undefined',
-    'import.meta.env.VITE_CLIENT_WHATSAPP_NUMBER': 'undefined',
   },
 })

@@ -34,8 +34,6 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_WHATSAPP_NUMBER: ${{ secrets.VITE_WHATSAPP_NUMBER }}
-          VITE_CLIENT_WHATSAPP_NUMBER: ${{ secrets.VITE_CLIENT_WHATSAPP_NUMBER }}
           VITE_GA4_ID: ${{ secrets.VITE_GA4_ID }}
           VITE_META_PIXEL_ID: ${{ secrets.VITE_META_PIXEL_ID }}
         run: npm run build

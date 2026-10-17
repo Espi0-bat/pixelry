@@ -91,7 +91,7 @@ https://seu-usuario.github.io/nome-do-seu-repo/
 
 | O que mudar          | Arquivo                        |
 |----------------------|--------------------------------|
-| Número do WhatsApp   | `.env` / `.env.example` (`VITE_WHATSAPP_NUMBER`) |
+| Número do WhatsApp   | `src/config/contact.js`        |
 | Textos e copy        | Cada componente da seção       |
 | Cores da marca       | `src/index.css` (`:root`)      |
 | Fontes               | `index.html` + `index.css`     |
