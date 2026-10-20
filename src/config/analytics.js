@@ -3,8 +3,9 @@
  *
  * Três regras que o código garante, não a boa vontade de quem usa:
  *
- * 1. Sem ID configurado, nada é carregado e nenhuma requisição sai. O site
- *    funciona igual com os campos vazios — é esse o estado padrão.
+ * 1. Os IDs são públicos (aparecem em qualquer página) e ficam no código,
+ *    como o WhatsApp em config/contact.js. VITE_GA4_ID e VITE_META_PIXEL_ID
+ *    só servem para apontar outro ambiente para outra conta.
  * 2. Nada carrega antes do consentimento. O banner de cookies guarda
  *    { essential, analytics, marketing } em `pixelry_cookie_consent`; o GA4
  *    depende de `analytics` e o Meta Pixel de `marketing`. Quem fecha o banner
@@ -12,8 +13,8 @@
  * 3. /admin e /portal ficam de fora: são tela interna, não audiência.
  */
 
-const GA4_ID = import.meta.env.VITE_GA4_ID || ''
-const META_ID = import.meta.env.VITE_META_PIXEL_ID || ''
+const GA4_ID = import.meta.env.VITE_GA4_ID || 'G-95HP1S4K2N'
+const META_ID = import.meta.env.VITE_META_PIXEL_ID || '439363224095353'
 
 export const CHAVE_CONSENTIMENTO = 'pixelry_cookie_consent'
 
