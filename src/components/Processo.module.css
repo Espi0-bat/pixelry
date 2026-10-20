@@ -86,7 +86,7 @@
 
 .num {
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-meta);
   letter-spacing: 0.1em;
   color: var(--text-faint);
   padding-top: 3px;
@@ -119,8 +119,8 @@
   align-items: center;
   gap: 7px;
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.12em;
+  font-size: var(--fs-meta);
+  letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--text-faint);
   border: 1px solid var(--border);

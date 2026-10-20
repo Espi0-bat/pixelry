@@ -58,8 +58,8 @@
 
 .num {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.2em;
+  font-size: var(--fs-meta);
+  letter-spacing: .08em;
   color: var(--cyan);
 }
 
@@ -85,8 +85,8 @@
 .badge {
   display: inline-block;
   font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.15em;
+  font-size: var(--fs-meta);
+  letter-spacing: .08em;
   color: var(--purple-text);
   border: 1px solid rgba(128, 64, 245, 0.35);
   padding: 4px 10px;

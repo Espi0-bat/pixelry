@@ -84,7 +84,7 @@
 }
 
 .cardLabel {
-  font-size: 12px;
+  font-size: var(--fs-label);
   color: var(--text-dim);
   font-family: var(--font-body);
   line-height: 1.5;

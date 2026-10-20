@@ -54,8 +54,8 @@
 
 .tag {
   font-family: var(--font-mono);
-  font-size: 11px;
-  letter-spacing: 0.22em;
+  font-size: var(--fs-meta);
+  letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--text-faint);
 }

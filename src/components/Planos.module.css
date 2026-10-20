@@ -129,12 +129,13 @@
   transform: translateX(-50%);
   background: var(--purple);
   color: #fff;
-  font-size: 10px;
+  font-size: var(--fs-meta);
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: .08em;
   padding: 4px 12px;
   border-radius: 20px;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .nome {
@@ -166,10 +167,10 @@
 }
 
 .valorItem span {
-  font-size: 10px;
+  font-size: var(--fs-meta);
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: .08em;
   margin-bottom: 2px;
 }
 
@@ -192,7 +193,7 @@
 }
 
 .featureTitle {
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-family: var(--font-mono);
   color: var(--text-dim);
   letter-spacing: 0.1em;
@@ -303,9 +304,9 @@
 
 .modulosLabel {
   display: inline-block;
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-family: var(--font-mono);
-  letter-spacing: 0.15em;
+  letter-spacing: .08em;
   color: var(--cyan);
   text-transform: uppercase;
   margin-bottom: 16px;
@@ -389,9 +390,9 @@
   position: absolute;
   top: -10px;
   left: 24px;
-  font-size: 9px;
+  font-size: var(--fs-meta);
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: .08em;
   text-transform: uppercase;
   padding: 3px 10px;
   border-radius: 20px;
@@ -445,7 +446,7 @@
 }
 
 .moduloSub {
-  font-size: 11px;
+  font-size: var(--fs-meta);
   color: var(--cyan);
   font-family: var(--font-mono);
   letter-spacing: 0.05em;
@@ -454,7 +455,7 @@
 }
 
 .moduloHero .moduloSub {
-  font-size: 12px;
+  font-size: var(--fs-meta);
 }
 
 .moduloDesc {
@@ -514,7 +515,7 @@
 }
 
 .moduloRequisito {
-  font-size: 10px;
+  font-size: var(--fs-meta);
   font-family: var(--font-mono);
   letter-spacing: 0.1em;
   text-transform: uppercase;

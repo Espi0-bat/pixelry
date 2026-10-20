@@ -70,8 +70,8 @@
 
 .caption {
   font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.15em;
+  font-size: var(--fs-label);
+  letter-spacing: .08em;
   color: var(--text-faint);
   text-transform: uppercase;
   padding: 12px 20px;

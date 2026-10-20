@@ -22,8 +22,8 @@
 
 .item {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.25em;
+  font-size: var(--fs-label);
+  letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--text-faint);
   padding: 0 4px;

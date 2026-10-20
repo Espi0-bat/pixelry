@@ -33,9 +33,9 @@
 }
 .pixelry-home .label {
   font-family: var(--font-body);
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-weight: 500;
-  letter-spacing: .16em;
+  letter-spacing: .08em;
   line-height: 1.6;
 }
 .pixelry-home :is(.btn-primary, .btn-secondary, .btn-hero-cta) {

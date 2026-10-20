@@ -2,7 +2,7 @@
 .section { padding:34px 5vw 112px; background:var(--bg); color:var(--text); scroll-margin-top:90px; }
 .inner { max-width:1180px; margin:auto; }
 .header { display:grid; grid-template-columns:minmax(150px,.42fr) 1fr; align-items:start; gap:48px; margin-bottom:36px; }
-.label { display:flex; align-items:center; gap:12px; padding-top:9px; font:500 10px/1.5 'Inter',sans-serif; letter-spacing:.08em; text-transform:uppercase; color:var(--text-faint); }
+.label { display:flex; align-items:center; gap:12px; padding-top:9px; font:500 var(--fs-label)/1.5 'Inter',sans-serif; letter-spacing:.08em; text-transform:uppercase; color:var(--text-faint); }
 .label::before { content:''; width:24px; height:1px; background:var(--purple-text); }
 .label span { color:var(--purple-text); font-variant-numeric:tabular-nums; }
 .h2 { max-width:760px; margin:0; font:600 clamp(30px,3.35vw,47px)/1.08 'Inter',sans-serif; letter-spacing:-.04em; text-wrap:balance; }
@@ -17,10 +17,10 @@
 .card:focus-visible { outline:2px solid var(--cyan); outline-offset:8px; }
 .info { display:flex; flex-direction:column; justify-content:flex-end; align-items:flex-start; padding:0 0 4px; }
 .infoText { max-width:270px; }
-.segment { color:var(--text-faint); font:500 10px/1.5 'Inter',sans-serif; letter-spacing:.08em; text-transform:uppercase; margin-bottom:16px; }
+.segment { color:var(--text-faint); font:500 var(--fs-label)/1.5 'Inter',sans-serif; letter-spacing:.08em; text-transform:uppercase; margin-bottom:16px; }
 .name { font:400 34px/1.15 'Instrument Serif',Georgia,serif; letter-spacing:-.015em; }
 .desc { font:400 13px/1.75 'Inter',sans-serif; color:var(--text-dim); margin-top:18px; }
-.link { display:inline-flex; align-items:center; min-height:44px; margin-top:34px; font:500 11px/1.5 'Inter',sans-serif; color:var(--text); white-space:nowrap; }
+.link { display:inline-flex; align-items:center; min-height:44px; margin-top:34px; font:500 var(--fs-meta)/1.5 'Inter',sans-serif; color:var(--text); white-space:nowrap; }
 .link span { margin-left:18px; color:var(--purple-text); transition:transform 220ms cubic-bezier(.22,1,.36,1); }
 .card:hover .link span { transform:translate(3px,-3px); }
 @media(max-width:850px) {

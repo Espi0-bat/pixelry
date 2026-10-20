@@ -122,7 +122,7 @@
   color: #e4e4e7;
   padding: 0.35rem 0.85rem;
   border-radius: 9999px;
-  font-size: 0.75rem;
+  font-size: var(--fs-meta);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;

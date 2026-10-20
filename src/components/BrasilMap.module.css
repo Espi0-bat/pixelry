@@ -40,8 +40,8 @@
    Esta linha diz o que ela é. */
 .cityCaption {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--text-faint);
   margin-bottom: 14px;

@@ -51,8 +51,8 @@
 
 .waNote {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.2em;
+  font-size: var(--fs-meta);
+  letter-spacing: .08em;
   text-transform: uppercase;
   color: var(--text-faint);
   display: flex;

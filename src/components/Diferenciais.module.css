@@ -25,7 +25,7 @@
 .dash {
   display: block;
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-meta);
   color: var(--cyan);
   margin-bottom: 12px;
 }

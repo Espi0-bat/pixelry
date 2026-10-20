@@ -47,7 +47,7 @@
   gap: 6px;
   min-height: 44px;
   font-family: 'Inter', sans-serif;
-  font-size: 12px;
+  font-size: var(--fs-meta);
   letter-spacing: 0;
   color: var(--text-dim);
   text-decoration: none;
@@ -64,6 +64,6 @@
 
 @media (max-width: 480px) {
   .nav { padding: 18px 20px; }
-  .wordmark { font-size: 11px; }
-  .portalLink { font-size: 11px; }
+  .wordmark { font-size: var(--fs-meta); }
+  .portalLink { font-size: var(--fs-meta); }
 }

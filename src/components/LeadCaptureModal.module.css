@@ -73,7 +73,7 @@
 }
 
 .eyebrow {
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-weight: 600;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -113,7 +113,7 @@
 }
 
 .label {
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-weight: 600;
   color: rgba(240, 240, 250, 0.5);
   text-transform: uppercase;
@@ -122,7 +122,7 @@
 }
 
 .labelOptional {
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-weight: 400;
   color: rgba(240, 240, 250, 0.55);
   text-transform: none;
@@ -232,7 +232,7 @@
 .note {
   margin-top: 16px;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--fs-meta);
   color: rgba(240, 240, 250, 0.35);
   line-height: 1.5;
   flex-shrink: 0;
