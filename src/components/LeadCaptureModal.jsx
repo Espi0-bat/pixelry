@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { supabase } from '../config/supabase'
 import { registrarLead } from '../config/analytics'
 import styles from './LeadCaptureModal.module.css'
@@ -65,7 +66,11 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'di
   useEffect(() => {
     if (!isOpen) return
     setError('')
+    // Guarda o botão que abriu o formulário antes de mover o foco para dentro
+    // dele; com autoFocus o primeiro campo já estaria focado aqui e o foco
+    // se perderia ao fechar.
     const previous = document.activeElement
+    modalRef.current?.querySelector('#lead-name')?.focus()
     const overflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
     const onKey = e => {
@@ -84,7 +89,7 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'di
     }
   }, [isOpen, onClose])
 
-  if (!isOpen) return null
+  if (!isOpen || typeof document === 'undefined') return null
 
   function handleChange(e) {
     setForm(f => ({ ...f, [e.target.name]: e.target.value }))
@@ -125,7 +130,9 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'di
     onClose()
   }
 
-  return (
+  // Renderizado no <body>: dentro do hero ficava preso no empilhamento dele
+  // (o menu cobria o X) e herdava a tipografia da home no título.
+  return createPortal(
     <div className={styles.overlay} role="dialog" aria-modal="true" aria-labelledby="lead-modal-title" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className={styles.modal} ref={modalRef}>
         <button className={styles.closeBtn} onClick={onClose} aria-label="Fechar">
@@ -164,7 +171,6 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'di
               value={form.name}
               onChange={handleChange}
               required
-              autoFocus
             />
           </div>
 
@@ -280,6 +286,7 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'di
         {error && <div className={styles.error} role="alert"><p>{error}</p><a href={buildQualifiedLink(waLink, form)} target="_blank" rel="noreferrer">Falar no WhatsApp sem salvar o cadastro →</a></div>}
         <p className={styles.note}>Nenhum spam. Seus dados são usados apenas pela equipe Pixelry.</p>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }
