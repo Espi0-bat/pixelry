@@ -117,7 +117,7 @@ export default function Clinicas() {
       <button type="button" className={styles.button} onClick={() => openCapture('automacoes')}>Quero um plano para minha clínica <ArrowUpRight size={18} /></button>
     </section>
 
-    <nav className={styles.journeyNav} aria-label="Etapas da jornada">{chapters.map(c => <a key={c.id} href={`#${c.id}`}><span>{c.number}</span>{c.outcome}</a>)}</nav>
+    <nav className={styles.journeyNav} aria-label="Etapas da jornada">{chapters.map(c => <a key={c.id} href={`#${c.id}`}><span>{c.number}</span>{' '}{c.outcome}</a>)}</nav>
     {chapters.map((chapter, i) => <section id={chapter.id} key={chapter.id} className={`${styles.chapter} ${i % 2 ? styles.reverse : ''}`}>
       <div className={styles.scene}><Scene chapter={chapter} /></div>
       <div className={styles.chapterCopy}><p className={styles.eyebrow}><span>{chapter.number} /</span> {chapter.tag}</p><h2>{chapter.title}</h2><p>{chapter.text}</p><div className={styles.solution}><span className={styles.smallPixel} /><div><h3>A Pixelry ajuda assim</h3><p>{chapter.solution}</p></div></div><button type="button" className={styles.textLink} onClick={() => openCapture(chapter.id, challenges[i].label)}>Quero resolver esse desafio <ArrowUpRight size={17} /></button></div>

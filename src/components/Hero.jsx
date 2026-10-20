@@ -154,7 +154,7 @@ export default function Hero() {
           <Typewriter />
         </h1>
         <p className={styles.sub}>
-          Aproximamos sua clínica de quem precisa dela.<br className={styles.desktopBreak} />
+          Aproximamos sua clínica de quem precisa dela.{' '}<br className={styles.desktopBreak} />
           Com estratégia, design e uma presença digital que inspira confiança.
         </p>
 
