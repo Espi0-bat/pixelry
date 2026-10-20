@@ -77,3 +77,6 @@ ds-bundle/
 
 # Anthropic Claude Cookbooks (referência local, não versionar)
 docs/claude-cookbooks/
+
+# Estratégia de Ads (Privado e Local)
+docs/estrategia-ads-local/

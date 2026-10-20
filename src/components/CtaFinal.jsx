@@ -32,7 +32,7 @@ export default function CtaFinal() {
         <div className={`${styles.content} reveal`}>
           <h2 className={styles.h2}>
             A agenda cheia não vem de sorte.<br />
-            Vem de sistema. Vamos construir o seu.
+            Vem de sistema. <span className="type-accent">Vamos construir o seu.</span>
           </h2>
 
           <p className={styles.sub}>

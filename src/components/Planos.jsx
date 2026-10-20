@@ -173,7 +173,7 @@ export default function Planos() {
           <span className="label" style={{ justifyContent: 'center' }}>SISTEMA E INVESTIMENTO</span>
           <h2 className={styles.h2}>
             Três formas de estruturar.<br />
-            Um único objetivo: agenda cheia.
+            Um único objetivo: <span className="type-accent">agenda cheia.</span>
           </h2>
         </div>
 

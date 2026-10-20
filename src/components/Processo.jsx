@@ -49,7 +49,7 @@ export default function Processo() {
           <span className="label">METODOLOGIA</span>
           <h2 className={styles.h2}>
             Um processo que elimina o improviso<br />
-            e garante precisão em cada entrega.
+            e garante <span className="type-accent">precisão em cada entrega.</span>
           </h2>
         </header>
 

@@ -1,0 +1,48 @@
+/* Refinamento tipográfico restrito à home. Layouts e efeitos permanecem
+   nos componentes. Inter estrutura a leitura; Instrument marca os acentos. */
+.pixelry-home {
+  --font-body: 'Inter', sans-serif;
+  --font-display: 'Inter', sans-serif;
+  --font-editorial: 'Instrument Serif', Georgia, serif;
+  font-family: var(--font-body);
+}
+.pixelry-home h2 {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 3.8vw, 54px);
+  font-weight: 600;
+  line-height: 1.12;
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+.pixelry-home h2 .type-accent,
+.pixelry-home h2 .grad-text {
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -.015em;
+}
+.pixelry-home h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -.02em;
+  line-height: 1.35;
+}
+.pixelry-home p {
+  font-family: var(--font-body);
+  font-weight: 400;
+}
+.pixelry-home .label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .16em;
+  line-height: 1.6;
+}
+.pixelry-home :is(.btn-primary, .btn-secondary, .btn-hero-cta) {
+  font-family: var(--font-body);
+  font-weight: 500;
+  letter-spacing: .01em;
+}
+@media (max-width:600px) {
+  .pixelry-home h2 { font-size:clamp(29px,7.5vw,38px); line-height:1.16; letter-spacing:-.025em; }
+}

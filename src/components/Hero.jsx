@@ -1,12 +1,49 @@
 import { useEffect, useRef, useState } from 'react'
 import styles from './Hero.module.css'
-import { WA_LINK_HERO as WA_LINK, WaIconHero as WaIcon } from './common/WhatsApp'
+import { WA_LINK_HERO as WA_LINK } from './common/WhatsApp'
 import LeadCaptureModal from './LeadCaptureModal'
 
-const heroImage = `${import.meta.env.BASE_URL}assets/pixelry-recepcao.webp`
+const PHRASE = 'antes da consulta.'
+
+function Typewriter() {
+  const [text, setText] = useState(PHRASE)
+  useEffect(() => {
+    const preference = window.matchMedia('(prefers-reduced-motion: reduce)')
+    let timer
+    let position = 0
+    let deleting = false
+    const tick = () => {
+      position += deleting ? -1 : 1
+      setText(PHRASE.slice(0, position))
+      let delay = deleting ? 45 : 105
+      if (position === PHRASE.length) { deleting = true; delay = 3600 }
+      if (position === 0) { deleting = false; delay = 650 }
+      timer = window.setTimeout(tick, delay)
+    }
+    const start = () => {
+      window.clearTimeout(timer)
+      if (preference.matches) { setText(PHRASE); return }
+      position = 0
+      deleting = false
+      setText('')
+      timer = window.setTimeout(tick, 450)
+    }
+    start()
+    preference.addEventListener('change', start)
+    return () => { window.clearTimeout(timer); preference.removeEventListener('change', start) }
+  }, [])
+  return <em className={styles.accent}>
+    <span className={styles.screenReader}>{PHRASE}</span>
+    <span className={styles.typeSlot} aria-hidden="true">
+      <span className={styles.typeMeasure}>{PHRASE}</span>
+      <span className={styles.typeText}>{text}<span className={styles.caret} /></span>
+    </span>
+  </em>
+}
 
 export default function Hero() {
   const [modalOpen, setModalOpen] = useState(false)
+
   const canvasRef = useRef(null)
   const mouseRef  = useRef({ x: 0.5, y: 0.5 })
   const targetRef = useRef({ x: 0.5, y: 0.5 })
@@ -16,6 +53,7 @@ export default function Hero() {
     if (!canvas) return
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
     const ctx = canvas.getContext('2d')
+    if (!ctx) return
     const DOT_SPACING = 40
     const DOT_R = 1.4
     const GLOW_RADIUS = 200
@@ -41,6 +79,7 @@ export default function Hero() {
     }
 
     function resize() {
+      cancelAnimationFrame(animId)
       canvas.width  = canvas.offsetWidth
       canvas.height = canvas.offsetHeight
       if (window.innerWidth <= 900) {
@@ -48,12 +87,12 @@ export default function Hero() {
         return
       }
       buildDots(canvas.width, canvas.height)
+      draw()
     }
 
     function draw() {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       if (dots.length === 0) {
-        animId = requestAnimationFrame(draw)
         return
       }
       time += 0.010
@@ -94,7 +133,6 @@ export default function Hero() {
     const ro = new ResizeObserver(resize)
     ro.observe(canvas)
     resize()
-    draw()
 
     return () => {
       cancelAnimationFrame(animId)
@@ -103,51 +141,31 @@ export default function Hero() {
     }
   }, [])
 
+
   return (
     <section className={styles.hero} aria-labelledby="hero-title">
-      {/* Malha de pontos que acende sob o cursor e brilho pulsante: o efeito
-          original do hero, preservado. Não roda em telas <=900px nem com
-          prefers-reduced-motion. */}
       <canvas ref={canvasRef} className={styles.canvas} aria-hidden="true" />
       <div className={styles.glow} aria-hidden="true" />
-
+      <div className={styles.cyanGlow} aria-hidden="true" />
       <div className={styles.content}>
-        <p className={styles.eyebrow}>
-          <span className={styles.pixel} aria-hidden="true" />
-          MARKETING E PRESENÇA DIGITAL PARA CLÍNICAS
-        </p>
-
+        <p className={styles.eyebrow}><span /> Estratégia digital para clínicas</p>
         <h1 id="hero-title" className={styles.h1}>
-          Conectamos sua clínica{' '}
-          <span className={styles.highlight}>a quem precisa do seu cuidado.</span>
+          O cuidado começa<br />
+          <Typewriter />
         </h1>
-
         <p className={styles.sub}>
-          Unimos estratégia, design e tecnologia para sua clínica ser encontrada,
-          transmitir confiança e transformar interesse em pedidos de agendamento.
+          Aproximamos sua clínica de quem precisa dela.<br className={styles.desktopBreak} />
+          Com estratégia, design e uma presença digital que inspira confiança.
         </p>
 
         <div className={styles.ctas}>
-          <button type="button" onClick={() => setModalOpen(true)} className={`btn-hero-cta ${styles.primary}`}>
-            <WaIcon />
-            Quero um diagnóstico da minha clínica
+          <button type="button" onClick={() => setModalOpen(true)} className={styles.primary}>
+            Vamos conversar <span aria-hidden="true">↗</span>
           </button>
-          <p className={styles.microcopy}>Vamos identificar o próximo passo para sua presença digital.</p>
-          <a href="#cases" className={styles.projectLink}>
-            Conheça nossos projetos <span aria-hidden="true">↗</span>
+          <a href="#projeto-destaque" className={styles.secondary}>
+            Conheça nossos projetos <span aria-hidden="true">↓</span>
           </a>
         </div>
-      </div>
-
-      {/* O arquivo original tem bordas retas e margem escura embutidas; por isso
-          a versão recortada, que fecha com a moldura em qualquer tamanho. */}
-      <div className={styles.visual}>
-        <img src={heroImage} width="726" height="546" alt="Cena conceitual de acolhimento na recepção de uma clínica" fetchpriority="high" loading="eager" />
-      </div>
-
-      <div className={styles.foot}>
-        <span>PIXELRY <span className={styles.slash} aria-hidden="true">/</span> CADA CONEXÃO IMPORTA.</span>
-        <span>ESTRATÉGIA · DESIGN · TECNOLOGIA — BRASÍLIA, DF</span>
       </div>
 
       <LeadCaptureModal isOpen={modalOpen} onClose={() => setModalOpen(false)} waLink={WA_LINK} source="hero_cta" />

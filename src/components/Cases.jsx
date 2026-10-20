@@ -46,7 +46,7 @@ export default function Cases() {
       <div className={styles.container}>
         <div className={styles.header}>
           <span className="label">PORTFÓLIO</span>
-          <h2 className={styles.title}>Nossas Entregas</h2>
+          <h2 className={styles.title}>Nossas <span className="type-accent">Entregas</span></h2>
         </div>
 
         <div className={styles.grid}>

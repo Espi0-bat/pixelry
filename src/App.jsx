@@ -2,9 +2,11 @@ import React, { Suspense, startTransition, useEffect, useState } from 'react'
 import { Routes, Route, useLocation, Navigate, useNavigate, useOutletContext } from 'react-router-dom'
 import Nav          from './components/Nav'
 import Hero         from './components/Hero'
-import Marquee      from './components/Marquee'
-import Problema     from './components/Problema'
-import Servicos     from './components/Servicos'
+import './home-typography.css'
+import ProjetoDestaque from './components/ProjetoDestaque'
+import Marquee from './components/Marquee'
+import Problema from './components/Problema'
+import Servicos from './components/Servicos'
 import Footer       from './components/Footer'
 import StickyCta    from './components/StickyCta'
 import CookieConsent from './components/CookieConsent'
@@ -52,8 +54,9 @@ const Suporte            = React.lazy(() => import('./admin/pages/Suporte'))
 const Leads              = React.lazy(() => import('./admin/pages/Leads'))
 
 const Home = () => (
-  <>
+  <div className="pixelry-home">
     <Hero />
+    <ProjetoDestaque />
     <Marquee />
     <Problema />
     <Servicos />
@@ -72,7 +75,7 @@ const Home = () => (
       <Faq />
       <CtaFinal />
     </Suspense>
-  </>
+  </div>
 )
 
 const PORTAL_FALLBACK = <div style={{ minHeight: '100dvh', background: 'var(--bg)' }} />

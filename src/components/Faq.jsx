@@ -40,7 +40,7 @@ export default function Faq() {
           <span className="label">DÚVIDAS</span>
           <h2 className={styles.h2}>
             Dúvidas reais de quem ainda não sabe<br />
-            se o digital funciona para o seu negócio.
+            se o digital <span className="type-accent">funciona para o seu negócio.</span>
           </h2>
         </div>
 

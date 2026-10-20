@@ -11,7 +11,7 @@ export default function Problema() {
           <div className="reveal">
             <span className="label">O DIAGNÓSTICO</span>
             <h2 className={styles.h2}>
-              Você tem clientes satisfeitos. Mas ainda depende de indicação.
+              Você tem clientes satisfeitos. Mas ainda <span className="type-accent">depende de indicação.</span>
             </h2>
             <p className={styles.body}>
               Isso não é problema de mercado — é problema de sistema.
