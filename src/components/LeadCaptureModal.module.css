@@ -3,7 +3,7 @@
   inset: 0;
   background: rgba(3, 3, 10, 0.85);
   backdrop-filter: blur(12px);
-  z-index: 9999;
+  z-index: 10000; /* acima do banner de cookies (9999) */
   display: flex;
   align-items: center;
   justify-content: center;
