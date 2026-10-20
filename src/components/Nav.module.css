@@ -35,7 +35,7 @@
 }
 
 .wordmark {
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-display);
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -46,7 +46,7 @@
   align-items: center;
   gap: 6px;
   min-height: 44px;
-  font-family: 'Inter', sans-serif;
+  font-family: var(--font-display);
   font-size: var(--fs-meta);
   letter-spacing: 0;
   color: var(--text-dim);

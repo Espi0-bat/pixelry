@@ -267,7 +267,7 @@
 }
 
 .leads-rank-num {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 0.7rem;
   color: var(--text-secondary, rgba(240,240,250,0.55));
   white-space: nowrap;

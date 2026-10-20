@@ -66,9 +66,9 @@ const C = {
   red:         "#f43f5e",
 };
 
-const FONT_DISPLAY = "'Inter', sans-serif";
-const FONT_BODY = "'DM Sans', sans-serif";
-const FONT_MONO = "'JetBrains Mono', monospace";
+const FONT_DISPLAY = "var(--font-display)";
+const FONT_BODY = "var(--font-body)";
+const FONT_MONO = "var(--font-mono)";
 
 const STATUS = {
   pending:    { label: "Aguardando revisão", color: C.amber,   bg: "rgba(245,158,11,0.09)",  border: "rgba(245,158,11,0.22)"  },
