@@ -67,6 +67,9 @@ body::after {
 
 html {
   scroll-behavior: smooth;
+  /* Peso ou itálico que não foi carregado sai no mais próximo que existe,
+     em vez de o navegador engrossar ou inclinar a letra artificialmente. */
+  font-synthesis: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
