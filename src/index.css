@@ -47,6 +47,11 @@
   padding: 0;
 }
 
+/* Botões e campos herdam a família da página; sem isto o navegador usa a
+   fonte do sistema (Arial no Mac) nos CTAs. O :where() zera a
+   especificidade, então a família declarada num componente continua valendo. */
+:where(button, input, select, textarea) { font-family: inherit; }
+
 /* Grain texture overlay — adds depth to the flat dark background */
 body::after {
   content: '';

@@ -19,7 +19,7 @@
 .hero h1 { font-size: clamp(40px, 4.25vw, 64px); line-height: 1.09; letter-spacing: -.045em; font-weight: 700; margin-bottom: 27px; }
 .hero h1 em { background: var(--grad-text); -webkit-background-clip: text; background-clip: text; color: transparent; font-style: normal; }
 .heroCopy > p:not(.eyebrow) { max-width: 420px; font-size: 16px; line-height: 1.8; color: var(--text-dim); margin-bottom: 30px; }
-.button { display: inline-flex; justify-content: center; align-items: center; gap: 15px; color: var(--bg); background: var(--grad); border-radius: 6px; padding: 18px 22px; font-size: 14px; font-weight: 800; line-height: 1.5; box-shadow: 0 4px 24px rgba(128, 64, 245, .3); transition: background .2s, transform .2s; }
+.button { display: inline-flex; justify-content: center; align-items: center; gap: 15px; color: var(--bg); background: var(--grad); border-radius: 6px; padding: 18px 22px; font-family: var(--font-display); font-size: 14px; font-weight: 800; line-height: 1.5; box-shadow: 0 4px 24px rgba(128, 64, 245, .3); transition: background .2s, transform .2s; }
 .button:hover { background: var(--text); color: var(--bg); box-shadow: 0 8px 32px rgba(0, 216, 255, .2); transform: translateY(-2px); }
 .button svg { flex-shrink: 0; }
 .tourLink { display: flex; align-items: center; gap: 10px; color: var(--text-dim); font-size: 12px; width: fit-content; padding: 18px 0; margin-top: 6px; }
