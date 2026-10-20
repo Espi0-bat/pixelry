@@ -46,7 +46,15 @@
   justify-content: center;
 }
 
+/* Em repouso, com o divisor no meio, cada metade mostra a sua lista inteira:
+   Depois à esquerda, Antes à direita. Com as duas listas na largura toda, a
+   metade direita mostrava só o fim das frases do Antes. */
+.pane:not(.paneDepois) {
+  padding-left: calc(50% + 40px);
+}
+
 .paneDepois {
+  padding-right: calc(50% + 40px);
   background:
     radial-gradient(120% 100% at 100% 0%, rgba(0, 216, 255, 0.09) 0%, transparent 55%),
     var(--bg3);
@@ -79,7 +87,6 @@
   font-size: 16px;
   line-height: 1.5;
   color: var(--text);
-  white-space: nowrap;
 }
 
 .itemAntes::before {
@@ -174,17 +181,18 @@
   }
 
   .pane {
-    padding: 32px 28px;
+    padding: 32px 16px;
     gap: 20px;
   }
+
+  .pane:not(.paneDepois) { padding-left: calc(50% + 16px); }
+  .paneDepois { padding-right: calc(50% + 16px); }
 
   .list { gap: 14px; }
 
   .list li {
     font-size: 14px;
-    padding-left: 28px;
-    /* no formato retrato o texto precisa quebrar em vez de vazar */
-    white-space: normal;
+    padding-left: 26px;
   }
 
   .itemAntes::before,
@@ -196,7 +204,10 @@
 }
 
 @media (max-width: 480px) {
-  .pane { padding: 26px 22px; }
+  /* abaixo de ~400 px as frases quebram em 4 linhas e o 3:4 fica baixo */
+  .media { aspect-ratio: auto; height: 510px; }
+  .pane { padding-block: 26px; }
+  .list { gap: 10px; }
   .list li { font-size: 13.5px; }
   .grip { width: 44px; height: 44px; }
 }
