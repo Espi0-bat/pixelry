@@ -212,7 +212,7 @@
 }
 .metricVal {
   font-size: 8px;
-  font-weight: 700;
+  font-weight: 500;
   color: rgba(0,212,255,0.9);
   font-family: var(--font-mono);
   line-height: 1;
@@ -316,7 +316,7 @@
 }
 .pStatVal {
   font-size: 7px;
-  font-weight: 700;
+  font-weight: 500;
   color: rgba(255,215,0,0.9);
   font-family: var(--font-mono);
 }
