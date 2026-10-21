@@ -15,7 +15,7 @@ import ResetPasswordScreen from './components/ResetPasswordScreen'
 import NotFound     from './components/NotFound'
 import { useRecoveryMode } from './hooks/usePasswordRecovery'
 import { isSupabaseConfigured, supabase, fetchUserRole, isTeamRole } from './config/supabase'
-import { iniciarMedicao, registrarNavegacao } from './config/analytics'
+import { iniciarMedicao } from './config/analytics'
 
 // Lazy Loading para componentes abaixo da dobra (ganho de performance substancial de LCP e FCP)
 const Transformacao = React.lazy(() => import('./components/Transformacao'))
@@ -156,14 +156,11 @@ export default function App() {
     return () => { ativo = false }
   }, [user?.id])
 
-  // Medição: carrega o que o consentimento já autorizou e conta a troca de rota.
+  // Medição: carrega o que o consentimento já autorizou. A troca de rota o
+  // GA4 e o Meta contam sozinhos (ver config/analytics.js).
   useEffect(() => {
     iniciarMedicao()
   }, [])
-
-  useEffect(() => {
-    registrarNavegacao(location.pathname)
-  }, [location.pathname])
 
   // Scroll para o elemento do hash após navegação (ex: /#servicos)
   useEffect(() => {
