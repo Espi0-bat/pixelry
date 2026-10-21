@@ -88,6 +88,14 @@
   line-height: 1.3;
   letter-spacing: -0.02em;
   margin-bottom: 8px;
+  text-wrap: balance;
+}
+
+/* O formulário é montado no <body>; o anel de foco é dele, e não herdado
+   da página que o abriu (a /clinicas usava 3 px, o global usa 2 px). */
+.modal :is(button, select, a):focus-visible {
+  outline: 3px solid var(--cyan);
+  outline-offset: 3px;
 }
 
 .subtitle {

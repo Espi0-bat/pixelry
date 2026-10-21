@@ -141,7 +141,7 @@ export default function LeadCaptureModal({ isOpen, onClose, waLink, source = 'di
 
         <div className={styles.header}>
           <p className={styles.eyebrow}>Diagnóstico Gratuito</p>
-          <h2 className={styles.title} id="lead-modal-title">Antes de falar com a gente,<br />nos conta um pouco sobre você.</h2>
+          <h2 className={styles.title} id="lead-modal-title">Antes de falar com a gente, nos conta um pouco sobre você.</h2>
           <p className={styles.subtitle}>Essas informações ajudam nossa equipe a preparar uma conversa sobre a sua clínica.</p>
         </div>
 
