@@ -29,7 +29,10 @@
   border-radius: 16px;
   overflow: hidden;
   background: var(--bg2);
-  aspect-ratio: 16 / 9;
+  /* As duas camadas dividem a mesma célula: a mais alta define a altura, e o
+     texto nunca é cortado (nem com espaçamento de texto aumentado). */
+  display: grid;
+  min-height: 506px; /* 16:9 dos 900 px */
   cursor: ew-resize;
   user-select: none;
   touch-action: pan-y;
@@ -37,8 +40,8 @@
 }
 
 .pane {
-  position: absolute;
-  inset: 0;
+  position: relative;
+  grid-area: 1 / 1;
   padding: 48px 56px;
   display: flex;
   flex-direction: column;
@@ -176,7 +179,7 @@
   .header { margin-bottom: 40px; }
 
   .media {
-    aspect-ratio: 3 / 4;
+    min-height: min(613px, calc((100vw - 40px) * 4 / 3)); /* 3:4 */
     max-width: 460px;
   }
 
@@ -185,8 +188,9 @@
     gap: 20px;
   }
 
-  .pane:not(.paneDepois) { padding-left: calc(50% + 16px); }
-  .paneDepois { padding-right: calc(50% + 16px); }
+  /* 24 px de folga: o grip (44–48 px) fica no divisor sem cobrir os ícones. */
+  .pane:not(.paneDepois) { padding-left: calc(50% + 24px); }
+  .paneDepois { padding-right: calc(50% + 24px); }
 
   .list { gap: 14px; }
 
@@ -204,10 +208,9 @@
 }
 
 @media (max-width: 480px) {
-  /* abaixo de ~400 px as frases quebram em 4 linhas e o 3:4 fica baixo */
-  .media { aspect-ratio: auto; height: 510px; }
   .pane { padding-block: 26px; }
   .list { gap: 10px; }
-  .list li { font-size: 13.5px; }
+  /* colunas de ~95 px: palavra longa quebra com hífen em vez de vazar */
+  .list li { font-size: 13.5px; hyphens: auto; }
   .grip { width: 44px; height: 44px; }
 }
