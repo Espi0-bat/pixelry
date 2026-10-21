@@ -23,7 +23,11 @@ export function render(url, { timeoutMs = 20000 } = {}) {
     sink.on('data', (c) => chunks.push(c))
     sink.on('end', () =>
       resolve({
-        html: Buffer.concat(chunks).toString('utf8'),
+        // O React 18.3.1 às vezes solta um byte NUL extra na fronteira de um
+        // chunk do stream (apareceu no meio de "Indicação como único canal").
+        // Ele nunca substitui conteúdo, mas faz ferramentas tratarem o HTML
+        // como binário.
+        html: Buffer.concat(chunks).toString('utf8').replace(/\u0000/g, ''),
         helmet: helmetContext.helmet,
       })
     )

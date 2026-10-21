@@ -187,6 +187,8 @@ function main() {
       const comCss = ligarFolhasDaRota(saida, folhas)
       saida = comCss.html
 
+      if (saida.includes('\0')) throw new Error(`O HTML de "${rota}" saiu com byte NUL.`)
+
       const arquivos = destinos(rota)
       for (const arquivo of arquivos) {
         mkdirSync(dirname(arquivo), { recursive: true })
