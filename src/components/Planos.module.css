@@ -526,6 +526,10 @@
   background: var(--bg2);
 }
 
+@media (max-width: 360px) {
+  .moduloRequisito { letter-spacing: .04em; text-wrap: balance; border-radius: 10px; }
+}
+
 .moduloHero .moduloRequisito {
   color: var(--cyan);
   border-color: rgba(0, 216, 255, 0.35);

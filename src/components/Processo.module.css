@@ -116,21 +116,25 @@
 /* Output tag */
 .output {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 7px;
   font-family: var(--font-mono);
   font-size: var(--fs-meta);
-  letter-spacing: .08em;
+  letter-spacing: .04em;
   text-transform: uppercase;
   color: var(--text-faint);
   border: 1px solid var(--border);
   padding: 4px 10px;
-  border-radius: 20px;
+  /* A 13 px o texto mais longo quebra; com raio menor o chip de duas linhas
+     continua parecendo chip, e não uma pílula esticada. */
+  border-radius: 10px;
+  text-wrap: balance;
 }
 
 .outputDot {
   width: 5px;
   height: 5px;
+  margin-top: calc((1lh - 5px) / 2); /* centrado na primeira linha */
   border-radius: 50%;
   background: var(--cyan);
   flex-shrink: 0;

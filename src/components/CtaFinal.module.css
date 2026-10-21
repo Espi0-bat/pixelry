@@ -76,5 +76,9 @@
 
 @media (max-width: 480px) {
   .content { padding: 64px 20px; }
+  /* A 13 px a nota não cabe numa linha com os traços: sem eles, ela quebra
+     em duas linhas equilibradas em vez de deixar "DF" sozinho. */
+  .waNote { justify-content: center; text-align: center; text-wrap: balance; }
+  .waNote::before, .waNote::after { display: none; }
   .waBlock { width: 100%; }
 }
