@@ -15,19 +15,14 @@
 .header { max-width: 380px; }
 
 .h2 {
-  font-family: var(--font-display);
-  font-size: clamp(26px, 3vw, 44px);
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
   margin-bottom: 20px;
 }
 
 .sub {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: var(--text-dim);
-  line-height: 1.8;
-  font-weight: 300;
+  line-height: var(--lh-body);
+  font-weight: 400;
 }
 
 .grid {

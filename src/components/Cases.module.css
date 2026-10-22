@@ -19,12 +19,8 @@
 }
 
 .title {
-  font-size: clamp(2.5rem, 5vw, 4rem);
-  font-weight: 700;
   color: #fff;
   margin: 1rem 0 0 0;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
 }
 
 .grid {
@@ -117,8 +113,8 @@
 
 .cardDesc {
   color: #a1a1aa;
-  font-size: 0.95rem;
-  line-height: 1.6;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
   margin: 0 0 2rem 0;
 }
 
@@ -151,7 +147,7 @@
 .cardMetricLabel {
   font-family: var(--font-mono);
   font-size: var(--fs-label);
-  letter-spacing: .08em;
+  letter-spacing: .04em;
   text-transform: uppercase;
   color: var(--text-faint);
 }

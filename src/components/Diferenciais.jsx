@@ -38,7 +38,7 @@ export default function Diferenciais() {
         <div className="reveal">
           <span className="label">POSICIONAMENTO</span>
           <h2 className={styles.h2}>
-            Trabalhamos com poucos clientes.<br />
+            Trabalhamos com poucos clientes.{' '}
             <span className="type-accent">De propósito.</span>
           </h2>
         </div>

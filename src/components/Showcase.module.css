@@ -13,20 +13,15 @@
 .header { margin-bottom: 72px; }
 
 .h2 {
-  font-family: var(--font-display);
-  font-size: clamp(32px, 4.5vw, 68px);
-  font-weight: 800;
-  line-height: var(--lh-heading);
-  letter-spacing: -0.03em;
   margin-bottom: 24px;
 }
 
 .sub {
   max-width: 560px;
   color: var(--text-dim);
-  font-size: 15px;
-  line-height: 1.75;
-  font-weight: 300;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: 400;
 }
 
 /* ─── Mockup row ─── */
@@ -71,7 +66,7 @@
 .caption {
   font-family: var(--font-mono);
   font-size: var(--fs-label);
-  letter-spacing: .08em;
+  letter-spacing: .04em;
   color: var(--text-faint);
   text-transform: uppercase;
   padding: 12px 20px;

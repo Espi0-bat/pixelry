@@ -79,7 +79,7 @@ export default function Core() {
         <div className="reveal">
           <span className="label">PIXELRY CORE</span>
           <h2 className={styles.h2}>
-            Não é um site.<br />
+            Não é um site.{' '}
             É uma <span className="grad-text">infraestrutura de aquisição.</span>
           </h2>
           <p className={styles.sub}>

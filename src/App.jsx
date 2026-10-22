@@ -215,8 +215,11 @@ export default function App() {
       ? <Suspense fallback={PORTAL_FALLBACK}><AdminLogin onLogin={usr => setUser(usr)} /></Suspense>
       : <Suspense fallback={PORTAL_FALLBACK}><AdminLayout user={user} initialRole={perfil.role} onLogout={handleLogout} /></Suspense>
 
+  // Só para comparar em dev; a home publicada usa a direção editorial.
+  const sansPreview = import.meta.env.DEV && new URLSearchParams(location.search).get('tipografia') === 'sans'
+
   return (
-    <>
+    <div className={location.pathname === '/' ? `pixelry-site${sansPreview ? ' pixelry-site--sans' : ''}` : undefined}>
       {recoveryMode && (
         <ResetPasswordScreen onSuccess={finishRecovery} onCancel={cancelRecovery} />
       )}
@@ -263,6 +266,6 @@ export default function App() {
       {!isDashboard && !isClinicsLanding && <Footer />}
       {!isDashboard && !isClinicsLanding && <StickyCta />}
       {!isDashboard && <CookieConsent />}
-    </>
+    </div>
   )
 }

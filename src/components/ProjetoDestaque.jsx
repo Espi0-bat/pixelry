@@ -12,8 +12,8 @@ export default function ProjetoDestaque() {
         <header className={styles.header}>
           <span className={styles.label}>Projeto em destaque <span>01</span></span>
           <h2 id="projeto-destaque-title" className={styles.h2}>
-            Uma presença médica construída{' '}<br />
-            <span className="type-accent">para transmitir confiança.</span>
+            Uma presença médica construída{' '}
+            <span className="type-accent type-editorial">para transmitir confiança.</span>
           </h2>
         </header>
 

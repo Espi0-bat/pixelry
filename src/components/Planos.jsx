@@ -172,7 +172,7 @@ export default function Planos() {
         <div className="reveal" style={{ textAlign: 'center' }}>
           <span className="label" style={{ justifyContent: 'center' }}>SISTEMA E INVESTIMENTO</span>
           <h2 className={styles.h2}>
-            Três formas de estruturar.<br />
+            Três formas de estruturar.{' '}
             Um único objetivo: <span className="type-accent">agenda cheia.</span>
           </h2>
         </div>

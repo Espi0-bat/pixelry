@@ -46,7 +46,7 @@ export default function Servicos() {
         <div className="reveal">
           <span className="label">SOLUÇÕES</span>
           <h2 className={styles.h2}>
-            Cada serviço <span className="type-accent">tem função.</span><br />
+            Cada serviço <span className="type-accent">tem função.</span>{' '}
             Nenhum é decorativo.
           </h2>
         </div>

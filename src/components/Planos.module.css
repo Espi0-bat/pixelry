@@ -1,10 +1,5 @@
 .h2 {
-  font-family: var(--font-display);
-  font-size: clamp(24px, 2.8vw, 42px);
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  margin-bottom: 100px;
+  margin-bottom: 64px;
   margin-top: 0;
 }
 
@@ -131,7 +126,7 @@
   color: #fff;
   font-size: var(--fs-meta);
   font-weight: 700;
-  letter-spacing: .08em;
+  letter-spacing: .04em;
   padding: 4px 12px;
   border-radius: 20px;
   text-transform: uppercase;
@@ -147,9 +142,9 @@
 }
 
 .desc {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: var(--text-dim);
-  line-height: 1.6;
+  line-height: var(--lh-body);
   margin-bottom: 32px;
   border-bottom: 1px solid var(--border);
   padding-bottom: 24px;
@@ -170,7 +165,7 @@
   font-size: var(--fs-meta);
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: .08em;
+  letter-spacing: .04em;
   margin-bottom: 2px;
 }
 
@@ -196,7 +191,7 @@
   font-size: var(--fs-label);
   font-family: var(--font-mono);
   color: var(--text-dim);
-  letter-spacing: 0.1em;
+  letter-spacing: .04em;
   font-weight: 500;
   margin-bottom: 12px;
 }
@@ -306,7 +301,7 @@
   display: inline-block;
   font-size: var(--fs-label);
   font-family: var(--font-mono);
-  letter-spacing: .08em;
+  letter-spacing: .04em;
   color: var(--cyan);
   text-transform: uppercase;
   margin-bottom: 16px;
@@ -392,7 +387,7 @@
   left: 24px;
   font-size: var(--fs-meta);
   font-weight: 700;
-  letter-spacing: .08em;
+  letter-spacing: .04em;
   text-transform: uppercase;
   padding: 3px 10px;
   border-radius: 20px;
@@ -517,7 +512,7 @@
 .moduloRequisito {
   font-size: var(--fs-meta);
   font-family: var(--font-mono);
-  letter-spacing: 0.1em;
+  letter-spacing: .04em;
   text-transform: uppercase;
   color: var(--text-dim);
   padding: 5px 10px;
