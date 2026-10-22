@@ -80,3 +80,9 @@ docs/claude-cookbooks/
 
 # Estratégia de Ads (Privado e Local)
 docs/estrategia-ads-local/
+
+# Notas de trabalho e pesquisa de reposicionamento (internas)
+docs/continuidade-*.md
+docs/estudo-*.md
+reports/
+research_notes/
