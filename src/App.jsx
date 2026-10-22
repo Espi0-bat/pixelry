@@ -2,9 +2,11 @@ import React, { Suspense, startTransition, useEffect, useState } from 'react'
 import { Routes, Route, useLocation, Navigate, useNavigate, useOutletContext } from 'react-router-dom'
 import Nav          from './components/Nav'
 import Hero         from './components/Hero'
-import Marquee      from './components/Marquee'
-import Problema     from './components/Problema'
-import Servicos     from './components/Servicos'
+import './home-typography.css'
+import ProjetoDestaque from './components/ProjetoDestaque'
+import Marquee from './components/Marquee'
+import Problema from './components/Problema'
+import Servicos from './components/Servicos'
 import Footer       from './components/Footer'
 import StickyCta    from './components/StickyCta'
 import CookieConsent from './components/CookieConsent'
@@ -13,7 +15,7 @@ import ResetPasswordScreen from './components/ResetPasswordScreen'
 import NotFound     from './components/NotFound'
 import { useRecoveryMode } from './hooks/usePasswordRecovery'
 import { isSupabaseConfigured, supabase, fetchUserRole, isTeamRole } from './config/supabase'
-import { iniciarMedicao, registrarNavegacao } from './config/analytics'
+import { iniciarMedicao } from './config/analytics'
 
 // Lazy Loading para componentes abaixo da dobra (ganho de performance substancial de LCP e FCP)
 const Transformacao = React.lazy(() => import('./components/Transformacao'))
@@ -52,8 +54,9 @@ const Suporte            = React.lazy(() => import('./admin/pages/Suporte'))
 const Leads              = React.lazy(() => import('./admin/pages/Leads'))
 
 const Home = () => (
-  <>
+  <div className="pixelry-home">
     <Hero />
+    <ProjetoDestaque />
     <Marquee />
     <Problema />
     <Servicos />
@@ -72,7 +75,7 @@ const Home = () => (
       <Faq />
       <CtaFinal />
     </Suspense>
-  </>
+  </div>
 )
 
 const PORTAL_FALLBACK = <div style={{ minHeight: '100dvh', background: 'var(--bg)' }} />
@@ -153,14 +156,11 @@ export default function App() {
     return () => { ativo = false }
   }, [user?.id])
 
-  // Medição: carrega o que o consentimento já autorizou e conta a troca de rota.
+  // Medição: carrega o que o consentimento já autorizou. A troca de rota o
+  // GA4 e o Meta contam sozinhos (ver config/analytics.js).
   useEffect(() => {
     iniciarMedicao()
   }, [])
-
-  useEffect(() => {
-    registrarNavegacao(location.pathname)
-  }, [location.pathname])
 
   // Scroll para o elemento do hash após navegação (ex: /#servicos)
   useEffect(() => {
@@ -215,8 +215,11 @@ export default function App() {
       ? <Suspense fallback={PORTAL_FALLBACK}><AdminLogin onLogin={usr => setUser(usr)} /></Suspense>
       : <Suspense fallback={PORTAL_FALLBACK}><AdminLayout user={user} initialRole={perfil.role} onLogout={handleLogout} /></Suspense>
 
+  // Só para comparar em dev; a home publicada usa a direção editorial.
+  const sansPreview = import.meta.env.DEV && new URLSearchParams(location.search).get('tipografia') === 'sans'
+
   return (
-    <>
+    <div className={location.pathname === '/' ? `pixelry-site${sansPreview ? ' pixelry-site--sans' : ''}` : undefined}>
       {recoveryMode && (
         <ResetPasswordScreen onSuccess={finishRecovery} onCancel={cancelRecovery} />
       )}
@@ -263,6 +266,6 @@ export default function App() {
       {!isDashboard && !isClinicsLanding && <Footer />}
       {!isDashboard && !isClinicsLanding && <StickyCta />}
       {!isDashboard && <CookieConsent />}
-    </>
+    </div>
   )
 }

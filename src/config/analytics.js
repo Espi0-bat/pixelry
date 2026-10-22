@@ -3,17 +3,26 @@
  *
  * Três regras que o código garante, não a boa vontade de quem usa:
  *
- * 1. Sem ID configurado, nada é carregado e nenhuma requisição sai. O site
- *    funciona igual com os campos vazios — é esse o estado padrão.
+ * 1. Os IDs são públicos (aparecem em qualquer página) e ficam no código,
+ *    como o WhatsApp em config/contact.js, mas só medem no domínio do site:
+ *    localhost, prévias e o CookieConsent exportado pelo design system não
+ *    sujam os dados. VITE_GA4_ID e VITE_META_PIXEL_ID apontam outro ambiente
+ *    para outra conta e, definidos, valem em qualquer domínio.
  * 2. Nada carrega antes do consentimento. O banner de cookies guarda
  *    { essential, analytics, marketing } em `pixelry_cookie_consent`; o GA4
  *    depende de `analytics` e o Meta Pixel de `marketing`. Quem fecha o banner
  *    sem escolher não é medido.
  * 3. /admin e /portal ficam de fora: são tela interna, não audiência.
+ *
+ * A troca de rota da SPA não tem código aqui: o GA4 (medição aprimorada) e o
+ * Meta Pixel já contam sozinhos as mudanças de histórico. Um page_view manual
+ * por cima dobrava a contagem do GA4.
  */
 
-const GA4_ID = import.meta.env.VITE_GA4_ID || ''
-const META_ID = import.meta.env.VITE_META_PIXEL_ID || ''
+const GA4_ID = import.meta.env.VITE_GA4_ID || 'G-95HP1S4K2N'
+const META_ID = import.meta.env.VITE_META_PIXEL_ID || '439363224095353'
+const IDS_DO_AMBIENTE = Boolean(import.meta.env.VITE_GA4_ID || import.meta.env.VITE_META_PIXEL_ID)
+const DOMINIOS_DO_SITE = ['www.pixelry.com.br', 'pixelry.com.br']
 
 export const CHAVE_CONSENTIMENTO = 'pixelry_cookie_consent'
 
@@ -78,24 +87,12 @@ function carregarMeta() {
 /** Chamada no carregamento e sempre que o consentimento muda. */
 export function iniciarMedicao() {
   if (typeof window === 'undefined') return
+  if (!IDS_DO_AMBIENTE && !DOMINIOS_DO_SITE.includes(window.location.hostname)) return
   if (rotaInterna()) return
   const consentimento = lerConsentimento()
   if (!consentimento) return
   if (consentimento.analytics) carregarGA4()
   if (consentimento.marketing) carregarMeta()
-}
-
-/** Navegação dentro da SPA: o carregamento inicial já conta sozinho. */
-export function registrarNavegacao(caminho) {
-  if (rotaInterna(caminho)) return
-  if (ga4Pronto && window.gtag) {
-    window.gtag('event', 'page_view', {
-      page_path: caminho,
-      page_location: window.location.href,
-      page_title: document.title,
-    })
-  }
-  if (metaPronto && window.fbq) window.fbq('track', 'PageView')
 }
 
 /**

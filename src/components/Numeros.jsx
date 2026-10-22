@@ -64,7 +64,7 @@ export default function Numeros() {
               entrega. O rótulo agora diz o que os números realmente são. */}
           <span className="label">NOSSA OPERAÇÃO</span>
           <h2 className={styles.h2}>
-            Números que<br />
+            Números que{' '}
             <span className="grad-text">falam por si só.</span>
           </h2>
           <p className={styles.sub}>

@@ -97,7 +97,7 @@ export default function Transformacao() {
         <div className={`${styles.header} reveal`}>
           <span className="label" style={{ justifyContent: 'center' }}>A TRANSFORMAÇÃO</span>
           <h2 className={styles.h2}>
-            Arraste e veja a diferença.
+            Arraste e veja <span className="type-accent">a diferença.</span>
           </h2>
           <p className={styles.sub}>
             De um lado, a rotina de quem depende de sorte. Do outro, a rotina de quem tem sistema.

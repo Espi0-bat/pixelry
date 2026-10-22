@@ -25,20 +25,15 @@
 }
 
 .h2 {
-  font-family: var(--font-display);
-  font-size: clamp(28px, 3.8vw, 54px);
-  font-weight: 800;
-  line-height: var(--lh-heading);
-  letter-spacing: -0.025em;
   margin-bottom: 28px;
 }
 
 .sub {
   color: var(--text-dim);
-  font-size: 16px;
-  line-height: 1.8;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
   margin-bottom: 52px;
-  font-weight: 300;
+  font-weight: 400;
 }
 
 /* ─── WhatsApp block ─── */
@@ -51,8 +46,8 @@
 
 .waNote {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.2em;
+  font-size: var(--fs-meta);
+  letter-spacing: .04em;
   text-transform: uppercase;
   color: var(--text-faint);
   display: flex;
@@ -76,5 +71,9 @@
 
 @media (max-width: 480px) {
   .content { padding: 64px 20px; }
+  /* A 13 px a nota não cabe numa linha com os traços: sem eles, ela quebra
+     em duas linhas equilibradas em vez de deixar "DF" sozinho. */
+  .waNote { justify-content: center; text-align: center; text-wrap: balance; }
+  .waNote::before, .waNote::after { display: none; }
   .waBlock { width: 100%; }
 }

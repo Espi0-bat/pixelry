@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { ArrowUpRight, ArrowDown, Search, MessageCircle, MapPin, Check, MousePointer2 } from 'lucide-react'
 import { buildWhatsAppLink } from '../config/contact'
+import { registrarLead } from '../config/analytics'
 import styles from './Clinicas.module.css'
 import logoImg from '../components/images/pixelryicone.jpeg'
 import LeadCaptureModal from '../components/LeadCaptureModal'
@@ -117,7 +118,7 @@ export default function Clinicas() {
       <button type="button" className={styles.button} onClick={() => openCapture('automacoes')}>Quero um plano para minha clínica <ArrowUpRight size={18} /></button>
     </section>
 
-    <nav className={styles.journeyNav} aria-label="Etapas da jornada">{chapters.map(c => <a key={c.id} href={`#${c.id}`}><span>{c.number}</span>{c.outcome}</a>)}</nav>
+    <nav className={styles.journeyNav} aria-label="Etapas da jornada">{chapters.map(c => <a key={c.id} href={`#${c.id}`}><span>{c.number}</span>{' '}{c.outcome}</a>)}</nav>
     {chapters.map((chapter, i) => <section id={chapter.id} key={chapter.id} className={`${styles.chapter} ${i % 2 ? styles.reverse : ''}`}>
       <div className={styles.scene}><Scene chapter={chapter} /></div>
       <div className={styles.chapterCopy}><p className={styles.eyebrow}><span>{chapter.number} /</span> {chapter.tag}</p><h2>{chapter.title}</h2><p>{chapter.text}</p><div className={styles.solution}><span className={styles.smallPixel} /><div><h3>A Pixelry ajuda assim</h3><p>{chapter.solution}</p></div></div><button type="button" className={styles.textLink} onClick={() => openCapture(chapter.id, challenges[i].label)}>Quero resolver esse desafio <ArrowUpRight size={17} /></button></div>
@@ -147,7 +148,7 @@ export default function Clinicas() {
       <p className={styles.eyebrow}>O PRÓXIMO PASSO É UMA CONVERSA</p><h2>Qual tarefa sua equipe<br />precisa tirar do manual?</h2><p>Preencha sua ficha para conversarmos com contexto sobre os gargalos, as prioridades e o investimento da sua clínica.</p>
       <label htmlFor="clinic-challenge">Qual é o principal desafio da sua clínica?</label>
       <select id="clinic-challenge" value={selected} onChange={e=>setSelected(e.target.value)}><option value="">Quero entender por onde começar</option>{challenges.map(c=><option key={c.id} value={c.label}>{c.label}</option>)}</select>
-      <button type="button" className={styles.button} onClick={() => openCapture('final')}>Preencher ficha e pedir diagnóstico <ArrowUpRight size={18} /></button><small><Check size={14} /> Nossa equipe recebe seu cadastro antes da conversa.</small><a href={wa} target="_blank" rel="noreferrer" className={styles.directLink}>Prefiro uma conversa rápida no WhatsApp <MessageCircle size={16} /></a>
+      <button type="button" className={styles.button} onClick={() => openCapture('final')}>Preencher ficha e pedir diagnóstico <ArrowUpRight size={18} /></button><small><Check size={14} /> Nossa equipe recebe seu cadastro antes da conversa.</small><a href={wa} target="_blank" rel="noreferrer" className={styles.directLink} onClick={() => registrarLead('lp_clinicas_whatsapp_direto')}>Prefiro uma conversa rápida no WhatsApp <MessageCircle size={16} /></a>
     </section>
     <LeadCaptureModal isOpen={!!capture} onClose={closeCapture} waLink={captureWa} source={capture?.source} context={capture?.challenge} />
     <footer className={styles.footer}><Link to="/" className={styles.logo}>PIXELRY</Link><p>Estratégia, design e tecnologia para aproximar pessoas.</p><div><Link to="/">Conheça a Pixelry</Link><Link to="/privacidade">Privacidade</Link><Link to="/termos">Termos de uso</Link></div></footer>

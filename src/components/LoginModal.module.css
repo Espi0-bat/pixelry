@@ -84,7 +84,7 @@
 }
 
 .inputLabel {
-  font-size: 12px;
+  font-size: var(--fs-label);
   font-weight: 600;
   color: rgba(240, 240, 250, 0.5);
   text-transform: uppercase;

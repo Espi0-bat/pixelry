@@ -1,0 +1,120 @@
+@font-face {
+  font-family: 'Manrope';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('/fonts/manrope-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Newsreader';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/newsreader-italic-latin.woff2') format('woff2');
+}
+/* clip corta o vazamento horizontal sem criar contêiner de rolagem, então o
+   palco sticky do Método Pixel acompanha a viewport do documento. */
+#root:has(> .pixelry-site) { overflow-x: clip; }
+body:has(> #root > .pixelry-site) { overflow-x: clip; }
+/* Inclui menu e rodapé; portal e admin mantêm a tipografia própria. */
+.pixelry-site {
+  --font-body: 'Manrope', sans-serif;
+  --font-display: var(--font-body);
+  --font-mono: var(--font-body);
+  --font-editorial: 'Newsreader', Georgia, serif;
+  --text-dim: #b5b3c4;
+  --text-faint: #a3a0b3;
+  --fs-display: clamp(36px, 5.3vw, 76px);
+  --fs-h2: clamp(30px, 3.6vw, 50px);
+  --fs-title: clamp(26px, 2.5vw, 34px);
+  --fs-h3: clamp(20px, 1.8vw, 24px);
+  --fs-lead: clamp(18px, 1.5vw, 20px);
+  --fs-intro: var(--fs-lead);
+  --fs-body: clamp(16px, 1.2vw, 18px);
+  --fs-small: 15px;
+  --fs-label: 13px;
+  --fs-meta: 14px;
+  --fs-button: 16px;
+  --lh-heading: 1.16;
+  --lh-body: 1.7;
+  --section-pad: 112px 48px;
+  --section-pad-mobile: 72px 20px;
+  font-family: var(--font-body);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+}
+.pixelry-home h2 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  line-height: var(--lh-heading);
+  letter-spacing: -.035em;
+  text-wrap: balance;
+}
+.pixelry-home h2 .type-accent,
+.pixelry-home h2 .grad-text {
+  color: var(--purple-text);
+  background: var(--grad-text);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font: inherit;
+  letter-spacing: inherit;
+}
+/* Serifa itálica só no projeto em destaque e no convite final. */
+.pixelry-home h2 .type-editorial {
+  color: #c8b5ef;
+  font-family: var(--font-editorial);
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: -.015em;
+}
+.pixelry-home h3 {
+  font-family: var(--font-display);
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  letter-spacing: -.02em;
+  line-height: 1.3;
+  text-wrap: balance;
+}
+.pixelry-home p {
+  font-family: var(--font-body);
+  font-weight: 400;
+  text-wrap: pretty;
+}
+.pixelry-site .label {
+  font-family: var(--font-body);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: .06em;
+  line-height: 1.5;
+  color: var(--text-faint);
+  margin-bottom: 20px;
+}
+.pixelry-site .label::before { width: 20px; background: var(--purple-text); }
+.pixelry-site :is(.btn-primary, .btn-secondary, .btn-hero-cta, .btn-whatsapp) {
+  font-family: var(--font-body);
+  font-size: var(--fs-button);
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  min-height: 48px;
+  border-radius: 12px;
+}
+.pixelry-site :is(.btn-primary, .btn-whatsapp, .btn-hero-cta) {
+  background: #7443ce;
+  color: #fff;
+  padding: 16px 28px;
+  border: 1px solid #a67ce0;
+  box-shadow: 0 4px 20px #8040f51a;
+}
+.pixelry-site :is(.btn-primary, .btn-whatsapp, .btn-hero-cta):hover { background: #6335b6; color: #fff; }
+.pixelry-site .btn-secondary { color: var(--text-dim); }
+.pixelry-site .btn-secondary:hover { color: var(--text); }
+.pixelry-site .sticky-cta :is(a, button) { animation: none; }
+.pixelry-site--sans { --font-editorial: var(--font-body); }
+.pixelry-site--sans .pixelry-home h2 .type-editorial,
+.pixelry-site--sans .pixelry-home h1 em { font-style: normal; font-weight: 500; }
+@media (max-width:600px) {
+  .pixelry-home h2 { letter-spacing:-.025em; }
+}

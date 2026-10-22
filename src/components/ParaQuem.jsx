@@ -20,7 +20,7 @@ export default function ParaQuem() {
           <div className="reveal">
             <span className="label">PERFIL IDEAL</span>
             <h2 className={styles.h2}>
-              Para quem já é bom no que faz, mas o site não mostra isso.
+              Para quem já é <span className="type-accent">bom no que faz</span>, mas o site não mostra isso.
             </h2>
             <p className={styles.sub}>
               Você atende bem. Seus clientes voltam. Você recebe indicação.

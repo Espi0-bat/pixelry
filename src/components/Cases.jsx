@@ -2,7 +2,10 @@ import { useState } from 'react'
 import { ArrowRight } from 'lucide-react'
 import styles from './Cases.module.css'
 import CaseModal from './CaseModal'
-import drRogerioImg from './images/Dr Rogerio Furtado-74.jpg'
+// O original (Dr Rogerio Furtado-74.jpg, 13,6 MB) não entra no bundle; estas
+// versões cobrem o card (até ~600 px) e o modal do case.
+import drRogerio680 from './images/dr-rogerio-680.webp'
+import drRogerio1200 from './images/dr-rogerio-1200.webp'
 
 const BASE_URL = import.meta.env.BASE_URL || '/'
 
@@ -31,7 +34,8 @@ const portfolioData = [
     title: 'Doutor Rogério',
     description: 'Site institucional focado em construir autoridade médica e otimizar o agendamento de consultas. Design sóbrio, elegante e voltado para um público exigente.',
     tags: ['Saúde', 'Autoridade Médica', 'Institucional'],
-    image: drRogerioImg,
+    image: drRogerio1200,
+    srcSet: `${drRogerio680} 680w, ${drRogerio1200} 1200w`,
     link: 'https://espi0-bat.github.io/site-rogerio/',
     status: 'live',
     metrics: []
@@ -46,7 +50,7 @@ export default function Cases() {
       <div className={styles.container}>
         <div className={styles.header}>
           <span className="label">PORTFÓLIO</span>
-          <h2 className={styles.title}>Nossas Entregas</h2>
+          <h2 className={styles.title}>Nossas <span className="type-accent">Entregas</span></h2>
         </div>
 
         <div className={styles.grid}>
@@ -63,7 +67,7 @@ export default function Cases() {
                   </div>
                 )}
                 {item.image ? (
-                  <img src={item.image} alt={item.title} loading="lazy" />
+                  <img src={item.image} srcSet={item.srcSet} sizes="(max-width: 760px) 100vw, 600px" alt={item.title} loading="lazy" decoding="async" />
                 ) : (
                   <div className={styles.placeholderBg}></div>
                 )}

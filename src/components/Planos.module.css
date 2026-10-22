@@ -1,10 +1,5 @@
 .h2 {
-  font-family: var(--font-display);
-  font-size: clamp(24px, 2.8vw, 42px);
-  font-weight: 700;
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  margin-bottom: 100px;
+  margin-bottom: 64px;
   margin-top: 0;
 }
 
@@ -129,12 +124,13 @@
   transform: translateX(-50%);
   background: var(--purple);
   color: #fff;
-  font-size: 10px;
+  font-size: var(--fs-meta);
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: .04em;
   padding: 4px 12px;
   border-radius: 20px;
   text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .nome {
@@ -146,9 +142,9 @@
 }
 
 .desc {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: var(--text-dim);
-  line-height: 1.6;
+  line-height: var(--lh-body);
   margin-bottom: 32px;
   border-bottom: 1px solid var(--border);
   padding-bottom: 24px;
@@ -166,10 +162,10 @@
 }
 
 .valorItem span {
-  font-size: 10px;
+  font-size: var(--fs-meta);
   color: var(--text-dim);
   text-transform: uppercase;
-  letter-spacing: 0.12em;
+  letter-spacing: .04em;
   margin-bottom: 2px;
 }
 
@@ -192,11 +188,11 @@
 }
 
 .featureTitle {
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-family: var(--font-mono);
   color: var(--text-dim);
-  letter-spacing: 0.1em;
-  font-weight: 700;
+  letter-spacing: .04em;
+  font-weight: 500;
   margin-bottom: 12px;
 }
 
@@ -303,9 +299,9 @@
 
 .modulosLabel {
   display: inline-block;
-  font-size: 11px;
+  font-size: var(--fs-label);
   font-family: var(--font-mono);
-  letter-spacing: 0.15em;
+  letter-spacing: .04em;
   color: var(--cyan);
   text-transform: uppercase;
   margin-bottom: 16px;
@@ -389,9 +385,9 @@
   position: absolute;
   top: -10px;
   left: 24px;
-  font-size: 9px;
+  font-size: var(--fs-meta);
   font-weight: 700;
-  letter-spacing: 0.15em;
+  letter-spacing: .04em;
   text-transform: uppercase;
   padding: 3px 10px;
   border-radius: 20px;
@@ -445,7 +441,7 @@
 }
 
 .moduloSub {
-  font-size: 11px;
+  font-size: var(--fs-meta);
   color: var(--cyan);
   font-family: var(--font-mono);
   letter-spacing: 0.05em;
@@ -454,7 +450,7 @@
 }
 
 .moduloHero .moduloSub {
-  font-size: 12px;
+  font-size: var(--fs-meta);
 }
 
 .moduloDesc {
@@ -514,15 +510,19 @@
 }
 
 .moduloRequisito {
-  font-size: 10px;
+  font-size: var(--fs-meta);
   font-family: var(--font-mono);
-  letter-spacing: 0.1em;
+  letter-spacing: .04em;
   text-transform: uppercase;
   color: var(--text-dim);
   padding: 5px 10px;
   border: 1px solid var(--border);
   border-radius: 20px;
   background: var(--bg2);
+}
+
+@media (max-width: 360px) {
+  .moduloRequisito { letter-spacing: .04em; text-wrap: balance; border-radius: 10px; }
 }
 
 .moduloHero .moduloRequisito {

@@ -28,17 +28,41 @@
   --section-pad: 140px 48px;
   --section-pad-mobile: 80px 20px;
 
-  /* ─── Escala tipográfica padronizada ─── */
-  --lh-heading: 1.12;
-  --lh-sub:     1.3;
-  --lh-body:    1.75;
-  --fs-body:    15px;
-  --fs-intro:   16px;
-  /* 11px, não 10px. Aos 10 com tracking largo o rótulo de seção virava textura
-     em vez de informação — era isso que uma revisão externa leu como "contraste
-     baixo". Os tokens de cor passam todos em WCAG AA (o --text-dim fica em
-     5,5:1); o que faltava era corpo. */
-  --fs-label:   11px;
+  /* ─── Escala tipográfica ───
+     Terça maior (1,25) sobre 17 px no desktop e terça menor (1,2) sobre 16 px
+     no celular, fluida entre 390 e 1440 px. O piso é 13 px: abaixo disso, com
+     caixa alta e tracking largo, o texto vira textura em vez de informação.
+     Os tamanhos não dependem da família; o tracking de cada degrau entra junto
+     com a troca de família. */
+  --fs-display: clamp(32px, min(10vw, 3.81vw + 25.1px), 80px); /* 80/39 h1 da home */
+  --fs-xl:      clamp(40px, 2.38vw + 30.7px, 65px);             /* 65/40 h1 da /clinicas, números grandes */
+  --fs-h2:      clamp(33px, 1.81vw + 25.9px, 52px);             /* 52/33 título de seção */
+  --fs-title:   clamp(28px, .48vw + 26.1px, 33px);              /* 33/28 nome de projeto, título de bloco */
+  --fs-h3:      clamp(23px, .38vw + 21.5px, 27px);              /* 27/23 nome de plano, card grande */
+  --fs-lead:    clamp(19px, .19vw + 18.3px, 21px);              /* 21/19 subtítulo, pergunta do FAQ */
+  --fs-body:    clamp(16px, .1vw + 15.6px, 17px);               /* 17/16 texto corrido */
+  --fs-small:   15px;                                           /* card denso, nav, rodapé */
+  --fs-label:   clamp(13px, .1vw + 12.6px, 14px);               /* 14/13 rótulo, eyebrow, índice */
+  --fs-meta:    13px;                                           /* piso: nota, chip, selo, legal */
+  --fs-button:  16px;
+  --fs-intro:   var(--fs-lead);
+
+  --lh-display: 1.04;
+  --lh-h2:      1.08;
+  --lh-title:   1.15;
+  --lh-h3:      1.22;
+  --lh-h4:      1.3;
+  --lh-lead:    1.5;
+  --lh-body:    1.6;
+  --lh-label:   1.4;
+  --lh-heading: var(--lh-h2);
+  --lh-sub:     var(--lh-h4);
+
+  /* Pesos usados no site. 300, 800 e 900 saem na troca de família. */
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
 }
 
 *, *::before, *::after {
@@ -46,6 +70,11 @@
   margin: 0;
   padding: 0;
 }
+
+/* Botões e campos herdam a família da página; sem isto o navegador usa a
+   fonte do sistema (Arial no Mac) nos CTAs. O :where() zera a
+   especificidade, então a família declarada num componente continua valendo. */
+:where(button, input, select, textarea) { font-family: inherit; }
 
 /* Grain texture overlay — adds depth to the flat dark background */
 body::after {
@@ -62,6 +91,9 @@ body::after {
 
 html {
   scroll-behavior: smooth;
+  /* Peso ou itálico que não foi carregado sai no mais próximo que existe,
+     em vez de o navegador engrossar ou inclinar a letra artificialmente. */
+  font-synthesis: none;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
@@ -102,7 +134,7 @@ body {
 .label {
   font-family: var(--font-mono);
   font-size: var(--fs-label);
-  letter-spacing: 0.2em;
+  letter-spacing: .1em;
   text-transform: uppercase;
   color: var(--cyan);
   display: inline-flex;
@@ -132,7 +164,7 @@ body {
   background: var(--grad);
   color: #fff;
   font-family: var(--font-mono);
-  font-size: 12px;
+  font-size: var(--fs-meta);
   font-weight: 500;
   letter-spacing: 0.09em;
   padding: 17px 36px;
@@ -160,7 +192,7 @@ body {
   color: var(--bg);
   font-family: var(--font-mono);
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 500;
   letter-spacing: 0.06em;
   padding: 20px 44px;
   text-decoration: none;
@@ -226,7 +258,7 @@ body {
   gap: 10px;
   color: var(--text-dim);
   font-family: var(--font-mono);
-  font-size: 11px;
+  font-size: var(--fs-meta);
   letter-spacing: 0.08em;
   padding: 8px 0;
   min-height: 44px;
@@ -376,8 +408,8 @@ html.js .reveal.visible {
 
 @media (max-width: 480px) {
   body { font-size: 15px; }
-  .btn-primary   { padding: 16px 28px; font-size: 11px; width: 100%; }
-  .btn-whatsapp  { padding: 18px 28px; font-size: 12px; width: 100%; }
+  .btn-primary   { padding: 16px 28px; font-size: var(--fs-meta); width: 100%; }
+  .btn-whatsapp  { padding: 18px 20px; font-size: var(--fs-meta); letter-spacing: .02em; width: 100%; }
   .btn-hero-cta  { width: 100%; justify-content: center; font-size: 13px; }
   .btn-secondary { width: 100%; justify-content: center; }
 }

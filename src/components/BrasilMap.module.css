@@ -19,19 +19,14 @@
 .text {}
 
 .h2 {
-  font-family: var(--font-display);
-  font-size: clamp(26px, 3vw, 46px);
-  font-weight: 700;
-  line-height: 1.12;
-  letter-spacing: -0.025em;
   margin-bottom: 20px;
 }
 
 .sub {
-  font-size: 14px;
+  font-size: var(--fs-body);
   color: var(--text-dim);
-  line-height: 1.85;
-  font-weight: 300;
+  line-height: var(--lh-body);
+  font-weight: 400;
   max-width: 380px;
   margin-bottom: 32px;
 }
@@ -40,8 +35,8 @@
    Esta linha diz o que ela é. */
 .cityCaption {
   font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.16em;
+  font-size: var(--fs-label);
+  letter-spacing: .04em;
   text-transform: uppercase;
   color: var(--text-faint);
   margin-bottom: 14px;
@@ -62,7 +57,7 @@
   /* Nomes de cidade são a prova desta seção, não metadado decorativo —
      sobem junto com --fs-label e ganham a cor de texto secundário. */
   font-size: var(--fs-label);
-  letter-spacing: 0.12em;
+  letter-spacing: .04em;
   text-transform: uppercase;
   color: var(--text-dim);
 }
@@ -173,9 +168,9 @@
 }
 
 .hubLabel {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-mono);
   font-size: 8px;
-  letter-spacing: 0.12em;
+  letter-spacing: .04em;
   fill: rgba(255, 255, 255, 0.4);
   text-transform: uppercase;
 }

@@ -11,7 +11,7 @@
  *
  * Roda depois de `vite build` e `vite build --ssr`. Ver package.json.
  */
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs'
+import { readFileSync, writeFileSync, mkdirSync, existsSync, readdirSync } from 'node:fs'
 import { dirname, resolve, join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
@@ -111,6 +111,38 @@ function trocarTitulo(html, tag) {
 }
 
 
+/**
+ * O CSS das páginas e seções carregadas com React.lazy só chegava depois do
+ * JS principal: no 4G a /clinicas aparecia sem estilo por 3–4 s e depois
+ * pulava (CLS 0,27). O HTML pré-renderizado já traz as classes de CSS Module,
+ * que têm hash e são únicas por arquivo; então cada folha de dist/assets cujas
+ * classes aparecem no HTML da rota é ligada no <head>. Uma seção nova entra
+ * sozinha, sem lista para manter. O Vite não duplica a folha quando o chunk
+ * chega, porque o href é o mesmo.
+ */
+function folhasDeModulo(prefixo) {
+  const pasta = join(DIST, 'assets')
+  return readdirSync(pasta)
+    .filter((nome) => nome.endsWith('.css'))
+    .map((nome) => {
+      const css = readFileSync(join(pasta, nome), 'utf8')
+      const classes = new Set([...css.matchAll(/\.(_[A-Za-z][\w-]*)/g)].map((m) => m[1]))
+      return { href: `${prefixo}${nome}`, classes }
+    })
+    .filter((folha) => folha.classes.size > 0)
+}
+
+function ligarFolhasDaRota(html, folhas) {
+  const usadas = new Set(
+    [...html.matchAll(/class="([^"]*)"/g)].flatMap((m) => m[1].split(/\s+/))
+  )
+  const links = folhas
+    .filter((folha) => !html.includes(`href="${folha.href}"`))
+    .filter((folha) => [...folha.classes].some((c) => usadas.has(c)))
+    .map((folha) => `<link rel="stylesheet" crossorigin href="${folha.href}">`)
+  return { html: links.length ? html.replace('</head>', `${links.join('\n')}\n</head>`) : html, total: links.length }
+}
+
 function main() {
   const template = join(DIST, 'index.html')
   if (!existsSync(template)) {
@@ -128,6 +160,10 @@ function main() {
     if (!base.includes('<div id="root"></div>')) {
       throw new Error('Não achei <div id="root"></div> no template — o index.html mudou?')
     }
+
+    const cssPrincipal = base.match(/href="([^"]*\/)index-[^"]+\.css"/)
+    if (!cssPrincipal) throw new Error('Não achei o CSS principal no template — o build mudou?')
+    const folhas = folhasDeModulo(cssPrincipal[1])
 
     for (const rota of ROTAS) {
       const { html, helmet } = await render(rota)
@@ -148,6 +184,11 @@ function main() {
         saida = saida.replace('</head>', `${metas}\n${links}\n</head>`)
       }
 
+      const comCss = ligarFolhasDaRota(saida, folhas)
+      saida = comCss.html
+
+      if (saida.includes('\0')) throw new Error(`O HTML de "${rota}" saiu com byte NUL.`)
+
       const arquivos = destinos(rota)
       for (const arquivo of arquivos) {
         mkdirSync(dirname(arquivo), { recursive: true })
@@ -156,7 +197,7 @@ function main() {
 
       const kb = (Buffer.byteLength(html) / 1024).toFixed(1)
       const nomes = arquivos.map((a) => a.replace(DIST + '/', '')).join('  +  ')
-      console.log(`  ${rota.padEnd(14)} → ${nomes}  (${kb} kB de HTML)`)
+      console.log(`  ${rota.padEnd(14)} → ${nomes}  (${kb} kB de HTML; CSS de lazy no head: ${comCss.total})`)
     }
 
     gerarSitemap()

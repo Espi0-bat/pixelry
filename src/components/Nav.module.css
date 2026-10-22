@@ -2,7 +2,7 @@
   position: fixed;
   top: 0; left: 0; right: 0;
   z-index: 100;
-  padding: 20px 48px;
+  padding: 18px 5vw;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -12,49 +12,58 @@
 
 .scrolled {
   border-color: var(--border);
-  background: rgba(7, 7, 16, 0.88);
+  background: rgba(11, 12, 16, 0.94);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
 }
 
-.cta {
+.logo {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.15em;
-  color: var(--bg);
-  background: var(--grad);
-  border: 1px solid transparent;
-  border-radius: 100px;
-  padding: 10px 24px;
+  gap: 10px;
+  min-height: 44px;
   text-decoration: none;
-  text-transform: uppercase;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 4px 20px rgba(128, 64, 245, 0.25);
+  color: var(--text);
 }
 
-.cta:hover {
-  background: transparent;
-  color: #fff;
-  border-color: var(--cyan);
-  box-shadow: 0 8px 30px rgba(0, 216, 255, 0.3);
-  transform: translateY(-2px);
+.logoMark {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
 }
 
-.ctaMobile { display: none; }
-.ctaFull   { display: inline; }
+.wordmark {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+}
 
-@media (max-width: 900px) {
-  .nav { padding: 16px 20px; }
-  
-  .cta {
-    padding: 8px 16px;
-    font-size: 10px;
-    min-height: 44px;
-  }
-  .ctaFull   { display: none; }
-  .ctaMobile { display: inline; }
+.portalLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  font-family: var(--font-display);
+  font-size: var(--fs-small);
+  letter-spacing: 0;
+  color: var(--text-dim);
+  text-decoration: none;
+  transition: color 0.25s;
+  white-space: nowrap;
+}
+
+.portalLink:hover,
+.portalLink:focus-visible {
+  color: var(--purple-text);
+}
+
+.portalLink span { font-size: 13px; }
+
+@media (max-width: 480px) {
+  .nav { padding: 18px 20px; }
+  .wordmark { font-size: var(--fs-meta); }
+  .portalLink { font-size: var(--fs-meta); }
 }

@@ -10,8 +10,8 @@ export default function Manifesto() {
         <div className="reveal" style={{ textAlign: 'center' }}>
           <span className="label" style={{ justifyContent: 'center' }}>MANIFESTO</span>
           <h2 className={styles.h2}>
-            Não fazemos presença digital.<br />
-            <span className="grad-text">Construímos o sistema<br />que gera clientes.</span>
+            Não fazemos presença digital.{' '}
+            <span className="grad-text">Construímos o sistema{' '}que gera clientes.</span>
           </h2>
         </div>
 
