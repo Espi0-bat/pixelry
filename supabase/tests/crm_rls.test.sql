@@ -1,9 +1,9 @@
 -- Testes de RLS, travas e auditoria do CRM.
 --
--- Não rode este arquivo sozinho: use supabase/tests/run-crm-rls.sh, que monta
---   begin; <as 4 migrations do CRM, byte a byte>; <este arquivo>; rollback;
--- e manda tudo numa só chamada. Nada fica gravado: a transação termina em
--- rollback e as pessoas de teste nascem e morrem dentro dela.
+-- Não rode este arquivo sozinho: use supabase/tests/run-crm-rls.sh. Por
+-- padrão ele sobe um Postgres local descartável, aplica a base local e as
+-- migrations do CRM e roda este arquivo entre begin e rollback. Contra o
+-- projeto linkado só com --linked e confirmação explícita.
 --
 -- Cada consulta roda sob o papel real (set local role authenticated + claims
 -- do JWT), como o PostgREST faz. Regras do projeto respeitadas:
@@ -18,6 +18,9 @@ create temp table crm_t (
   expected text not null,
   actual   text
 );
+
+-- Papel com que a conexão chegou (postgres no local; o da CLI no linkado).
+create temp table crm_papel_inicial as select current_user::text as papel;
 
 -- Executa p_sql como a pessoa (ou como anon, se p_uid for nulo).
 -- Devolve 'ok:<linhas afetadas>' ou 'err:<sqlstate>'.
@@ -208,9 +211,40 @@ select pg_temp.chk('crm_my_access do sales_trial', 'full/true/false',
     'select (a->>''access_level'') || ''/'' || (a->>''can_assign'') || ''/'' || (a->>''can_manage_access'') from public.crm_my_access() a'));
 select pg_temp.chk('crm_my_access do employee', 'none',
   pg_temp.value_as('00000000-0000-4000-8000-0000000000a5', 'select a->>''access_level'' from public.crm_my_access() a'));
-select pg_temp.chk('membros de teste visíveis ao sdr1 (com CRM)', '5',
+-- Quem não tem CRM completo só recebe id e nome de quem aparece no que vê.
+-- sdr1 vê: Op1/Op2 (dele), conta A e contato A1 (do sócio), conta B e B1 (dele).
+select pg_temp.chk('sdr1 só recebe quem aparece no que ele vê', 'Teste Sócio Probatório,Teste SDR Um',
   pg_temp.value_as('00000000-0000-4000-8000-0000000000a3',
-    'select count(*)::text from public.crm_list_members() m where m.email like ''crm-teste-%'''));
+    'select string_agg(m.full_name, '','' order by m.id) from public.crm_list_members() m
+      where m.id::text like ''00000000-0000-4000-8000-0000000000a%'''));
+select pg_temp.chk('sdr1 não recebe e-mail, papel nem nível de acesso de ninguém', '0',
+  pg_temp.value_as('00000000-0000-4000-8000-0000000000a3',
+    'select count(*)::text from public.crm_list_members() m
+      where m.email is not null or m.role is not null or m.access_level is not null'));
+-- sdr2 vê: Op3 (do sócio, ele é SDR), conta C e C1 (sem dono), X (dele),
+-- atividades do sócio.
+select pg_temp.chk('sdr2 só recebe quem aparece no que ele vê', 'Teste Sócio Probatório,Teste SDR Dois',
+  pg_temp.value_as('00000000-0000-4000-8000-0000000000a4',
+    'select string_agg(m.full_name, '','' order by m.id) from public.crm_list_members() m
+      where m.id::text like ''00000000-0000-4000-8000-0000000000a%'''));
+select pg_temp.chk('sales_trial recebe todos com CRM, com e-mail (é quem atribui)', '5/5',
+  pg_temp.value_as('00000000-0000-4000-8000-0000000000a2',
+    'select count(*)::text || ''/'' || count(m.email)::text from public.crm_list_members() m
+      where m.id::text like ''00000000-0000-4000-8000-0000000000a%'''));
+-- Nome vazio: quem tem CRM completo vê o e-mail no lugar; os demais, 'Sem nome'.
+insert into auth.users (id, email, aud, role, raw_user_meta_data) values
+  ('00000000-0000-4000-8000-0000000000a9', 'crm-semnome@example.invalid', 'authenticated', 'authenticated', '{}');
+update public.profiles set role = 'sdr' where id = '00000000-0000-4000-8000-0000000000a9';
+insert into public.crm_activities (id, opportunity_id, type, summary, created_by) values
+  ('00000000-0000-4000-8000-0000000000e9', '00000000-0000-4000-8000-0000000000f1', 'note', 'TESTE nota sem nome',
+   '00000000-0000-4000-8000-0000000000a9');
+select pg_temp.chk('sem CRM completo, nome vazio vira "Sem nome", nunca o e-mail', 'Sem nome',
+  pg_temp.value_as('00000000-0000-4000-8000-0000000000a3',
+    'select m.full_name from public.crm_list_members() m where m.id = ''00000000-0000-4000-8000-0000000000a9'''));
+select pg_temp.chk('com CRM completo, nome vazio mostra o e-mail', 'crm-semnome@example.invalid',
+  pg_temp.value_as('00000000-0000-4000-8000-0000000000a2',
+    'select m.full_name from public.crm_list_members() m where m.id = ''00000000-0000-4000-8000-0000000000a9'''));
+delete from public.crm_activities where id = '00000000-0000-4000-8000-0000000000e9';
 select pg_temp.chk('sdr1 não vê o ajuste de acesso dos outros', '0',
   pg_temp.value_as('00000000-0000-4000-8000-0000000000a3',
     'select count(*)::text from public.crm_list_members() m where m.crm_access is not null'));
@@ -219,6 +253,48 @@ select pg_temp.chk('client não lista membros', '0',
 select pg_temp.chk('super_admin lista também a equipe sem CRM', '7',
   pg_temp.value_as('00000000-0000-4000-8000-0000000000a1',
     'select count(*)::text from public.crm_list_members(true) m where m.email like ''crm-teste-%'''));
+
+-- ── Edição de contas e contatos ─────────────────────────────────────────────
+select pg_temp.chk('sdr1 edita a conta dele', 'ok:1',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a3',
+    'update public.crm_accounts set phone = ''61 3333-0000'', segment = ''Odontologia'' where id = ''00000000-0000-4000-8000-00000000ac0b'''));
+select pg_temp.chk('edição da conta vai para o histórico com autor', '1',
+  (select count(*)::text from public.crm_audit_log
+   where entity_type = 'account' and entity_id = '00000000-0000-4000-8000-00000000ac0b'
+     and action = 'update' and changes ? 'phone' and changes ? 'segment'
+     and actor_id = '00000000-0000-4000-8000-0000000000a3'));
+select pg_temp.chk('sdr1 edita a conta que vê pela oportunidade', 'ok:1',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a3',
+    'update public.crm_accounts set city = ''Brasília'' where id = ''00000000-0000-4000-8000-00000000ac0a'''));
+select pg_temp.chk('sdr1 não edita conta que não vê (0 linhas)', 'ok:0',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a3',
+    'update public.crm_accounts set city = ''x'' where id = ''00000000-0000-4000-8000-00000000ac0c'''));
+select pg_temp.chk('sdr1 edita o contato dele', 'ok:1',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a3',
+    'update public.crm_contacts set job_title = ''Sócia'' where id = ''00000000-0000-4000-8000-00000000c0b1'''));
+select pg_temp.chk('sdr1 não edita contato que não vê (0 linhas)', 'ok:0',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a3',
+    'update public.crm_contacts set job_title = ''x'' where id = ''00000000-0000-4000-8000-00000000c0c1'''));
+select pg_temp.chk('sdr1 cria contato numa conta que vê', 'ok:1',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a3',
+    'insert into public.crm_contacts (id, account_id, full_name, owner_id, client_request_id)
+     values (''00000000-0000-4000-8000-00000000c0b2'', ''00000000-0000-4000-8000-00000000ac0b'', ''TESTE Contato B2'',
+             ''00000000-0000-4000-8000-0000000000a2'', ''00000000-0000-4000-8000-00000000c0de'')'));
+select pg_temp.chk('contato criado pelo sdr1 fica com ele mesmo como responsável', '00000000-0000-4000-8000-0000000000a3',
+  (select owner_id::text from public.crm_contacts where id = '00000000-0000-4000-8000-00000000c0b2'));
+select pg_temp.chk('contato repetido (mesma chave de envio) é recusado', 'err:23505',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a3',
+    'insert into public.crm_contacts (account_id, full_name, client_request_id)
+     values (''00000000-0000-4000-8000-00000000ac0b'', ''TESTE Contato B2'', ''00000000-0000-4000-8000-00000000c0de'')'));
+select pg_temp.chk('sdr1 não cria contato em conta que não vê', 'err:42501',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a3',
+    'insert into public.crm_contacts (account_id, full_name) values (''00000000-0000-4000-8000-00000000ac0c'', ''TESTE invasão'')'));
+select pg_temp.chk('sdr1 não troca o responsável do contato', 'err:42501',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a3',
+    'update public.crm_contacts set owner_id = ''00000000-0000-4000-8000-0000000000a2'' where id = ''00000000-0000-4000-8000-00000000c0b1'''));
+select pg_temp.chk('sales_trial atribui o responsável da conta', 'ok:1',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a2',
+    'update public.crm_accounts set owner_id = ''00000000-0000-4000-8000-0000000000a2'' where id = ''00000000-0000-4000-8000-00000000ac0c'''));
 
 -- ── Mudança de etapa ────────────────────────────────────────────────────────
 select pg_temp.chk('sdr1 muda a etapa da oportunidade dele', 'ok:1',
@@ -282,6 +358,16 @@ select pg_temp.chk('troca de responsável vai para o histórico', '1',
      and changes -> 'owner_id' ->> 'old' = '00000000-0000-4000-8000-0000000000a3'
      and changes -> 'owner_id' ->> 'new' = '00000000-0000-4000-8000-0000000000a2'
      and actor_id = '00000000-0000-4000-8000-0000000000a2'));
+-- Quem só aparece no histórico do que o SDR vê também vem pelo nome.
+select pg_temp.chk('sales_trial passa a Op2 pelo admin e de volta', 'ok:1/ok:1',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a2',
+    'update public.crm_opportunities set owner_id = ''00000000-0000-4000-8000-0000000000a1'' where id = ''00000000-0000-4000-8000-0000000000f2''')
+  || '/' || pg_temp.exec_as('00000000-0000-4000-8000-0000000000a2',
+    'update public.crm_opportunities set owner_id = ''00000000-0000-4000-8000-0000000000a2'' where id = ''00000000-0000-4000-8000-0000000000f2'''));
+select pg_temp.chk('sdr1 recebe o nome de quem foi responsável no histórico, sem e-mail', 'Teste Admin/0',
+  pg_temp.value_as('00000000-0000-4000-8000-0000000000a3',
+    'select string_agg(m.full_name, '','') || ''/'' || count(m.email)::text from public.crm_list_members() m
+      where m.id = ''00000000-0000-4000-8000-0000000000a1'''));
 select pg_temp.chk('depois do repasse, sdr1 vê só a Op2 (via sdr_id)', 'TESTE Op 2',
   pg_temp.value_as('00000000-0000-4000-8000-0000000000a3', 'select string_agg(title, '','' order by title) from public.crm_opportunities'));
 select pg_temp.chk('sdr1 perde o histórico da Op1', '0',
@@ -407,6 +493,51 @@ select pg_temp.chk('sales_trial não edita etapa (0 linhas)', 'ok:0',
   pg_temp.exec_as('00000000-0000-4000-8000-0000000000a2', 'update public.crm_stages set label = ''x'' where id = ''novo'''));
 select pg_temp.chk('manager edita etapa', 'ok:1',
   pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7', 'update public.crm_stages set probability = 15 where id = ''novo'''));
+-- Ocupação neste ponto: Op1 em contato, Op2 em diagnostico, Op3/Op5/lead RPC
+-- em novo; proposta, negociacao, ganho e perdido vazias.
+select pg_temp.chk('Novo não pode ser desativada (entrada dos leads)', 'err:23514',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7', 'update public.crm_stages set active = false where id = ''novo'''));
+select pg_temp.chk('Novo não pode deixar de ser aberta', 'err:23514',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7', 'update public.crm_stages set kind = ''won'' where id = ''novo'''));
+select pg_temp.chk('etapa com oportunidades não é desativada', 'err:23514',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7', 'update public.crm_stages set active = false where id = ''contato'''));
+select pg_temp.chk('tipo de etapa com oportunidades não muda', 'err:23514',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7', 'update public.crm_stages set kind = ''lost'' where id = ''diagnostico'''));
+select pg_temp.chk('etapa vazia é desativada e reativada', 'ok:1/ok:1',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7', 'update public.crm_stages set active = false where id = ''proposta''')
+  || '/' || pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7', 'update public.crm_stages set active = true where id = ''proposta'''));
+select pg_temp.chk('o funil não fica sem etapa ganha ativa', 'err:23514',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7', 'update public.crm_stages set active = false where id = ''ganho'''));
+select pg_temp.chk('manager cria etapa', 'ok:1',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7',
+    'insert into public.crm_stages (id, label, position, kind, probability) values (''qualificacao'', ''Qualificação'', 25, ''open'', 30)'));
+select pg_temp.chk('sales_trial não cria etapa', 'err:42501',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a2',
+    'insert into public.crm_stages (id, label, position, kind) values (''invasao'', ''Invasão'', 99, ''open'')'));
+select pg_temp.chk('id de etapa não muda', 'err:23514',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7', 'update public.crm_stages set id = ''qualif'' where id = ''qualificacao'''));
+select pg_temp.chk('reordenar exige todas as etapas', 'err:22023',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7', 'select public.crm_reorder_stages(array[''novo'', ''contato''])'));
+select pg_temp.chk('reordenar não aceita etapa repetida', 'err:22023',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7',
+    'select public.crm_reorder_stages(array[''novo'',''novo'',''contato'',''diagnostico'',''proposta'',''negociacao'',''ganho'',''perdido''])'));
+select pg_temp.chk('sales_trial não reordena', 'err:42501',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a2',
+    'select public.crm_reorder_stages(array[''novo'',''qualificacao'',''contato'',''diagnostico'',''proposta'',''negociacao'',''ganho'',''perdido''])'));
+select pg_temp.chk('manager reordena', 'ok:1',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7',
+    'select public.crm_reorder_stages(array[''novo'',''contato'',''qualificacao'',''diagnostico'',''proposta'',''negociacao'',''ganho'',''perdido''])'));
+select pg_temp.chk('ordem nova gravada de 10 em 10', 'novo:10,contato:20,qualificacao:30,diagnostico:40,proposta:50,negociacao:60,ganho:70,perdido:80',
+  (select string_agg(id || ':' || position, ',' order by position) from public.crm_stages));
+select pg_temp.chk('Novo não é excluída', 'err:23514',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7', 'delete from public.crm_stages where id = ''novo'''));
+select pg_temp.chk('etapa com oportunidades não é excluída', 'err:23503',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7', 'delete from public.crm_stages where id = ''contato'''));
+select pg_temp.chk('etapa vazia é excluída', 'ok:1',
+  pg_temp.exec_as('00000000-0000-4000-8000-0000000000a7', 'delete from public.crm_stages where id = ''qualificacao'''));
+select pg_temp.chk('criação e exclusão de etapa ficam no histórico', '1/1',
+  (select count(*) filter (where action = 'insert')::text || '/' || count(*) filter (where action = 'delete')::text
+   from public.crm_audit_log where entity_type = 'stage' and entity_id = 'qualificacao'));
 
 -- ── Ajuste de acesso sem novo APK ───────────────────────────────────────────
 select pg_temp.chk('sdr1 não se promove pela coluna', 'err:42501',
@@ -463,23 +594,26 @@ select pg_temp.chk('lead do site vira contato e oportunidade em "novo" sem respo
 select pg_temp.chk('sdr não vê o lead sem atribuição', '0',
   pg_temp.count_as('00000000-0000-4000-8000-0000000000a3',
     'public.crm_opportunities where lead_id = ''00000000-0000-4000-8000-00000000ead1'''));
--- Falha no CRM não pode derrubar o cadastro do lead
-update public.crm_stages set active = false where id = 'novo';
+-- Falha no CRM não pode derrubar o cadastro do lead. A falha é simulada com
+-- uma constraint provisória que recusa só a oportunidade deste lead.
+alter table public.crm_opportunities
+  add constraint crm_teste_falha check (title <> 'TESTE Lead Falha') not valid;
 set local role service_role;
 insert into public.leads (id, name, email, source)
 values ('00000000-0000-4000-8000-00000000ead2', 'TESTE Lead Falha', 'lead-falha@example.invalid', 'hero_cta');
 reset role;
-update public.crm_stages set active = true where id = 'novo';
+alter table public.crm_opportunities drop constraint crm_teste_falha;
 select pg_temp.chk('lead é gravado mesmo se o CRM falhar (e nada fica pela metade)', '1/0/0',
   (select count(*)::text from public.leads where id = '00000000-0000-4000-8000-00000000ead2')
   || '/' || (select count(*)::text from public.crm_contacts where lead_id = '00000000-0000-4000-8000-00000000ead2')
   || '/' || (select count(*)::text from public.crm_opportunities where lead_id = '00000000-0000-4000-8000-00000000ead2'));
 
 -- Papel original de volta depois de tudo (as funções de teste não vazam papel)
-select pg_temp.chk('papel da conexão restaurado', 'postgres', current_user::text);
+select pg_temp.chk('papel da conexão restaurado', papel, current_user::text) from crm_papel_inicial;
 
 -- ── Resultado ───────────────────────────────────────────────────────────────
 select
+  'CRMTEST' as marcador,
   n,
   case when actual is not distinct from expected then 'PASSOU' else 'FALHOU' end as resultado,
   test,
