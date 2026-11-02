@@ -1,0 +1,226 @@
+{
+  "_about": "Pedidos HTTP exatos que SupabaseTimeTrackingRepository envia (afirmados em supabase_time_tracking_repository_test.dart). query = parametros decodificados (chave repetida em lista); body = JSON decodificado (null em GET). Ids: usuario aaaaaaaa-...-0001, outra pessoa aaaaaaaa-...-0002, jornadas bbbbbbbb-..., pedidos cccccccc-....",
+  "fetchStatus": {
+    "call": "fetchStatus()",
+    "method": "POST",
+    "path": "/rest/v1/rpc/time_my_status",
+    "query": {},
+    "body": {}
+  },
+  "clockIn": {
+    "call": "clockIn(requestId: 'cccccccc-0000-4000-8000-000000000001')",
+    "method": "POST",
+    "path": "/rest/v1/rpc/time_clock_in",
+    "query": {},
+    "body": {
+      "p_request_id": "cccccccc-0000-4000-8000-000000000001",
+      "p_note": null
+    }
+  },
+  "clockIn.withNote": {
+    "call": "clockIn(requestId: 'CCCCCCCC-0000-4000-8000-00000000000A', note: '  Começando pelo cliente X  ')",
+    "method": "POST",
+    "path": "/rest/v1/rpc/time_clock_in",
+    "query": {},
+    "body": {
+      "p_request_id": "cccccccc-0000-4000-8000-00000000000a",
+      "p_note": "Começando pelo cliente X"
+    }
+  },
+  "startBreak": {
+    "call": "startBreak(requestId: 'cccccccc-0000-4000-8000-000000000002')",
+    "method": "POST",
+    "path": "/rest/v1/rpc/time_start_break",
+    "query": {},
+    "body": {
+      "p_request_id": "cccccccc-0000-4000-8000-000000000002"
+    }
+  },
+  "endBreak": {
+    "call": "endBreak(requestId: 'cccccccc-0000-4000-8000-000000000003')",
+    "method": "POST",
+    "path": "/rest/v1/rpc/time_end_break",
+    "query": {},
+    "body": {
+      "p_request_id": "cccccccc-0000-4000-8000-000000000003"
+    }
+  },
+  "clockOut": {
+    "call": "clockOut(requestId: 'cccccccc-0000-4000-8000-000000000004')",
+    "method": "POST",
+    "path": "/rest/v1/rpc/time_clock_out",
+    "query": {},
+    "body": {
+      "p_request_id": "cccccccc-0000-4000-8000-000000000004",
+      "p_close_open_break": false,
+      "p_note": null
+    }
+  },
+  "clockOut.closeOpenBreak": {
+    "call": "clockOut(requestId: 'cccccccc-0000-4000-8000-00000000000b', closeOpenBreak: true, note: 'Saída antes por consulta médica')",
+    "method": "POST",
+    "path": "/rest/v1/rpc/time_clock_out",
+    "query": {},
+    "body": {
+      "p_request_id": "cccccccc-0000-4000-8000-00000000000b",
+      "p_close_open_break": true,
+      "p_note": "Saída antes por consulta médica"
+    }
+  },
+  "fetchShifts.own": {
+    "call": "fetchShifts(from: DateTime.utc(2026, 10, 26), to: DateTime.utc(2026, 11, 1), userId: 'aaaaaaaa-0000-4000-8000-000000000001')",
+    "method": "GET",
+    "path": "/rest/v1/time_shifts",
+    "query": {
+      "select": ["*,time_breaks(*)"],
+      "work_date": ["gte.2026-10-26", "lte.2026-11-01"],
+      "user_id": ["eq.aaaaaaaa-0000-4000-8000-000000000001"],
+      "order": ["started_at.asc.nullslast"],
+      "time_breaks.order": ["started_at.asc.nullslast"]
+    },
+    "body": null
+  },
+  "fetchShifts.team": {
+    "call": "fetchShifts(from: DateTime.utc(2026, 10, 26), to: DateTime.utc(2026, 11, 1))",
+    "method": "GET",
+    "path": "/rest/v1/time_shifts",
+    "query": {
+      "select": ["*,time_breaks(*)"],
+      "work_date": ["gte.2026-10-26", "lte.2026-11-01"],
+      "order": ["started_at.asc.nullslast"],
+      "time_breaks.order": ["started_at.asc.nullslast"]
+    },
+    "body": null
+  },
+  "fetchPendingReview": {
+    "call": "fetchPendingReview()",
+    "method": "GET",
+    "path": "/rest/v1/time_shifts",
+    "query": {
+      "select": ["*,time_breaks(*)"],
+      "review_status": ["eq.pending"],
+      "order": ["started_at.asc.nullslast"],
+      "time_breaks.order": ["started_at.asc.nullslast"]
+    },
+    "body": null
+  },
+  "correctShift": {
+    "call": "correctShift(shiftId: 'bbbbbbbb-0000-4000-8000-000000000001', draft: 30/10 08:00–17:30 Brasília, intervalo 12:00–13:00, reason: '  Esqueci de bater a saída no horário certo  ', requestId: 'cccccccc-0000-4000-8000-000000000005')",
+    "method": "POST",
+    "path": "/rest/v1/rpc/time_correct_shift",
+    "query": {},
+    "body": {
+      "p_shift_id": "bbbbbbbb-0000-4000-8000-000000000001",
+      "p_started_at": "2026-10-30T11:00:00.000Z",
+      "p_ended_at": "2026-10-30T20:30:00.000Z",
+      "p_breaks": [
+        {
+          "started_at": "2026-10-30T15:00:00.000Z",
+          "ended_at": "2026-10-30T16:00:00.000Z"
+        }
+      ],
+      "p_reason": "Esqueci de bater a saída no horário certo",
+      "p_request_id": "cccccccc-0000-4000-8000-000000000005"
+    }
+  },
+  "correctShift.openShift": {
+    "call": "correctShift(shiftId: 'bbbbbbbb-0000-4000-8000-000000000003', draft: 01/11 07:45 Brasília, aberta, intervalo aberto desde 10:00, reason: 'Entrada real foi às 07:45, bati atrasado', requestId: 'cccccccc-0000-4000-8000-00000000000c')",
+    "method": "POST",
+    "path": "/rest/v1/rpc/time_correct_shift",
+    "query": {},
+    "body": {
+      "p_shift_id": "bbbbbbbb-0000-4000-8000-000000000003",
+      "p_started_at": "2026-11-01T10:45:00.000Z",
+      "p_ended_at": null,
+      "p_breaks": [
+        {
+          "started_at": "2026-11-01T13:00:00.000Z",
+          "ended_at": null
+        }
+      ],
+      "p_reason": "Entrada real foi às 07:45, bati atrasado",
+      "p_request_id": "cccccccc-0000-4000-8000-00000000000c"
+    }
+  },
+  "createManualShift.self": {
+    "call": "createManualShift(draft: 29/10 09:00–18:00 Brasília, intervalo 12:30–13:30, reason: 'Dia esquecido: trabalhei no cliente', requestId: 'cccccccc-0000-4000-8000-000000000006')",
+    "method": "POST",
+    "path": "/rest/v1/rpc/time_create_manual_shift",
+    "query": {},
+    "body": {
+      "p_user_id": null,
+      "p_started_at": "2026-10-29T12:00:00.000Z",
+      "p_ended_at": "2026-10-29T21:00:00.000Z",
+      "p_breaks": [
+        {
+          "started_at": "2026-10-29T15:30:00.000Z",
+          "ended_at": "2026-10-29T16:30:00.000Z"
+        }
+      ],
+      "p_reason": "Dia esquecido: trabalhei no cliente",
+      "p_request_id": "cccccccc-0000-4000-8000-000000000006"
+    }
+  },
+  "createManualShift.otherPerson": {
+    "call": "createManualShift(userId: 'aaaaaaaa-0000-4000-8000-000000000002', draft: 28/10 08:00–12:00 Brasília, sem intervalos, reason: 'Inclusão pedida pela pessoa por mensagem', requestId: 'cccccccc-0000-4000-8000-00000000000d')",
+    "method": "POST",
+    "path": "/rest/v1/rpc/time_create_manual_shift",
+    "query": {},
+    "body": {
+      "p_user_id": "aaaaaaaa-0000-4000-8000-000000000002",
+      "p_started_at": "2026-10-28T11:00:00.000Z",
+      "p_ended_at": "2026-10-28T15:00:00.000Z",
+      "p_breaks": [],
+      "p_reason": "Inclusão pedida pela pessoa por mensagem",
+      "p_request_id": "cccccccc-0000-4000-8000-00000000000d"
+    }
+  },
+  "voidShift": {
+    "call": "voidShift(shiftId: 'bbbbbbbb-0000-4000-8000-000000000002', reason: 'Jornada aberta por engano no celular', requestId: 'cccccccc-0000-4000-8000-000000000007')",
+    "method": "POST",
+    "path": "/rest/v1/rpc/time_void_shift",
+    "query": {},
+    "body": {
+      "p_shift_id": "bbbbbbbb-0000-4000-8000-000000000002",
+      "p_reason": "Jornada aberta por engano no celular",
+      "p_request_id": "cccccccc-0000-4000-8000-000000000007"
+    }
+  },
+  "reviewShifts": {
+    "call": "reviewShifts(shifts: [jornada bbbbbbbb-...-0001 com updatedAt 2026-10-30T20:31:02.123456Z, jornada bbbbbbbb-...-0002 com updatedAt 2026-10-31T09:00:00Z], note: 'Semana conferida')",
+    "method": "POST",
+    "path": "/rest/v1/rpc/time_review_shifts",
+    "query": {},
+    "body": {
+      "p_shifts": [
+        {
+          "id": "bbbbbbbb-0000-4000-8000-000000000001",
+          "updated_at": "2026-10-30T20:31:02.123456Z"
+        },
+        {
+          "id": "bbbbbbbb-0000-4000-8000-000000000002",
+          "updated_at": "2026-10-31T09:00:00.000Z"
+        }
+      ],
+      "p_note": "Semana conferida"
+    }
+  },
+  "fetchAuditTrail": {
+    "call": "fetchAuditTrail('bbbbbbbb-0000-4000-8000-000000000001')",
+    "method": "GET",
+    "path": "/rest/v1/time_audit_events",
+    "query": {
+      "select": ["id,seq,shift_id,subject_user_id,actor_id,action,reason,before,after,created_at"],
+      "shift_id": ["eq.bbbbbbbb-0000-4000-8000-000000000001"],
+      "order": ["seq.asc.nullslast"]
+    },
+    "body": null
+  },
+  "fetchPeople": {
+    "call": "fetchPeople()",
+    "method": "POST",
+    "path": "/rest/v1/rpc/ponto_people",
+    "query": {},
+    "body": {}
+  }
+}

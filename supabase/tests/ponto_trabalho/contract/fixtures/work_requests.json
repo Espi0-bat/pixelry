@@ -1,0 +1,821 @@
+{
+  "source": "test/features/work/data/supabase_work_repository_test.dart",
+  "client": "SupabaseClient('http://127.0.0.1:<porta>', 'sb_publishable_test', accessToken: () async => 'test-jwt')",
+  "ids": {
+    "me": "a0000000-0000-4000-8000-000000000001",
+    "other": "a0000000-0000-4000-8000-000000000002",
+    "admin": "a0000000-0000-4000-8000-000000000003",
+    "task": "b0000000-0000-4000-8000-000000000001",
+    "task2": "b0000000-0000-4000-8000-000000000002",
+    "log": "c0000000-0000-4000-8000-000000000001",
+    "deliverable": "d0000000-0000-4000-8000-000000000001",
+    "shift": "e0000000-0000-4000-8000-000000000001"
+  },
+  "requests": [
+    {
+      "name": "fetchTasks.mine.default",
+      "call": "fetchTasks(scope: TaskScope.mine)",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "assignee_id": [
+          "eq.a0000000-0000-4000-8000-000000000001"
+        ],
+        "status": [
+          "in.(\"todo\",\"in_progress\",\"blocked\",\"in_review\")"
+        ],
+        "order": [
+          "priority_rank.asc.nullslast,due_date.asc.nullslast,created_at.desc.nullslast"
+        ]
+      },
+      "headers": {},
+      "body": null,
+      "fake_response_status": 200
+    },
+    {
+      "name": "fetchTasks.createdByMe.priorities_due_range",
+      "call": "fetchTasks(scope: TaskScope.createdByMe, filters: TaskFilters(priorities: {urgent, high}, dueFrom: 2026-11-01, dueTo: 2026-11-30))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "created_by": [
+          "eq.a0000000-0000-4000-8000-000000000001"
+        ],
+        "status": [
+          "in.(\"todo\",\"in_progress\",\"blocked\",\"in_review\")"
+        ],
+        "priority": [
+          "in.(\"high\",\"urgent\")"
+        ],
+        "due_date": [
+          "gte.2026-11-01",
+          "lte.2026-11-30"
+        ],
+        "order": [
+          "priority_rank.asc.nullslast,due_date.asc.nullslast,created_at.desc.nullslast"
+        ]
+      },
+      "headers": {},
+      "body": null,
+      "fake_response_status": 200
+    },
+    {
+      "name": "fetchTasks.team.assignee_overdue",
+      "call": "fetchTasks(scope: TaskScope.team, filters: TaskFilters(statuses: allStatuses, assigneeId: other, onlyOverdue: true))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "status": [
+          "in.(\"todo\",\"in_progress\",\"blocked\",\"in_review\")"
+        ],
+        "assignee_id": [
+          "eq.a0000000-0000-4000-8000-000000000002"
+        ],
+        "due_date": [
+          "lt.2026-11-01"
+        ],
+        "order": [
+          "priority_rank.asc.nullslast,due_date.asc.nullslast,created_at.desc.nullslast"
+        ]
+      },
+      "headers": {},
+      "body": null,
+      "fake_response_status": 200,
+      "note": "due_date=lt usa a data de Brasília (01/11), não a UTC (02/11)"
+    },
+    {
+      "name": "fetchTasks.team.everything",
+      "call": "fetchTasks(scope: TaskScope.team, filters: TaskFilters(statuses: allStatuses, priorities: all))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "order": [
+          "priority_rank.asc.nullslast,due_date.asc.nullslast,created_at.desc.nullslast"
+        ]
+      },
+      "headers": {},
+      "body": null,
+      "fake_response_status": 200
+    },
+    {
+      "name": "fetchTasks.mine.empty_statuses",
+      "call": "fetchTasks(scope: TaskScope.mine, filters: TaskFilters(statuses: {}))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "assignee_id": [
+          "eq.a0000000-0000-4000-8000-000000000001"
+        ],
+        "order": [
+          "priority_rank.asc.nullslast,due_date.asc.nullslast,created_at.desc.nullslast"
+        ]
+      },
+      "headers": {},
+      "body": null,
+      "fake_response_status": 200
+    },
+    {
+      "name": "fetchTasks.mine.closed_only",
+      "call": "fetchTasks(scope: TaskScope.mine, filters: TaskFilters(statuses: {done, canceled}))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "assignee_id": [
+          "eq.a0000000-0000-4000-8000-000000000001"
+        ],
+        "status": [
+          "in.(\"done\",\"canceled\")"
+        ],
+        "order": [
+          "priority_rank.asc.nullslast,due_date.asc.nullslast,created_at.desc.nullslast"
+        ]
+      },
+      "headers": {},
+      "body": null,
+      "fake_response_status": 200,
+      "note": "mesma consulta que TaskListController faz para \"Ver concluídas\""
+    },
+    {
+      "name": "fetchTask",
+      "call": "fetchTask(task)",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "id": [
+          "eq.b0000000-0000-4000-8000-000000000001"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json"
+      },
+      "body": null,
+      "fake_response_status": 200
+    },
+    {
+      "name": "createTask.full",
+      "call": "createTask(TaskDraft(id: task, title: 'Proposta', description, priority: high, dueDate: 2026-11-05, assigneeId: me))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "POST",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "select": [
+          "*"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json",
+        "prefer": "return=representation"
+      },
+      "body": {
+        "id": "b0000000-0000-4000-8000-000000000001",
+        "title": "Proposta",
+        "description": "Detalhes",
+        "priority": "high",
+        "due_date": "2026-11-05",
+        "assignee_id": "a0000000-0000-4000-8000-000000000001"
+      },
+      "fake_response_status": 201
+    },
+    {
+      "name": "createTask.minimal_unassigned",
+      "call": "createTask(TaskDraft(id: task, title: 'Preparar proposta', assigneeId: null))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "POST",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "select": [
+          "*"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json",
+        "prefer": "return=representation"
+      },
+      "body": {
+        "id": "b0000000-0000-4000-8000-000000000001",
+        "title": "Preparar proposta",
+        "priority": "medium"
+      },
+      "fake_response_status": 201,
+      "note": "só super_admin pode criar sem responsável (policy de INSERT)"
+    },
+    {
+      "name": "createTask.retry.insert_conflict",
+      "call": "createTask(TaskDraft(id: task, title: 'Preparar proposta', assigneeId: me)) (2ª vez)",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "POST",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "select": [
+          "*"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json",
+        "prefer": "return=representation"
+      },
+      "body": {
+        "id": "b0000000-0000-4000-8000-000000000001",
+        "title": "Preparar proposta",
+        "priority": "medium",
+        "assignee_id": "a0000000-0000-4000-8000-000000000001"
+      },
+      "fake_response_status": 409,
+      "note": "repetir o mesmo insert depois de criado deve dar 23505 work_tasks_pkey"
+    },
+    {
+      "name": "createTask.retry.fetch_existing",
+      "call": "createTask (2ª vez) → fetchTask(task)",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "id": [
+          "eq.b0000000-0000-4000-8000-000000000001"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json"
+      },
+      "body": null,
+      "fake_response_status": 200
+    },
+    {
+      "name": "updateTask.title_status_priority",
+      "call": "updateTask(task, TaskPatch(title: 'Proposta v2', status: done, priority: low))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "PATCH",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "id": [
+          "eq.b0000000-0000-4000-8000-000000000001"
+        ],
+        "select": [
+          "*"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json",
+        "prefer": "return=representation"
+      },
+      "body": {
+        "title": "Proposta v2",
+        "status": "done",
+        "priority": "low"
+      },
+      "fake_response_status": 200
+    },
+    {
+      "name": "updateTask.clear_flags",
+      "call": "updateTask(task, TaskPatch(clearDescription, clearDueDate, clearAssignee))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "PATCH",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "id": [
+          "eq.b0000000-0000-4000-8000-000000000001"
+        ],
+        "select": [
+          "*"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json",
+        "prefer": "return=representation"
+      },
+      "body": {
+        "description": null,
+        "due_date": null,
+        "assignee_id": null
+      },
+      "fake_response_status": 200,
+      "note": "assignee_id só é aceito do super_admin (trigger)"
+    },
+    {
+      "name": "updateTask.set_description_due_assignee",
+      "call": "updateTask(task, TaskPatch(description: 'Nova descrição', dueDate: 2026-11-09, assigneeId: other))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "PATCH",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "id": [
+          "eq.b0000000-0000-4000-8000-000000000001"
+        ],
+        "select": [
+          "*"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json",
+        "prefer": "return=representation"
+      },
+      "body": {
+        "description": "Nova descrição",
+        "due_date": "2026-11-09",
+        "assignee_id": "a0000000-0000-4000-8000-000000000002"
+      },
+      "fake_response_status": 200,
+      "note": "reatribuição: só super_admin"
+    },
+    {
+      "name": "updateTask.status_only",
+      "call": "updateTask(task, TaskPatch(status: inProgress))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "PATCH",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "id": [
+          "eq.b0000000-0000-4000-8000-000000000001"
+        ],
+        "select": [
+          "*"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json",
+        "prefer": "return=representation"
+      },
+      "body": {
+        "status": "in_progress"
+      },
+      "fake_response_status": 200,
+      "note": "único campo que o responsável que não criou a tarefa pode mudar"
+    },
+    {
+      "name": "updateTask.cancel",
+      "call": "updateTask(task, TaskPatch(status: canceled))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "PATCH",
+      "path": "/rest/v1/work_tasks",
+      "query": {
+        "id": [
+          "eq.b0000000-0000-4000-8000-000000000001"
+        ],
+        "select": [
+          "*"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json",
+        "prefer": "return=representation"
+      },
+      "body": {
+        "status": "canceled"
+      },
+      "fake_response_status": 200,
+      "note": "só o criador (não sdr) e o super_admin entram ou saem de canceled"
+    },
+    {
+      "name": "fetchLogs.all_filters",
+      "call": "fetchLogs(taskId: task, userId: me, shiftId: shift, from: 2026-10-26, to: 2026-11-01)",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_logs",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "task_id": [
+          "eq.b0000000-0000-4000-8000-000000000001"
+        ],
+        "user_id": [
+          "eq.a0000000-0000-4000-8000-000000000001"
+        ],
+        "shift_id": [
+          "eq.e0000000-0000-4000-8000-000000000001"
+        ],
+        "logged_on": [
+          "gte.2026-10-26",
+          "lte.2026-11-01"
+        ],
+        "order": [
+          "logged_on.desc.nullslast,created_at.desc.nullslast"
+        ]
+      },
+      "headers": {},
+      "body": null,
+      "fake_response_status": 200
+    },
+    {
+      "name": "fetchLogs.task_mine",
+      "call": "fetchLogs(taskId: task, userId: me)",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_logs",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "task_id": [
+          "eq.b0000000-0000-4000-8000-000000000001"
+        ],
+        "user_id": [
+          "eq.a0000000-0000-4000-8000-000000000001"
+        ],
+        "order": [
+          "logged_on.desc.nullslast,created_at.desc.nullslast"
+        ]
+      },
+      "headers": {},
+      "body": null,
+      "fake_response_status": 200,
+      "note": "TaskDetailController de quem não é super_admin"
+    },
+    {
+      "name": "fetchLogs.task_all",
+      "call": "fetchLogs(taskId: task)",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_logs",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "task_id": [
+          "eq.b0000000-0000-4000-8000-000000000001"
+        ],
+        "order": [
+          "logged_on.desc.nullslast,created_at.desc.nullslast"
+        ]
+      },
+      "headers": {},
+      "body": null,
+      "fake_response_status": 200,
+      "note": "TaskDetailController do super_admin (a RLS mostra os de todos)"
+    },
+    {
+      "name": "fetchLogs.by_shift",
+      "call": "fetchLogs(shiftId: shift)",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_logs",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "shift_id": [
+          "eq.e0000000-0000-4000-8000-000000000001"
+        ],
+        "order": [
+          "logged_on.desc.nullslast,created_at.desc.nullslast"
+        ]
+      },
+      "headers": {},
+      "body": null,
+      "fake_response_status": 200
+    },
+    {
+      "name": "addLog.full",
+      "call": "addLog(WorkLogDraft(id: log, taskId: task, shiftId: shift, summary: 'Revisei o contrato', result: 'Contrato aprovado', minutesSpent: 45, loggedOn: 2026-11-01))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "POST",
+      "path": "/rest/v1/work_logs",
+      "query": {
+        "select": [
+          "*"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json",
+        "prefer": "return=representation"
+      },
+      "body": {
+        "id": "c0000000-0000-4000-8000-000000000001",
+        "task_id": "b0000000-0000-4000-8000-000000000001",
+        "shift_id": "e0000000-0000-4000-8000-000000000001",
+        "summary": "Revisei o contrato",
+        "result": "Contrato aprovado",
+        "minutes_spent": 45,
+        "logged_on": "2026-11-01"
+      },
+      "fake_response_status": 201
+    },
+    {
+      "name": "addLog.minimal",
+      "call": "addLog(WorkLogDraft(id: log, summary: 'Reunião'))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "POST",
+      "path": "/rest/v1/work_logs",
+      "query": {
+        "select": [
+          "*"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json",
+        "prefer": "return=representation"
+      },
+      "body": {
+        "id": "c0000000-0000-4000-8000-000000000001",
+        "summary": "Reunião"
+      },
+      "fake_response_status": 201
+    },
+    {
+      "name": "addLog.retry.insert_conflict",
+      "call": "addLog(WorkLogDraft(id: log, taskId: task, summary: 'Revisei o contrato')) (2ª vez)",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "POST",
+      "path": "/rest/v1/work_logs",
+      "query": {
+        "select": [
+          "*"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json",
+        "prefer": "return=representation"
+      },
+      "body": {
+        "id": "c0000000-0000-4000-8000-000000000001",
+        "task_id": "b0000000-0000-4000-8000-000000000001",
+        "summary": "Revisei o contrato"
+      },
+      "fake_response_status": 409,
+      "note": "repetir o mesmo insert depois de criado deve dar 23505 work_logs_pkey"
+    },
+    {
+      "name": "addLog.retry.fetch_existing",
+      "call": "addLog (2ª vez, 23505 work_logs_pkey) → GET por id",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_logs",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "id": [
+          "eq.c0000000-0000-4000-8000-000000000001"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json"
+      },
+      "body": null,
+      "fake_response_status": 200
+    },
+    {
+      "name": "fetchDeliverables",
+      "call": "fetchDeliverables(task)",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_deliverables",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "task_id": [
+          "eq.b0000000-0000-4000-8000-000000000001"
+        ],
+        "order": [
+          "created_at.desc.nullslast"
+        ]
+      },
+      "headers": {},
+      "body": null,
+      "fake_response_status": 200
+    },
+    {
+      "name": "addDeliverable.full",
+      "call": "addDeliverable(DeliverableDraft(id: deliverable, taskId: task, workLogId: log, title: 'Proposta final', url: 'https://exemplo.com/p.pdf', notes: 'Versão aprovada'))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "POST",
+      "path": "/rest/v1/work_deliverables",
+      "query": {
+        "select": [
+          "*"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json",
+        "prefer": "return=representation"
+      },
+      "body": {
+        "id": "d0000000-0000-4000-8000-000000000001",
+        "task_id": "b0000000-0000-4000-8000-000000000001",
+        "work_log_id": "c0000000-0000-4000-8000-000000000001",
+        "title": "Proposta final",
+        "url": "https://exemplo.com/p.pdf",
+        "notes": "Versão aprovada"
+      },
+      "fake_response_status": 201,
+      "note": "work_log_id precisa ser registro meu da MESMA tarefa (RLS)"
+    },
+    {
+      "name": "addDeliverable.minimal",
+      "call": "addDeliverable(DeliverableDraft(id: deliverable, taskId: task, title: 'Proposta final'))",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "POST",
+      "path": "/rest/v1/work_deliverables",
+      "query": {
+        "select": [
+          "*"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json",
+        "prefer": "return=representation"
+      },
+      "body": {
+        "id": "d0000000-0000-4000-8000-000000000001",
+        "task_id": "b0000000-0000-4000-8000-000000000001",
+        "title": "Proposta final"
+      },
+      "fake_response_status": 201
+    },
+    {
+      "name": "addDeliverable.retry.insert_conflict",
+      "call": "addDeliverable(DeliverableDraft(id: deliverable, taskId: task, title: 'Proposta final')) (2ª vez)",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "POST",
+      "path": "/rest/v1/work_deliverables",
+      "query": {
+        "select": [
+          "*"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json",
+        "prefer": "return=representation"
+      },
+      "body": {
+        "id": "d0000000-0000-4000-8000-000000000001",
+        "task_id": "b0000000-0000-4000-8000-000000000001",
+        "title": "Proposta final"
+      },
+      "fake_response_status": 409,
+      "note": "repetir o mesmo insert depois de criado deve dar 23505 work_deliverables_pkey"
+    },
+    {
+      "name": "addDeliverable.retry.fetch_existing",
+      "call": "addDeliverable (2ª vez, 23505 work_deliverables_pkey) → GET por id",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_deliverables",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "id": [
+          "eq.d0000000-0000-4000-8000-000000000001"
+        ]
+      },
+      "headers": {
+        "accept": "application/vnd.pgrst.object+json"
+      },
+      "body": null,
+      "fake_response_status": 200
+    },
+    {
+      "name": "fetchHistory",
+      "call": "fetchHistory(task)",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/work_task_events",
+      "query": {
+        "select": [
+          "*"
+        ],
+        "task_id": [
+          "eq.b0000000-0000-4000-8000-000000000001"
+        ],
+        "order": [
+          "seq.asc.nullslast"
+        ]
+      },
+      "headers": {},
+      "body": null,
+      "fake_response_status": 200
+    },
+    {
+      "name": "fetchPeople",
+      "call": "fetchPeople()",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "POST",
+      "path": "/rest/v1/rpc/ponto_people",
+      "query": {},
+      "headers": {},
+      "body": {},
+      "fake_response_status": 200
+    },
+    {
+      "name": "fetchRecentShifts.default",
+      "call": "fetchRecentShifts()",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/time_shifts",
+      "query": {
+        "select": [
+          "id,started_at,ended_at,work_date"
+        ],
+        "user_id": [
+          "eq.a0000000-0000-4000-8000-000000000001"
+        ],
+        "voided_at": [
+          "is.null"
+        ],
+        "work_date": [
+          "gte.2026-10-31"
+        ],
+        "order": [
+          "started_at.desc.nullslast"
+        ]
+      },
+      "headers": {},
+      "body": null,
+      "fake_response_status": 200,
+      "note": "hoje (Brasília) = 2026-11-01; days=2 → desde 2026-10-31"
+    },
+    {
+      "name": "fetchRecentShifts.today",
+      "call": "fetchRecentShifts(days: 1)",
+      "current_user_id": "a0000000-0000-4000-8000-000000000001",
+      "business_today": "2026-11-01",
+      "method": "GET",
+      "path": "/rest/v1/time_shifts",
+      "query": {
+        "select": [
+          "id,started_at,ended_at,work_date"
+        ],
+        "user_id": [
+          "eq.a0000000-0000-4000-8000-000000000001"
+        ],
+        "voided_at": [
+          "is.null"
+        ],
+        "work_date": [
+          "gte.2026-11-01"
+        ],
+        "order": [
+          "started_at.desc.nullslast"
+        ]
+      },
+      "headers": {},
+      "body": null,
+      "fake_response_status": 200
+    }
+  ]
+}
