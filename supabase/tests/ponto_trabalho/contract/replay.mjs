@@ -42,10 +42,21 @@ import { dartInstantToJson, instantMicros, jsonValueFits, shapeFor, validateShap
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const SUITE = path.resolve(HERE, '..');
-const DEFAULT_MIGRATION = path.resolve(SUITE, '../../migrations/20261101170000_ponto_trabalho.sql');
+const MIGRATIONS_DIR = path.resolve(SUITE, '../../migrations');
+const DEFAULT_MIGRATION = path.join(MIGRATIONS_DIR, '20261101170000_ponto_trabalho.sql');
 // PONTO_MIGRATION / PONTO_FIXTURES: só para validar o próprio replay (mutantes).
+// PONTO_MIGRATION substitui o arquivo do módulo; as demais migrations do app
+// (CRM, Financeiro, integração) continuam na lista, como no run.mjs.
 const MIGRATION = process.env.PONTO_MIGRATION ? path.resolve(process.env.PONTO_MIGRATION) : DEFAULT_MIGRATION;
-const STUB = path.join(SUITE, 'stub', 'supabase_stub.sql');
+const BASELINE = path.resolve(SUITE, '../local/supabase_baseline.sql');
+function listMigrations() {
+  return fs
+    .readdirSync(MIGRATIONS_DIR)
+    .filter((f) => /^202611\d+_.*\.sql$/.test(f))
+    .sort()
+    .map((f) => path.join(MIGRATIONS_DIR, f))
+    .map((f) => (f === DEFAULT_MIGRATION ? MIGRATION : f));
+}
 const FIXTURES = process.env.PONTO_FIXTURES ? path.resolve(process.env.PONTO_FIXTURES) : path.join(HERE, 'fixtures');
 const TIMEZONES = process.env.PONTO_TZ ? [process.env.PONTO_TZ] : ['UTC', 'Pacific/Kiritimati'];
 // Papéis que o app já modela e a profiles_role_check de hoje rejeita (contrato
@@ -720,18 +731,22 @@ async function runDatabase(timezone, index, captures, admin0) {
   line('');
   line(`== Base ${dbname}: fuso da sessão ${timezone}`);
   await admin.query('begin');
-  await admin.query(fs.readFileSync(STUB, 'utf8'));
+  await admin.query(fs.readFileSync(BASELINE, 'utf8'));
   await admin.query('commit');
-  await admin.query('begin');
-  await admin.query(fs.readFileSync(MIGRATION, 'utf8'));
-  await admin.query('commit');
-  check(true, 'stub do Supabase + migration 20261101170000_ponto_trabalho.sql aplicados');
+  const migrations = listMigrations();
+  for (const f of migrations) {
+    await admin.query('begin');
+    await admin.query(fs.readFileSync(f, 'utf8'));
+    await admin.query('commit');
+  }
+  check(true, `baseline local + ${migrations.length} migrations do app móvel aplicadas (estado integrado)`);
   await admin.query('begin');
   await admin.query(SEED);
   await admin.query('commit');
   const roles = await admin.query(`select count(*)::int as n from public.profiles where id = any($1::uuid[])`, [Object.values(ID)]);
   check(roles.rows[0].n === Object.values(ID).length - 1, 'pessoas semeadas (super_admin, manager, employee, client e uma sem perfil)');
-  // O schema atual rejeita os papéis novos (pendência global §6.2).
+  // No estado integrado o schema aceita os papéis novos; a simulação fica só
+  // como rede de proteção do próprio replay.
   const rejected = [];
   for (const role of NEW_ROLES) {
     try {

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Suíte SQL do financeiro. Roda num Postgres local descartável ou em
-# homologação. NUNCA em produção.
+# Suíte SQL do financeiro (estado integrado do app móvel). Roda num Postgres
+# local descartável ou em homologação. NUNCA em produção.
 #
 #   DATABASE_URL=postgres://postgres:postgres@localhost:5432/finance_test \
 #     supabase/tests/finance/run.sh --bootstrap        # Postgres vazio
@@ -10,11 +10,15 @@
 #
 # Passos:
 #   1. trava de segurança (abaixo);
-#   2. --bootstrap: fixtures/00_supabase_stub.sql e fixtures/01_baseline_public.sql
-#      (ambos não fazem nada se o banco já tiver auth.users / public.profiles);
-#   3. sem --skip-migrations: aplica as 5 migrations 202611011745[0-4]0_finance_*.sql
-#      em ordem, cada uma numa transação (psql -1), e aplica TODAS DE NOVO
-#      (prova de idempotência);
+#   2. --bootstrap: supabase/tests/local/supabase_baseline.sql (plataforma
+#      Supabase + profiles/leads/invoices como em produção; só num banco vazio);
+#   3. sem --skip-migrations: aplica TODAS as migrations do app móvel
+#      (supabase/tests/local/list_migrations.sh all: CRM, Ponto, Financeiro e
+#      a de integração 20261102120000), em ordem, cada uma numa transação
+#      (psql -1), e reaplica as que declaram idempotência
+#      (list_migrations.sh idempotent). A suíte testa o estado INTEGRADO:
+#      o financeiro não existe mais isolado (a guarda de profiles é a
+#      compartilhada);
 #   4. roda finance_rls.test.sql com PGOPTIONS='-c pixelry.finance_test_harness=on'.
 #      A suíte inteira é uma transação que termina em ROLLBACK.
 #
@@ -158,16 +162,22 @@ EOF
   [ "$is_local" -eq 1 ] || die "nenhuma ref proibida conhecida (FINANCE_FORBIDDEN_REFS vazio e sem supabase/.temp) e o destino não é, sem ambiguidade, um banco local. Fora de banco local, defina FINANCE_FORBIDDEN_REFS com a ref de produção."
 fi
 
-# ── Migrations do financeiro ────────────────────────────────────────────────
-shopt -s nullglob
-migrations=("$migrations_dir"/202611011745[0-4]0_finance_*.sql)
-shopt -u nullglob
-[ "${#migrations[@]}" -eq 5 ] || die "esperadas 5 migrations 202611011745[0-4]0_finance_*.sql, encontradas ${#migrations[@]}."
+# ── Migrations do app móvel (estado integrado) ──────────────────────────────
+list="$root/supabase/tests/local/list_migrations.sh"
+[ -x "$list" ] || die "não encontrei $list"
+migrations=()
+while IFS= read -r f; do [ -n "$f" ] && migrations+=("$f"); done < <("$list" all)
+reapply=()
+while IFS= read -r f; do [ -n "$f" ] && reapply+=("$f"); done < <("$list" idempotent)
+[ "${#migrations[@]}" -ge 11 ] || die "esperadas pelo menos 11 migrations 202611*.sql, encontradas ${#migrations[@]}."
+finance_count=0
+for f in "${migrations[@]}"; do case "$(basename "$f")" in 202611011745*_finance_*.sql) finance_count=$((finance_count + 1)) ;; esac; done
+[ "$finance_count" -eq 4 ] || die "esperadas 4 migrations 202611011745*_finance_*.sql (a guarda de profiles é da 20261102120000), encontradas $finance_count."
 
 for f in "${migrations[@]}"; do
   if grep -Eiq '^[[:space:]]*(begin([[:space:]]+(work|transaction))?|commit|rollback|abort|end[[:space:]]+(work|transaction))[[:space:]]*;' "$f" \
      || grep -Eiq 'start[[:space:]]+transaction|concurrently' "$f"; then
-    die "$(basename "$f") contém controle de transação ou CONCURRENTLY; migrations do financeiro não podem ter isso."
+    die "$(basename "$f") contém controle de transação ou CONCURRENTLY; migrations do app não podem ter isso."
   fi
 done
 
@@ -182,18 +192,22 @@ literal="$(grep -o "pg_temp\.chk('" "$suite" | wc -l | tr -d '[:space:]')"
 psql_base=(psql -X -q -v ON_ERROR_STOP=1 -P pager=off --dbname "$DATABASE_URL")
 
 if [ "$bootstrap" -eq 1 ]; then
-  echo "── bootstrap: stub do Supabase e baseline de public"
-  "${psql_base[@]}" -f "$here/fixtures/00_supabase_stub.sql"
-  "${psql_base[@]}" -f "$here/fixtures/01_baseline_public.sql"
+  echo "── bootstrap: supabase/tests/local/supabase_baseline.sql (só num banco vazio)"
+  [ "$("${psql_base[@]}" -At -c "select to_regclass('public.profiles') is null")" = t ] \
+    || die "--bootstrap exige um banco sem public.profiles (a baseline não é idempotente). Use um banco recém-criado."
+  "${psql_base[@]}" -1 -f "$root/supabase/tests/local/supabase_baseline.sql"
 fi
 
 if [ "$skip_migrations" -eq 0 ]; then
-  for pass in 1 2; do
-    echo "── migrations do financeiro (passagem $pass de 2)"
-    for f in "${migrations[@]}"; do
-      echo "   $(basename "$f")"
-      "${psql_base[@]}" -1 -f "$f"
-    done
+  echo "── migrations do app móvel (1ª passagem: todas, em ordem)"
+  for f in "${migrations[@]}"; do
+    echo "   $(basename "$f")"
+    "${psql_base[@]}" -1 -f "$f"
+  done
+  echo "── migrations do app móvel (2ª passagem: só as que declaram idempotência)"
+  for f in "${reapply[@]}"; do
+    echo "   $(basename "$f")"
+    "${psql_base[@]}" -1 -f "$f"
   done
 fi
 

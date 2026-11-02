@@ -1,16 +1,16 @@
--- global/01 — PENDÊNCIA GLOBAL §6.1 (anterior ao módulo; FALHA ESPERADA).
+-- 02 — Escalada de papel por DELETE+INSERT em profiles (era a pendência
+-- global §6.1, resolvida pela migration de integração 20261102120000).
 --
--- Pelas migrations versionadas, "Admin full access" em profiles é FOR ALL com
--- is_admin() (inclui manager), authenticated mantém INSERT/DELETE de tabela e o
--- profiles_guard_role só cobre UPDATE. Um manager apaga o perfil de uma segunda
--- conta que controla e o reinsere com role = 'super_admin' — dois pedidos
--- PostgREST comuns. A conta passa a ser super_admin para o módulo inteiro
--- (pt_is_super_admin lê profiles.role) e enxerga o ponto de todo mundo.
+-- Pelas migrations antigas, "Admin full access" em profiles é FOR ALL com
+-- is_admin() (inclui manager), authenticated tinha INSERT/DELETE de tabela e o
+-- profiles_guard_role só cobre UPDATE. Um manager apagava o perfil de uma
+-- segunda conta que controla e o reinseria com role = 'super_admin' — dois
+-- pedidos PostgREST comuns. A conta passava a ser super_admin para o módulo
+-- inteiro (pt_is_super_admin lê profiles.role) e enxergava o ponto de todos.
 --
--- Cada asserção abaixo descreve o comportamento CORRETO. Hoje elas falham:
--- o runner mostra "FALHA ESPERADA (pendência global)" e não derruba a suíte.
--- Quando a correção global (documento de integração) for aplicada, elas
--- passam e o runner avisa para mover este arquivo para sql/.
+-- Agora authenticated não tem INSERT nem DELETE em profiles e, mesmo que um
+-- grant seja reaberto, profiles_guard_insert_role só deixa a API criar perfil
+-- como client. Cada asserção abaixo descreve o comportamento correto e passa.
 begin;
 
 select tests.create_user('mgr', 'manager');
@@ -51,7 +51,7 @@ select tests.query_true('a segunda conta NÃO revisa o ponto alheio (not_allowed
   $$select t.o_sqlstate = '42501' and t.o_message = 'not_allowed'
      from tests._try('select public.time_review_shifts(''[]''::jsonb)') t$$);
 
--- Controle: o caminho do UPDATE já está fechado (20260902000050) — passa hoje.
+-- Controle: o caminho do UPDATE está fechado desde 20260902000050.
 select tests.login('mgr');
 select tests.throws('controle: UPDATE de role pelo manager é barrado (grant de coluna)',
   $$update public.profiles set role = 'super_admin' where id = tests.uid('mgr')$$, null, '42501');

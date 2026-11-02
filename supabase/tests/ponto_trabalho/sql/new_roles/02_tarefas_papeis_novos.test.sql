@@ -1,5 +1,5 @@
--- new_roles/02 — Tarefas com os papéis novos (§2, §3.5). PULADO por padrão
--- (ver new_roles/01). partner/sales_trial/employee_dev: como manager/employee
+-- new_roles/02 — Tarefas com os papéis novos (§2, §3.5). Aceitos pelo schema
+-- integrado; roda sempre. partner/sales_trial/employee_dev: como manager/employee
 -- (criam só para si). sdr: não cria; vê só as tarefas ATRIBUÍDAS a ele; muda
 -- só o status, nunca para canceled; registra o que fez e entrega nelas.
 begin;

@@ -7,8 +7,9 @@ Contrato: `docs/FINANCEIRO_DESIGN.md`, seção 4, no repositório do app.
 > **Produção não é ambiente de teste.** Rode num Postgres local descartável ou
 > em homologação. Nunca em produção, nem "dentro de transação com rollback".
 
-**Estado:** executada em 2026-11-02 num PostgreSQL 17.11 local descartável:
-migrations aplicadas duas vezes e 232/232 casos passando. A primeira rodada
+**Estado:** executada em 2026-11-02 num PostgreSQL 17.11 local descartável,
+no estado integrado do app móvel (CRM + Ponto + Financeiro + migration de
+integração `20261102120000`): 241/241 casos passando. A primeira rodada
 exigiu um ajuste no harness (`pg_temp.u()` precisa ser VOLATILE; veja o
 comentário na função e o autoteste `harness_u_sees_fixture_from_same_command`).
 Rodar de novo em homologação continua pendência antes do `db push`.
@@ -17,10 +18,10 @@ Rodar de novo em homologação continua pendência antes do `db push`.
 
 | arquivo | papel |
 |---|---|
-| `run.sh` | trava de segurança, aplica as migrations duas vezes e roda a suíte |
-| `fixtures/00_supabase_stub.sql` | só para Postgres puro: papéis `anon`/`authenticated`/`service_role`, `auth.users`, `auth.uid()`/`role()`/`email()`/`jwt()` iguais aos do Supabase, default privileges do Supabase em `public`. Não faz nada se `auth.users` existir. |
-| `fixtures/01_baseline_public.sql` | só para Postgres puro: `profiles`, `is_admin()`, `is_team()` e `invoices` no estado efetivo das migrations versionadas (o cabeçalho cita a origem de cada trecho). Não faz nada se `public.profiles` existir. |
-| `finance_rls.test.sql` | os casos (232), numa transação que termina em `ROLLBACK` |
+| `run.sh` | trava de segurança, aplica as migrations do app móvel (todas; depois as idempotentes de novo) e roda a suíte |
+| `../local/supabase_baseline.sql` | compartilhada com o CRM e o Ponto: plataforma Supabase + `profiles`, `leads`, `invoices`, `is_admin()`, `is_team()` no estado efetivo das migrations versionadas (só para Postgres puro, num banco vazio) |
+| `../local/list_migrations.sh` | a lista ordenada das migrations `202611*` e o subconjunto que declara idempotência |
+| `finance_rls.test.sql` | os casos (241), numa transação que termina em `ROLLBACK`. Inclui o estado integrado de `profiles` (guarda compartilhada, grants, papéis, `is_team()`/`is_admin()`) |
 
 As migrations antigas não reconstroem o banco do zero (tabelas criadas fora
 delas, CHECK com nome repetido), por isso `supabase db reset` não serve e a
@@ -95,7 +96,7 @@ repassar a opção, a suíte recusa rodar (falha segura).
 | `--skip-migrations` | homologação com as migrations já aplicadas por `supabase db push --db-url` |
 | (nenhuma) | banco que já tem Supabase/baseline mas não as migrations do financeiro |
 
-Sem `--skip-migrations`, as 5 migrations rodam em ordem, cada uma numa
+Sem `--skip-migrations`, as migrations `202611*` rodam em ordem, cada uma numa
 transação (`psql -1`), e **rodam de novo** em seguida: a segunda passagem é a
 prova de idempotência.
 

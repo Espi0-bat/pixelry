@@ -446,9 +446,10 @@ begin
   join pg_catalog.pg_namespace n on n.oid = p.pronamespace
   where n.nspname = 'finance_private'
     and p.prorettype = 'pg_catalog.trigger'::pg_catalog.regtype;
-  -- touch, block_delete, audit_log_guard, audit_row, audit_invoice e
-  -- guard_profile_insert_role.
-  perform pg_temp.chk('trigger_functions_closed', v_total = 6 and v_auth = 0,
+  -- touch, block_delete, audit_log_guard, audit_row e audit_invoice. A guarda
+  -- de INSERT em profiles é a compartilhada, em public (20261102120000);
+  -- a versão do financeiro (guard_profile_insert_role) não existe mais.
+  perform pg_temp.chk('trigger_functions_closed', v_total = 5 and v_auth = 0,
     format('gatilhos=%s authenticated=%s', v_total, v_auth));
 end $$;
 
@@ -980,6 +981,189 @@ begin
   perform pg_temp.chk('manager_cannot_insert_privileged_profile',
     pg_temp.code(v_super) = '42501' and pg_temp.code(v_emp) = '42501' and v_n = 0,
     format('super_admin=%s / employee=%s / perfis=%s', v_super, v_emp, v_n));
+end $$;
+
+-- ════════════════════════════════════════════════════════════════════════════
+-- Estado integrado: migration 20261102120000 (papéis, profiles e helpers)
+-- A proteção de profiles é compartilhada e não depende de finance_private.
+-- ════════════════════════════════════════════════════════════════════════════
+do $$
+declare
+  v_trg bigint;
+  v_fin bigint;
+  v_fn  record;
+begin
+  perform pg_temp.as_actor('postgres');
+  select count(*) into v_trg
+  from pg_catalog.pg_trigger t
+  where t.tgrelid = 'public.profiles'::regclass
+    and t.tgname = 'profiles_guard_insert_role' and t.tgenabled = 'O';
+  select p.prosecdef,
+         coalesce(array_to_string(p.proconfig, ','), '') as cfg,
+         has_function_privilege('authenticated', p.oid, 'EXECUTE') as auth_exec,
+         has_function_privilege('anon', p.oid, 'EXECUTE') as anon_exec,
+         has_function_privilege('public', p.oid, 'EXECUTE') as public_exec
+    into v_fn
+  from pg_catalog.pg_proc p
+  where p.oid = 'public.guard_profile_insert_role()'::regprocedure;
+  -- SECURITY INVOKER de propósito: current_user precisa ser o papel real.
+  perform pg_temp.chk('shared_profile_insert_guard_installed',
+    v_trg = 1 and v_fn.prosecdef = false and v_fn.cfg = 'search_path=""'
+      and not v_fn.auth_exec and not v_fn.anon_exec and not v_fn.public_exec,
+    format('trigger=%s definer=%s config=%s auth=%s anon=%s public=%s',
+           v_trg, v_fn.prosecdef, v_fn.cfg, v_fn.auth_exec, v_fn.anon_exec, v_fn.public_exec));
+
+  select count(*) into v_fin
+  from pg_catalog.pg_trigger t
+  where t.tgrelid = 'public.profiles'::regclass
+    and t.tgname = 'finance_profiles_insert_role_guard_trg';
+  perform pg_temp.chk('finance_profile_guard_removed',
+    v_fin = 0 and to_regprocedure('finance_private.guard_profile_insert_role()') is null,
+    format('trigger=%s função=%s', v_fin, to_regprocedure('finance_private.guard_profile_insert_role()')));
+
+  perform pg_temp.chk('authenticated_without_insert_delete_on_profiles',
+    not has_table_privilege('authenticated', 'public.profiles', 'INSERT')
+    and not has_table_privilege('authenticated', 'public.profiles', 'DELETE')
+    and has_table_privilege('authenticated', 'public.profiles', 'SELECT')
+    and not has_table_privilege('authenticated', 'public.profiles', 'UPDATE')
+    and has_column_privilege('authenticated', 'public.profiles', 'full_name', 'UPDATE')
+    and not has_column_privilege('authenticated', 'public.profiles', 'role', 'UPDATE')
+    and not has_table_privilege('anon', 'public.profiles', 'INSERT, UPDATE, DELETE'),
+    format('insert=%s delete=%s select=%s update=%s full_name=%s role=%s anon=%s',
+           has_table_privilege('authenticated', 'public.profiles', 'INSERT'),
+           has_table_privilege('authenticated', 'public.profiles', 'DELETE'),
+           has_table_privilege('authenticated', 'public.profiles', 'SELECT'),
+           has_table_privilege('authenticated', 'public.profiles', 'UPDATE'),
+           has_column_privilege('authenticated', 'public.profiles', 'full_name', 'UPDATE'),
+           has_column_privilege('authenticated', 'public.profiles', 'role', 'UPDATE'),
+           has_table_privilege('anon', 'public.profiles', 'INSERT, UPDATE, DELETE')));
+end $$;
+
+-- manager não apaga perfil de outra pessoa (nem o do dono do financeiro).
+do $$
+declare
+  v_cli   text;
+  v_owner text;
+  v_n     bigint;
+begin
+  perform pg_temp.as_actor('authenticated', pg_temp.u('mgr_none'));
+  v_cli := pg_temp.attempt(format('delete from public.profiles p where p.id = %L::uuid', pg_temp.u('cli_b')));
+  perform pg_temp.as_actor('authenticated', pg_temp.u('mgr_none'));
+  v_owner := pg_temp.attempt(format('delete from public.profiles p where p.id = %L::uuid', pg_temp.u('owner')));
+  perform pg_temp.as_actor('postgres');
+  select count(*) into v_n from public.profiles p
+  where p.id in (pg_temp.u('cli_b'), pg_temp.u('owner'));
+  perform pg_temp.chk('manager_cannot_delete_profile',
+    pg_temp.code(v_cli) = '42501' and pg_temp.code(v_owner) = '42501' and v_n = 2,
+    format('cliente=%s dono=%s perfis=%s', v_cli, v_owner, v_n));
+end $$;
+
+-- Defesa em profundidade: mesmo se um grant de INSERT for reaberto, a guarda
+-- compartilhada só deixa a API criar perfil como client. O grant é reaberto
+-- SÓ aqui (a suíte inteira é desfeita no ROLLBACK) e revogado logo depois.
+do $$
+declare
+  v_id     uuid := gen_random_uuid();
+  v_email  text;
+  v_super  text;
+  v_client text;
+  v_n      bigint;
+begin
+  perform pg_temp.as_actor('postgres');
+  v_email := 'finance-test-' || v_id::text || '@example.invalid';
+  insert into auth.users (id, email, raw_user_meta_data)
+  values (v_id, v_email, '{"full_name":"Teste guarda compartilhada"}');
+  delete from public.profiles p where p.id = v_id;
+  grant insert on public.profiles to authenticated;
+
+  perform pg_temp.as_actor('authenticated', pg_temp.u('mgr_none'));
+  v_super := pg_temp.attempt(format(
+    $q$insert into public.profiles (id, full_name, email, role) values (%L::uuid, 'Teste guarda compartilhada', %L, 'super_admin')$q$,
+    v_id, v_email));
+  perform pg_temp.as_actor('authenticated', pg_temp.u('mgr_none'));
+  v_client := pg_temp.attempt(format(
+    $q$insert into public.profiles (id, full_name, email, role) values (%L::uuid, 'Teste guarda compartilhada', %L, 'client')$q$,
+    v_id, v_email));
+
+  perform pg_temp.as_actor('postgres');
+  revoke insert on public.profiles from authenticated;
+  select count(*) into v_n from public.profiles p where p.id = v_id and p.role = 'client';
+  perform pg_temp.chk('insert_guard_holds_if_grant_reopened',
+    pg_temp.code(v_super) = '42501' and v_client = 'ok:1' and v_n = 1
+      and not has_table_privilege('authenticated', 'public.profiles', 'INSERT'),
+    format('super_admin=%s client=%s perfis=%s grant=%s', v_super, v_client, v_n,
+           has_table_privilege('authenticated', 'public.profiles', 'INSERT')));
+  delete from auth.users u where u.id = v_id;
+end $$;
+
+-- Papéis do app aceitos pela constraint; is_team() e is_admin() por papel.
+do $$
+declare
+  v_id    uuid := gen_random_uuid();
+  v_role  text;
+  v_bad   text;
+  v_team  text := '';
+  v_admin text := '';
+begin
+  perform pg_temp.as_actor('postgres');
+  insert into auth.users (id, email, raw_user_meta_data)
+  values (v_id, 'finance-test-' || v_id::text || '@example.invalid', '{"full_name":"Teste papéis"}');
+  foreach v_role in array array['super_admin', 'partner', 'manager', 'sales_trial',
+                                'employee_dev', 'employee', 'sdr', 'client'] loop
+    update public.profiles p set role = v_role where p.id = v_id;
+    perform pg_temp.as_actor('authenticated', v_id);
+    v_team  := v_team  || v_role || '=' || public.is_team()::text  || ',';
+    v_admin := v_admin || v_role || '=' || public.is_admin()::text || ',';
+    perform pg_temp.as_actor('postgres');
+  end loop;
+  v_bad := pg_temp.attempt(format('update public.profiles p set role = %L where p.id = %L::uuid', 'admin', v_id));
+  perform pg_temp.chk('profiles_role_check_accepts_app_roles',
+    pg_temp.code(v_bad) = '23514', 'os 8 papéis aceitos; admin → ' || v_bad);
+  perform pg_temp.chk('is_team_delivery_roles_only',
+    v_team = 'super_admin=true,partner=true,manager=true,sales_trial=false,employee_dev=true,employee=true,sdr=false,client=false,',
+    v_team);
+  perform pg_temp.chk('is_admin_unchanged_for_new_roles',
+    v_admin = 'super_admin=true,partner=false,manager=true,sales_trial=false,employee_dev=false,employee=false,sdr=false,client=false,',
+    v_admin);
+  delete from auth.users u where u.id = v_id;
+end $$;
+
+-- Equipe vê o perfil de todo papel interno, nunca de client; quem não é
+-- equipe (sdr) não vê a equipe por essa policy.
+do $$
+declare
+  v_id           uuid := gen_random_uuid();
+  v_emp_sdr      bigint;
+  v_emp_client   bigint;
+  v_sdr_owner    bigint;
+  v_partner_own  bigint;
+begin
+  perform pg_temp.as_actor('postgres');
+  insert into auth.users (id, email, raw_user_meta_data)
+  values (v_id, 'finance-test-' || v_id::text || '@example.invalid', '{"full_name":"Teste visibilidade"}');
+  update public.profiles p set role = 'sdr' where p.id = v_id;
+
+  perform pg_temp.as_actor('authenticated', pg_temp.u('emp_none'));
+  select count(*) into v_emp_sdr from public.profiles p where p.id = v_id;
+  perform pg_temp.as_actor('authenticated', v_id);
+  select count(*) into v_sdr_owner from public.profiles p where p.id = pg_temp.u('owner');
+
+  perform pg_temp.as_actor('postgres');
+  update public.profiles p set role = 'partner' where p.id = v_id;
+  perform pg_temp.as_actor('authenticated', v_id);
+  select count(*) into v_partner_own from public.profiles p where p.id = pg_temp.u('owner');
+
+  perform pg_temp.as_actor('postgres');
+  update public.profiles p set role = 'client' where p.id = v_id;
+  perform pg_temp.as_actor('authenticated', pg_temp.u('emp_none'));
+  select count(*) into v_emp_client from public.profiles p where p.id = v_id;
+
+  perform pg_temp.as_actor('postgres');
+  perform pg_temp.chk('team_sees_internal_profiles_not_clients',
+    v_emp_sdr = 1 and v_sdr_owner = 0 and v_partner_own = 1 and v_emp_client = 0,
+    format('employee→sdr=%s sdr→dono=%s partner→dono=%s employee→client=%s',
+           v_emp_sdr, v_sdr_owner, v_partner_own, v_emp_client));
+  delete from auth.users u where u.id = v_id;
 end $$;
 
 -- O caminho do create-employee (service_role, upsert com role) continua.
@@ -3576,7 +3760,7 @@ from pg_temp.finance_t t;
 do $$
 declare
   -- Um por chamada literal de pg_temp.chk neste arquivo (o run.sh confere).
-  v_expected constant integer := 232;
+  v_expected constant integer := 241;
   v_total    bigint;
   v_failed   bigint;
   v_dups     bigint;

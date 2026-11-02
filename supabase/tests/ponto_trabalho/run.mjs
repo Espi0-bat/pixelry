@@ -3,17 +3,20 @@
 // Runner dos testes do banco do módulo Ponto e Trabalho.
 //
 // Sobe um PostgreSQL 17.5 descartável (embedded-postgres, porta livre,
-// diretório temporário, persistent:false), carrega o stub do Supabase e os
-// helpers, aplica a migration do módulo DUAS vezes comparando um retrato do
-// catálogo, roda cada sql/**/*.test.sql numa conexão própria (begin … rollback)
-// e depois concurrency.test.mjs (autocommit, conexões separadas).
+// diretório temporário, persistent:false), carrega a baseline local
+// compartilhada (supabase/tests/local/supabase_baseline.sql) e os helpers,
+// aplica TODAS as migrations do app móvel (CRM, Ponto, Financeiro e a de
+// integração 20261102120000) comparando um retrato do catálogo, reaplica as
+// que declaram idempotência, roda cada sql/**/*.test.sql numa conexão própria
+// (begin … rollback) e depois concurrency.test.mjs (autocommit, conexões
+// separadas). A suíte testa o módulo no ESTADO INTEGRADO: os papéis novos
+// são aceitos e a proteção de profiles é a compartilhada.
 //
 // Nunca fala com a produção: não usa a CLI do Supabase nem rede externa.
 //
 // Uso:
 //   npm test                                   suíte padrão
-//   PONTO_SIMULAR_PAPEIS_NOVOS=1 npm test      inclui sql/new_roles/ (constraint ampliada só aqui)
-//   node run.mjs --somente-harness             só stub + helpers + sql/00_* (dispensa a migration)
+//   node run.mjs --somente-harness             só baseline + helpers + sql/00_* (dispensa as migrations)
 //   node run.mjs --filtro 14_                  só os arquivos cujo caminho contém o texto
 //   node run.mjs --sem-concorrencia            pula concurrency.test.mjs
 // Saída: uma linha por asserção, resumo no fim, exit 1 se houver falha real.
@@ -28,10 +31,28 @@ import EmbeddedPostgres from 'embedded-postgres';
 import pg from 'pg';
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
-const DEFAULT_MIGRATION = path.resolve(HERE, '../../migrations/20261101170000_ponto_trabalho.sql');
-// PONTO_MIGRATION: só para validar o próprio harness contra outro arquivo.
-const MIGRATION = process.env.PONTO_MIGRATION ? path.resolve(process.env.PONTO_MIGRATION) : DEFAULT_MIGRATION;
-const STUB = path.join(HERE, 'stub', 'supabase_stub.sql');
+const MIGRATIONS_DIR = path.resolve(HERE, '../../migrations');
+const MODULE_MIGRATION = path.join(MIGRATIONS_DIR, '20261101170000_ponto_trabalho.sql');
+// PONTO_MIGRATION: só para validar o próprio harness; substitui o arquivo do
+// módulo na lista, mantendo as demais migrations.
+const MODULE_OVERRIDE = process.env.PONTO_MIGRATION ? path.resolve(process.env.PONTO_MIGRATION) : null;
+const BASELINE = path.resolve(HERE, '../local/supabase_baseline.sql');
+
+// Mesma regra de supabase/tests/local/list_migrations.sh: todas as 202611*
+// em ordem de nome; a reaplicação pula as migrations do CRM 150000/150100/
+// 150200/150400, que criam policies e funções sem "if exists" de propósito.
+function listMigrations() {
+  return fs
+    .readdirSync(MIGRATIONS_DIR)
+    .filter((f) => /^202611\d+_.*\.sql$/.test(f))
+    .sort()
+    .map((f) => path.join(MIGRATIONS_DIR, f))
+    .map((f) => (f === MODULE_MIGRATION && MODULE_OVERRIDE ? MODULE_OVERRIDE : f));
+}
+const NOT_REAPPLIED = /^(20261101150000|20261101150100|20261101150200|20261101150400)_/;
+function isReapplied(f) {
+  return !NOT_REAPPLIED.test(path.basename(f));
+}
 const HELPERS = path.join(HERE, 'sql', '_helpers.sql');
 const SQL_DIR = path.join(HERE, 'sql');
 const CONCURRENCY = path.join(HERE, 'concurrency.test.mjs');
@@ -40,7 +61,6 @@ const CONCURRENCY = path.join(HERE, 'concurrency.test.mjs');
 // de data que dependa do fuso da sessão (em vez de America/Sao_Paulo explícito)
 // aparece como falha.
 const SESSION_TZ = process.env.PONTO_TZ || 'Pacific/Kiritimati';
-const SIMULATE_NEW_ROLES = process.env.PONTO_SIMULAR_PAPEIS_NOVOS === '1';
 const NEW_ROLES = ['partner', 'sales_trial', 'employee_dev', 'sdr'];
 
 const argv = process.argv.slice(2);
@@ -232,12 +252,13 @@ function positionToLine(text, position) {
 // retrato não depender da ordem de concessão.
 const SNAPSHOT_SQL = `
 with sch as (
-  select oid, nspname from pg_namespace where nspname in ('public', 'private', 'extensions', 'auth')
+  select oid, nspname from pg_namespace
+   where nspname in ('public', 'private', 'extensions', 'auth', 'crm_private', 'finance_private')
 ),
 items(kind, name, parent, detail) as (
   select 'schema', n.nspname, '',
          coalesce((select string_agg(a::text, ',' order by a::text) from unnest(n.nspacl) a), '')
-    from pg_namespace n where n.nspname in ('public', 'private', 'extensions', 'auth')
+    from pg_namespace n where n.nspname in ('public', 'private', 'extensions', 'auth', 'crm_private', 'finance_private')
   union all
   select 'rel', s.nspname || '.' || c.relname, '',
          c.relkind::text || '|acl=' || coalesce((select string_agg(a::text, ',' order by a::text) from unnest(c.relacl) a), '')
@@ -359,7 +380,8 @@ function printDiff({ added, removed, changed }, limit = 40) {
 const DATA_SQL = `
 select
   (select md5(coalesce(string_agg(u::text, '|' order by u.id), '')) from auth.users u) as users,
-  (select md5(coalesce(string_agg(p::text, '|' order by p.id), '')) from public.profiles p) as profiles,
+  (select md5(coalesce(string_agg(concat_ws('|', p.id, p.role, p.full_name, p.email, p.company_name), '|' order by p.id), ''))
+     from public.profiles p) as profiles,
   (select count(*) from auth.users)::int as user_count
 `;
 
@@ -388,9 +410,8 @@ async function baselineUsers(admin) {
 /**
  * Roda um arquivo .test.sql numa conexão própria, dentro de begin … rollback.
  * `expectedFailure`: arquivo de sql/global/ (falha esperada, não derruba).
- * `simulateNewRoles`: amplia profiles_role_check dentro da transação.
  */
-async function runSqlFile(admin, file, { expectedFailure = false, simulateNewRoles = false } = {}) {
+async function runSqlFile(admin, file, { expectedFailure = false } = {}) {
   currentFile = rel(file);
   header(`${currentFile}${expectedFailure ? '  (pendência global: falha esperada)' : ''}`);
   const text = fs.readFileSync(file, 'utf8');
@@ -431,7 +452,6 @@ async function runSqlFile(admin, file, { expectedFailure = false, simulateNewRol
   let error = null;
   try {
     await c.query('begin');
-    if (simulateNewRoles) await c.query('select tests.simulate_new_roles()');
     await c.query(text);
   } catch (e) {
     error = e;
@@ -500,24 +520,59 @@ async function applyMigration(admin, text, label) {
   }
 }
 
-async function migrationPhase(admin) {
-  header(`migration ${path.basename(MIGRATION)} (aplicada duas vezes)`);
-  currentFile = 'migration';
-  const text = fs.readFileSync(MIGRATION, 'utf8');
+const MODULE_TABLES = ['time_shifts', 'time_breaks', 'time_audit_events', 'work_tasks', 'work_logs', 'work_deliverables', 'work_task_events'];
 
-  // A CLI roda cada migration na própria transação: o arquivo não abre nem
+// Objetos PREEXISTENTES (da baseline) que o conjunto de migrations altera de
+// propósito. Qualquer outra diferença em objeto preexistente é falha. Chave:
+// `${kind}|${name}` do retrato.
+const EXPECTED_PREEXISTING_CHANGES = new Set([
+  // CRM 20261101150000: papéis do app e ajuste de acesso por pessoa.
+  'col|public.profiles.crm_access',
+  'con|public.profiles.profiles_crm_access_check',
+  'con|public.profiles.profiles_role_check',
+  'comment|rel:public.profiles.crm_access',
+  // CRM 20261101150300: lead novo do site entra no CRM.
+  'trg|public.leads.leads_to_crm_trg',
+  // Financeiro 20261101174510/174520: índices e auditoria em invoices.
+  'idx|public.idx_invoices_due_date',
+  'idx|public.idx_invoices_paid_at',
+  'trg|public.invoices.finance_audit_invoice_trg',
+  // Integração 20261102120000: profiles sem INSERT/DELETE para authenticated
+  // (ACL da relação), guarda compartilhada, helpers globais e visibilidade.
+  'rel|public.profiles',
+  'trg|public.profiles.profiles_guard_insert_role',
+  'pol|public.profiles.team_members_see_each_other',
+  'fn|public.is_admin()',
+  'fn|public.is_team()',
+  // (os comentários novos em is_admin/is_team não contam: comentário de função
+  // não tem relação-mãe no retrato.)
+]);
+
+async function migrationPhase(admin) {
+  const files = listMigrations();
+  const reapply = files.filter(isReapplied);
+  header(`migrations do app móvel (${files.length} arquivos; ${reapply.length} reaplicados como prova de idempotência)`);
+  currentFile = 'migration';
+  for (const f of files) line(`           ${path.basename(f)}${isReapplied(f) ? '' : '   (não reaplicada: não declara idempotência)'}`);
+
+  // A CLI roda cada migration na própria transação: nenhum arquivo abre nem
   // fecha transação (contrato §3.0).
-  const txLines = text
-    .split('\n')
-    .map((l, i) => ({ l: l.replace(/--.*$/, ''), i: i + 1 }))
-    .filter(({ l }) => /^\s*(begin|commit|rollback|start\s+transaction|end\s+transaction)\s*;/i.test(l));
+  const txLines = [];
+  for (const f of files) {
+    const text = fs.readFileSync(f, 'utf8');
+    text
+      .split('\n')
+      .map((l, i) => ({ l: l.replace(/--.*$/, ''), i: i + 1 }))
+      .filter(({ l }) => /^\s*(begin|commit|rollback|start\s+transaction|end\s+transaction)\s*;/i.test(l))
+      .forEach(({ l, i }) => txLines.push(`${path.basename(f)} linha ${i}: ${l.trim()}`));
+  }
   record({
     ok: txLines.length === 0,
-    label: 'migration sem begin/commit explícito',
-    detail: txLines.map(({ l, i }) => `linha ${i}: ${l.trim()}`).join('; '),
+    label: 'nenhuma migration tem begin/commit explícito',
+    detail: txLines.join('; '),
   });
 
-  // Dados preexistentes: algumas pessoas reais no stub antes da migration.
+  // Dados preexistentes: algumas pessoas reais na baseline antes das migrations.
   await admin.query(`
     begin;
     select tests.create_user('semente_admin', 'super_admin');
@@ -529,17 +584,20 @@ async function migrationPhase(admin) {
   const data0 = (await admin.query(DATA_SQL)).rows[0];
   const s0 = await snapshot(admin);
 
-  const err1 = await applyMigration(admin, text, '1ª');
-  record({ ok: !err1, label: 'migration: 1ª aplicação sem erro', detail: err1 });
-  if (err1) {
-    currentFile = '';
-    return false;
+  for (const f of files) {
+    const err = await applyMigration(admin, fs.readFileSync(f, 'utf8'), '1ª');
+    record({ ok: !err, label: `1ª aplicação: ${path.basename(f)}`, detail: err });
+    if (err) {
+      currentFile = '';
+      return false;
+    }
   }
   const s1 = await snapshot(admin);
   const data1 = (await admin.query(DATA_SQL)).rows[0];
 
-  // Objetos preexistentes intactos: nada do stub some ou muda, e nada novo
-  // pendurado em relação preexistente (policy/trigger/coluna/índice em profiles…).
+  // Objetos preexistentes: nada da baseline some; o que muda ou ganha algo
+  // pendurado (policy/trigger/coluna/índice em profiles, leads, invoices…) é
+  // exatamente a lista EXPECTED_PREEXISTING_CHANGES.
   const d01 = diffSnapshots(s0, s1);
   const s0Rels = new Set([...s0.values()].filter((r) => r.kind === 'rel').map((r) => r.name));
   const touched = {
@@ -547,43 +605,68 @@ async function migrationPhase(admin) {
     removed: d01.removed,
     changed: d01.changed,
   };
-  const touchedCount = touched.added.length + touched.removed.length + touched.changed.length;
   record({
-    ok: touchedCount === 0,
-    label: 'migration não altera objetos preexistentes (profiles, funções, policies, grants, papéis)',
-    detail: touchedCount ? `${touchedCount} diferença(s); ver abaixo` : null,
+    ok: touched.removed.length === 0,
+    label: 'nenhum objeto preexistente removido',
+    detail: touched.removed.map((r) => `${r.kind} ${r.name}`).join(', '),
   });
-  if (touchedCount) printDiff(touched);
+  const touchedKeys = new Set([
+    ...touched.added.map((r) => `${r.kind}|${r.name}`),
+    ...touched.changed.map(({ after }) => `${after.kind}|${after.name}`),
+  ]);
+  const unexpected = [...touchedKeys].filter((k) => !EXPECTED_PREEXISTING_CHANGES.has(k)).sort();
+  const missing = [...EXPECTED_PREEXISTING_CHANGES].filter((k) => !touchedKeys.has(k)).sort();
+  record({
+    ok: unexpected.length === 0 && missing.length === 0,
+    label: `mudanças em objetos preexistentes: exatamente as ${EXPECTED_PREEXISTING_CHANGES.size} previstas (profiles, leads, invoices, is_admin, is_team)`,
+    detail: [unexpected.length ? `inesperadas: ${unexpected.join(', ')}` : '', missing.length ? `previstas mas ausentes: ${missing.join(', ')}` : '']
+      .filter(Boolean)
+      .join(' | ') || null,
+  });
+  if (unexpected.length) {
+    printDiff({
+      added: touched.added.filter((r) => unexpected.includes(`${r.kind}|${r.name}`)),
+      removed: [],
+      changed: touched.changed.filter(({ after }) => unexpected.includes(`${after.kind}|${after.name}`)),
+    });
+  }
   line(`           (${d01.added.length} objeto(s) novo(s) no catálogo)`);
 
   record({
     ok: data1.users === data0.users && data1.profiles === data0.profiles,
-    label: 'migration não altera dados preexistentes (auth.users, profiles)',
+    label: 'migrations não alteram dados preexistentes (auth.users, profiles: id, papel, nome, e-mail, empresa)',
   });
 
-  const err2 = await applyMigration(admin, text, '2ª');
-  record({ ok: !err2, label: 'migration: 2ª aplicação seguida sem erro (idempotente)', detail: err2 });
-  if (!err2) {
-    const s2 = await snapshot(admin);
-    catalogAfterMigration = s2;
-    const d12 = diffSnapshots(s1, s2);
-    const n = d12.added.length + d12.removed.length + d12.changed.length;
-    record({
-      ok: n === 0,
-      label: 'migration: retrato do catálogo idêntico após a 2ª aplicação (definições + ACLs)',
-      detail: n ? `${n} diferença(s); ver abaixo` : null,
-    });
-    if (n) printDiff(d12);
-    const data2 = (await admin.query(DATA_SQL)).rows[0];
-    record({
-      ok: data2.users === data0.users && data2.profiles === data0.profiles,
-      label: 'migration: 2ª aplicação não altera dados',
-    });
+  // 2ª aplicação: só as que declaram idempotência; o catálogo e os dados não
+  // podem mudar.
+  for (const f of reapply) {
+    const err = await applyMigration(admin, fs.readFileSync(f, 'utf8'), '2ª');
+    record({ ok: !err, label: `2ª aplicação seguida sem erro (idempotente): ${path.basename(f)}`, detail: err });
+    if (err) {
+      currentFile = '';
+      return false;
+    }
   }
+  const s2 = await snapshot(admin);
+  catalogAfterMigration = s2;
+  const d12 = diffSnapshots(s1, s2);
+  const n = d12.added.length + d12.removed.length + d12.changed.length;
+  record({
+    ok: n === 0,
+    label: 'retrato do catálogo idêntico após a 2ª aplicação (definições + ACLs)',
+    detail: n ? `${n} diferença(s); ver abaixo` : null,
+  });
+  if (n) printDiff(d12);
+  const data2 = (await admin.query(DATA_SQL)).rows[0];
+  record({
+    ok: data2.users === data0.users && data2.profiles === data0.profiles,
+    label: '2ª aplicação não altera dados',
+  });
 
-  // Tabelas novas nascem vazias (nenhum dado semeado pela migration).
+  // Tabelas do módulo nascem vazias (nenhum dado semeado pela migration do
+  // Ponto; o CRM semeia etapas de funil de propósito e fica fora daqui).
   const newTables = [...s1.values()]
-    .filter((r) => r.kind === 'rel' && !s0.has(`rel|${r.name}`) && /^[rp]\|/.test(r.detail))
+    .filter((r) => r.kind === 'rel' && !s0.has(`rel|${r.name}`) && /^[rp]\|/.test(r.detail) && /^public\.(time_|work_)/.test(r.name))
     .map((r) => r.name);
   const nonEmpty = [];
   for (const t of newTables) {
@@ -592,16 +675,16 @@ async function migrationPhase(admin) {
     if (q.rows[0].n !== 0) nonEmpty.push(`${t}=${q.rows[0].n}`);
   }
   record({
-    ok: nonEmpty.length === 0,
-    label: `migration não semeia dados (${newTables.length} tabela(s) nova(s) vazias)`,
-    detail: nonEmpty.join(', '),
+    ok: newTables.length === MODULE_TABLES.length && nonEmpty.length === 0,
+    label: `a migration do Ponto não semeia dados (${newTables.length} tabela(s) nova(s) vazias)`,
+    detail: nonEmpty.join(', ') || (newTables.length !== MODULE_TABLES.length ? `tabelas: ${newTables.join(', ')}` : null),
   });
 
   // Remove as sementes: os testes partem de um banco sem pessoas.
   try {
     await admin.query(`delete from auth.users where email like 'semente\\_%'`);
   } catch (e) {
-    record({ ok: false, label: 'remover pessoas semente após a migration', detail: describePgError(e) });
+    record({ ok: false, label: 'remover pessoas semente após as migrations', detail: describePgError(e) });
   }
   currentFile = '';
   return true;
@@ -614,7 +697,6 @@ async function migrationPhase(admin) {
 // mudar o catálogo nem tocar em nenhuma linha (§3.0 "deixar o mesmo estado").
 // Antes, confere que nenhum arquivo de teste deixou sobra no catálogo (os
 // grants temporários do sql/34 têm de ter sumido com o rollback).
-const MODULE_TABLES = ['time_shifts', 'time_breaks', 'time_audit_events', 'work_tasks', 'work_logs', 'work_deliverables', 'work_task_events'];
 
 const SEED_FOR_REAPPLY = `
 do $$
@@ -659,9 +741,9 @@ async function moduleData(admin) {
 }
 
 async function thirdApplication(admin) {
-  header('migration: 3ª aplicação, com dados confirmados nas tabelas do módulo');
+  header('migrations: 3ª aplicação (as idempotentes), com dados confirmados nas tabelas do módulo');
   currentFile = 'migration (3ª aplicação)';
-  const text = fs.readFileSync(MIGRATION, 'utf8');
+  const reapply = listMigrations().filter(isReapplied);
 
   const sBefore = await snapshot(admin);
   if (catalogAfterMigration) {
@@ -690,11 +772,13 @@ async function thirdApplication(admin) {
     detail: empty.length ? `vazias: ${empty.join(', ')}` : null,
   });
 
-  const err = await applyMigration(admin, text, '3ª');
-  record({ ok: !err, label: 'migration: 3ª aplicação, com dados, sem erro', detail: err });
-  if (err) {
-    currentFile = '';
-    return;
+  for (const f of reapply) {
+    const err = await applyMigration(admin, fs.readFileSync(f, 'utf8'), '3ª');
+    record({ ok: !err, label: `3ª aplicação, com dados, sem erro: ${path.basename(f)}`, detail: err });
+    if (err) {
+      currentFile = '';
+      return;
+    }
   }
   const sAfter = await snapshot(admin);
   const d = diffSnapshots(sBefore, sAfter);
@@ -718,16 +802,22 @@ async function thirdApplication(admin) {
 // ── Principal ───────────────────────────────────────────────────────────────
 async function main() {
   line('Testes do banco — Ponto e Trabalho (PostgreSQL local descartável; nunca produção)');
-  if (!HARNESS_ONLY && !fs.existsSync(MIGRATION)) {
+  const moduleFile = listMigrations().find((f) => path.basename(f) === path.basename(MODULE_MIGRATION) || f === MODULE_OVERRIDE);
+  if (!HARNESS_ONLY && (!moduleFile || !fs.existsSync(moduleFile))) {
     line('');
-    line(`ERRO: migration não encontrada: ${MIGRATION}`);
+    line(`ERRO: migration do módulo não encontrada: ${MODULE_OVERRIDE ?? MODULE_MIGRATION}`);
     line('A suíte testa essa migration; sem ela não há o que testar.');
-    line('Para validar só o harness (stub + helpers): node run.mjs --somente-harness');
+    line('Para validar só o harness (baseline + helpers): node run.mjs --somente-harness');
+    return 1;
+  }
+  if (!fs.existsSync(BASELINE)) {
+    line('');
+    line(`ERRO: baseline não encontrada: ${BASELINE}`);
     return 1;
   }
 
-  if (process.env.PONTO_MIGRATION) {
-    warn(`PONTO_MIGRATION definido: testando ${MIGRATION} no lugar de ${DEFAULT_MIGRATION} (só para validar o harness)`);
+  if (MODULE_OVERRIDE) {
+    warn(`PONTO_MIGRATION definido: testando ${MODULE_OVERRIDE} no lugar de ${MODULE_MIGRATION} (só para validar o harness)`);
   }
   await boot();
   line(`Postgres local na porta ${port} (dados em ${dataDir}, removidos no fim); fuso da sessão: ${SESSION_TZ}`);
@@ -735,16 +825,16 @@ async function main() {
   const ver = (await admin.query('show server_version')).rows[0].server_version;
   line(`Versão do servidor: ${ver}`);
 
-  header('stub do Supabase + helpers');
-  currentFile = 'stub';
+  header('baseline local compartilhada + helpers');
+  currentFile = 'baseline';
   try {
     await admin.query('begin');
-    await admin.query(fs.readFileSync(STUB, 'utf8'));
+    await admin.query(fs.readFileSync(BASELINE, 'utf8'));
     await admin.query('commit');
-    record({ ok: true, label: 'stub/supabase_stub.sql carregado' });
+    record({ ok: true, label: '../local/supabase_baseline.sql carregada' });
   } catch (e) {
     await admin.query('rollback').catch(() => {});
-    record({ ok: false, label: 'stub/supabase_stub.sql carregado', detail: describePgError(e) });
+    record({ ok: false, label: '../local/supabase_baseline.sql carregada', detail: describePgError(e) });
     return 1;
   }
   try {
@@ -771,7 +861,7 @@ async function main() {
   const migrated = await migrationPhase(admin);
   if (!migrated) {
     line('');
-    line('A migration não aplicou; os demais testes dependem dela e não foram executados.');
+    line('As migrations não aplicaram; os demais testes dependem delas e não foram executados.');
     await admin.end();
     return summary(true);
   }
@@ -779,28 +869,25 @@ async function main() {
   // Suíte padrão.
   for (const f of mainFiles) await runSqlFile(admin, f);
 
-  // Papéis novos.
+  // Papéis novos: no estado integrado o schema aceita todos; se não aceitar,
+  // é falha real (a migration de integração não aplicou o que devia).
   const newRoleFiles = listTests(path.join(SQL_DIR, 'new_roles')).filter(matchesFilter);
   if (newRoleFiles.length) {
     const accepted = (
       await admin.query('select r, tests.schema_accepts_role(r) as ok from unnest($1::text[]) r', [NEW_ROLES])
     ).rows;
     const rejected = accepted.filter((r) => !r.ok).map((r) => r.r);
+    header('sql/new_roles/ (papéis novos aceitos pelo schema integrado)');
+    currentFile = 'new_roles';
+    record({
+      ok: rejected.length === 0,
+      label: `profiles_role_check aceita ${NEW_ROLES.join(', ')}`,
+      detail: rejected.length ? `rejeitados: ${rejected.join(', ')}` : null,
+      kind: 'setup',
+    });
+    currentFile = '';
     if (rejected.length === 0) {
-      header('sql/new_roles/ (o schema já aceita os papéis novos)');
       for (const f of newRoleFiles) await runSqlFile(admin, f);
-    } else if (SIMULATE_NEW_ROLES) {
-      header(`sql/new_roles/ (PONTO_SIMULAR_PAPEIS_NOVOS=1: profiles_role_check ampliada só na transação de cada arquivo)`);
-      for (const f of newRoleFiles) await runSqlFile(admin, f, { simulateNewRoles: true });
-    } else {
-      header('sql/new_roles/');
-      for (const f of newRoleFiles) {
-        stats.skipped += 1;
-        line(
-          `  PULADO ${rel(f)} — o schema atual (profiles_role_check) rejeita ${rejected.join(', ')}. ` +
-            'Rode PONTO_SIMULAR_PAPEIS_NOVOS=1 npm test para simular os papéis novos só neste banco descartável.',
-        );
-      }
     }
   }
 

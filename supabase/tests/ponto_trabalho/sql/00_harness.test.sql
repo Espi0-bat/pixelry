@@ -105,17 +105,17 @@ select tests.is('brt converte relógio de Brasília', tests.brt('2026-10-05 22:0
 select tests.eq('keys lista as chaves ordenadas', tests.keys('{"b":1,"a":2}'::jsonb), 'a,b');
 select tests.is('today_brt é a data de Brasília', tests.today_brt(), (now() at time zone 'America/Sao_Paulo')::date);
 
-select tests.note('stub: profiles como as migrations deixaram');
-select tests.query_is('profiles_role_check exatamente como na 20260608015308',
+select tests.note('baseline + migrations: profiles no estado integrado');
+select tests.query_is('profiles_role_check com os oito papéis do app (20261102120000)',
   $$select pg_get_constraintdef(c.oid) from pg_constraint c
      where c.conrelid = 'public.profiles'::regclass and c.conname = 'profiles_role_check'$$,
-  $$CHECK ((role = ANY (ARRAY['super_admin'::text, 'manager'::text, 'employee'::text, 'client'::text])))$$);
+  $$CHECK ((role = ANY (ARRAY['super_admin'::text, 'partner'::text, 'manager'::text, 'sales_trial'::text, 'employee_dev'::text, 'employee'::text, 'sdr'::text, 'client'::text])))$$);
 select tests.query_is('policies de profiles (estado final)',
   $$select string_agg(polname || ':' || polcmd::text, ',' order by polname) from pg_policy where polrelid = 'public.profiles'::regclass$$,
   'Admin full access:*,Users can view own profile:r,employees_see_assigned_clients:r,profiles_update_own:w,team_members_see_each_other:r');
-select tests.ok('authenticated mantém INSERT e DELETE de tabela em profiles (furo global §6.1)',
-  has_table_privilege('authenticated', 'public.profiles', 'INSERT')
-  and has_table_privilege('authenticated', 'public.profiles', 'DELETE'));
+select tests.ok('authenticated SEM INSERT e DELETE de tabela em profiles (20261102120000 fechou o furo §6.1)',
+  not has_table_privilege('authenticated', 'public.profiles', 'INSERT')
+  and not has_table_privilege('authenticated', 'public.profiles', 'DELETE'));
 select tests.ok('authenticated sem UPDATE em profiles.role', not has_column_privilege('authenticated', 'public.profiles', 'role', 'UPDATE'));
 select tests.ok('authenticated com UPDATE em profiles.full_name', has_column_privilege('authenticated', 'public.profiles', 'full_name', 'UPDATE'));
 select tests.ok('anon sem INSERT/UPDATE/DELETE em profiles',

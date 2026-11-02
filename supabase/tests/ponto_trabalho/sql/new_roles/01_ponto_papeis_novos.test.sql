@@ -1,7 +1,6 @@
--- new_roles/01 — Ponto com os papéis que o app já modela e o schema atual
--- ainda rejeita (§2, §6.2): partner, sales_trial, employee_dev, sdr.
--- PULADO por padrão. Com PONTO_SIMULAR_PAPEIS_NOVOS=1 o runner amplia
--- profiles_role_check SÓ dentro da transação deste arquivo.
+-- new_roles/01 — Ponto com os papéis novos do app (§2): partner,
+-- sales_trial, employee_dev, sdr. Aceitos pelo schema integrado
+-- (20261102120000); roda sempre.
 -- Todos batem e corrigem o próprio ponto; nenhum vê/corrige/revisa o alheio.
 begin;
 

@@ -7,13 +7,17 @@
 begin;
 
 -- ── objetos do módulo ───────────────────────────────────────────────────────
-select tests.query_is('tabelas e view novas em public: exatamente as do contrato',
+-- No banco integrado convivem CRM (crm_*), Financeiro (finance_*), leads e
+-- invoices; o módulo responde só pelos prefixos time_/work_ e por ponto_people.
+select tests.query_is('tabelas e view do módulo em public: exatamente as do contrato',
   $$select string_agg(relname, ',' order by relname collate "C") from pg_class
-     where relnamespace = 'public'::regnamespace and relkind in ('r', 'v', 'm', 'p', 'f') and relname <> 'profiles'$$,
+     where relnamespace = 'public'::regnamespace and relkind in ('r', 'v', 'm', 'p', 'f')
+       and (relname like 'time\_%' or relname like 'work\_%')$$,
   'time_audit_events,time_breaks,time_shift_totals,time_shifts,work_deliverables,work_logs,work_task_events,work_tasks');
-select tests.query_is('funções novas em public: exatamente as 10 RPCs',
+select tests.query_is('funções do módulo em public: exatamente as 10 RPCs',
   $$select string_agg(proname, ',' order by proname collate "C") from pg_proc
-     where pronamespace = 'public'::regnamespace and proname not in ('is_admin', 'is_team', 'handle_new_user', 'guard_profile_role')$$,
+     where pronamespace = 'public'::regnamespace
+       and (proname like 'time\_%' or proname like 'work\_%' or proname like 'ponto\_%')$$,
   'ponto_people,time_clock_in,time_clock_out,time_correct_shift,time_create_manual_shift,time_end_break,time_my_status,time_review_shifts,time_start_break,time_void_shift');
 select tests.query_is('btree_gist instalada no schema extensions',
   $$select extnamespace::regnamespace::text from pg_extension where extname = 'btree_gist'$$, 'extensions');

@@ -14,10 +14,13 @@
 # Só aceita servidor local (localhost, 127.0.0.1, ::1 ou socket).
 #
 # Nos dois modos locais roda, em ordem:
-#   1. tests/local/supabase_baseline.sql   plataforma Supabase + profiles/leads
+#   1. tests/local/supabase_baseline.sql   plataforma Supabase + profiles/leads/invoices
 #   2. tests/local/existing_data.sql       dados de antes do CRM
-#   3. migrations 20261101150*_crm_*.sql   cada uma na sua transação, como o push
-#   4. a migration 4/5 de novo             a carga inicial não pode duplicar
+#   3. migrations 202611*.sql              todas (CRM, Ponto, Financeiro e a de
+#                                          integração), cada uma na sua
+#                                          transação, como o push
+#   4. as que declaram idempotência de novo (inclui a carga inicial do CRM,
+#                                          que não pode duplicar)
 #   5. crm_rls.test.sql                    entre begin e rollback
 #   6. crm_backfill.test.sql
 #   7. crm_concurrency.test.sql            duas conexões via dblink
@@ -34,8 +37,13 @@ set -euo pipefail
 
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/../.." && pwd)"
-migrations=("$root"/supabase/migrations/20261101150*_crm_*.sql)
-link_migration="$root/supabase/migrations/20261101150300_crm_link_existing_data.sql"
+# Estado integrado do app móvel: todas as migrations 202611* (CRM, Ponto,
+# Financeiro e integração 20261102120000), na ordem; a reaplicação cobre só
+# as que declaram idempotência (ver tests/local/list_migrations.sh).
+migrations=()
+while IFS= read -r f; do [ -n "$f" ] && migrations+=("$f"); done < <("$here/local/list_migrations.sh" all)
+reapply=()
+while IFS= read -r f; do [ -n "$f" ] && reapply+=("$f"); done < <("$here/local/list_migrations.sh" idempotent)
 
 mode=ephemeral
 db_url=""
@@ -189,7 +197,7 @@ run_test() { # $1 = nome no relatório, $2 = arquivo; demais args vão para o ps
 step "base local (plataforma Supabase + profiles/leads)"; apply "$here/local/supabase_baseline.sql"
 step "dados de antes do CRM";                          apply "$here/local/existing_data.sql"
 for f in "${migrations[@]}"; do step "$(basename "$f")"; apply "$f"; done
-step "$(basename "$link_migration") de novo (carga idempotente)"; apply "$link_migration"
+for f in "${reapply[@]}"; do step "$(basename "$f") de novo (idempotente)"; apply "$f"; done
 
 { echo 'begin;'; cat "$here/crm_rls.test.sql"; echo; echo 'rollback;'; } > "$workdir/crm_rls.sql"
 echo

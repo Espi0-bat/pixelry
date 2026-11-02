@@ -705,22 +705,6 @@ begin
 end;
 $$;
 
--- Amplia profiles_role_check SÓ no banco descartável e SÓ na transação do
--- arquivo (o runner chama dentro do begin; o rollback desfaz). Usada quando
--- PONTO_SIMULAR_PAPEIS_NOVOS=1.
-create or replace function tests.simulate_new_roles()
-returns void
-language plpgsql
-security definer
-set search_path = ''
-as $$
-begin
-  alter table public.profiles drop constraint profiles_role_check;
-  alter table public.profiles add constraint profiles_role_check
-    check (role in ('super_admin', 'partner', 'manager', 'sales_trial',
-                    'employee_dev', 'employee', 'sdr', 'client'));
-end;
-$$;
 
 -- ── Formato do JSON da jornada (contrato §3.4) ──────────────────────────────
 -- Chaves em ordem "C", como tests.keys devolve.
