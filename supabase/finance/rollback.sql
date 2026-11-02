@@ -60,7 +60,7 @@ begin
   -- acharia que o financeiro ainda está aplicado).
   if to_regclass('supabase_migrations.schema_migrations') is not null then
     delete from supabase_migrations.schema_migrations
-    where version in ('20261101174500', '20261101174510', '20261101174520', '20261101174530', '20261101174540');
+    where version in ('20261101174500', '20261101174510', '20261101174520', '20261101174530');
   end if;
 
   raise notice 'Financeiro: remoção completa executada.';

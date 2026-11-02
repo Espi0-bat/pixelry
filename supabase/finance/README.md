@@ -12,23 +12,22 @@ projeto, segredo ou dado real: o repositório é público.
 | `20261101174510_finance_entries.sql` | `public.finance_categories`, `public.finance_entries`, índices (inclusive `idx_invoices_due_date` e `idx_invoices_paid_at` em `invoices`), RLS, gatilhos `touch` e `block_delete` |
 | `20261101174520_finance_audit.sql` | `finance_private.module_info`, `public.finance_audit_log`, guarda da auditoria, gatilhos de auditoria (estrito nas tabelas do financeiro, **tolerante** em `public.invoices`) |
 | `20261101174530_finance_api.sql` | RPCs de leitura (`finance_ledger`, `finance_overview_meta`, `finance_entry_history`, `finance_clients`) e de alteração (`finance_create_entry`, `finance_correct_entry`, `finance_settle_entry`, `finance_cancel_entry`, `finance_reverse_entry`, `finance_create_category`, `finance_set_category_archived`) |
-| `20261101174540_finance_profiles_guard.sql` | guarda `finance_profiles_insert_role_guard_trg` em `public.profiles` (arquivo separado: é o único objeto em tabela compartilhada além de `invoices`; pode ser levado para uma migration compartilhada, ver abaixo) |
+
+A guarda de papel no INSERT de `profiles`, que era a `20261101174540`, foi
+levada para a migration compartilhada da integração
+(`20261102120000_shared_roles_and_profiles_security.sql`, trigger
+`profiles_guard_insert_role` em `public`), junto com a revogação de
+INSERT/DELETE de `authenticated` em `profiles`. O financeiro não depende mais
+de nada em `profiles` além de `role`.
 
 Só acrescenta. Não muda as colunas, o CHECK de papéis, as policies nem os
 grants de `profiles`, nem `is_admin()`, `is_team()`, as policies de
-`invoices`, o dashboard ou as Edge Functions. Objetos novos em tabelas
-existentes:
+`invoices`, o dashboard ou as Edge Functions. Objeto novo em tabela
+existente:
 
 - `finance_audit_invoice_trg` (AFTER, por linha, em `public.invoices`) e os
   dois índices. O gatilho nunca levanta erro: qualquer falha vira `WARNING` e
   a escrita do create-invoice, do webhook ou do dashboard segue.
-- `finance_profiles_insert_role_guard_trg` (BEFORE INSERT, por linha, em
-  `public.profiles`): pela API (`authenticated`/`anon`), profile novo só nasce
-  com `role = 'client'` (`42501` caso contrário). Fecha o caminho em que um
-  manager, pela policy `Admin full access`, apagava um profile e o inseria de
-  novo como `super_admin` (dono do financeiro). Edge Functions
-  (`service_role`), `handle_new_user` e o SQL Editor passam direto; o
-  dashboard e o app não inserem em `profiles` com o JWT do usuário.
 
 Ninguém ganha acesso ao financeiro ao aplicar: só o `super_admin` lê e altera.
 Os demais papéis internos precisam de concessão explícita (`finance_set_access`,
@@ -38,8 +37,8 @@ pelo app, na tela "Acesso ao financeiro").
 
 1. **Só a partir de uma branch integrada** com as migrations de todos os
    pacotes (CRM, Ponto, Financeiro), nunca do worktree de um pacote. A ordem é
-   a dos timestamps: CRM `20261101150000–150300` → Ponto → Financeiro
-   `202611011745[0-4]0`.
+   a dos timestamps: CRM `20261101150000–150400` → Ponto `20261101170000` →
+   Financeiro `20261101174500–174530` → integração `20261102120000`.
 2. **Antes de produção:**
    - `supabase/tests/finance/run.sh --bootstrap` num Postgres local
      descartável (ver `supabase/tests/finance/README.md`);
@@ -80,10 +79,15 @@ select tgname, tgenabled from pg_trigger
 where tgrelid = 'public.invoices'::regclass and tgname = 'finance_audit_invoice_trg';
 -- esperado: 1 linha, tgenabled = 'O'
 
--- Guarda de papel no INSERT de profiles ligada
+-- Guarda compartilhada de papel no INSERT de profiles ligada (20261102120000)
 select tgname, tgenabled from pg_trigger
-where tgrelid = 'public.profiles'::regclass and tgname = 'finance_profiles_insert_role_guard_trg';
+where tgrelid = 'public.profiles'::regclass and tgname = 'profiles_guard_insert_role';
 -- esperado: 1 linha, tgenabled = 'O'
+
+-- authenticated sem INSERT/DELETE em profiles (20261102120000)
+select has_table_privilege('authenticated', 'public.profiles', 'INSERT'),
+       has_table_privilege('authenticated', 'public.profiles', 'DELETE');
+-- esperado: false | false
 
 -- is_admin/is_team continuam executáveis (as policies dependem disso)
 select has_function_privilege('authenticated', 'public.is_admin()', 'EXECUTE'),
@@ -153,9 +157,9 @@ set pixelry.finance_remove_all = 'apagar-tudo';
 ```
 
 e então o conteúdo de `rollback.sql`. Remove as 14 RPCs, as 4 tabelas, os
-dois índices de `invoices`, o schema `finance_private` (e com ele, em
-cascata, a guarda `finance_profiles_insert_role_guard_trg` de `profiles`) e as
-5 versões em `supabase_migrations.schema_migrations`. Antes, exporte o que precisar guardar
+dois índices de `invoices`, o schema `finance_private` e as 4 versões em
+`supabase_migrations.schema_migrations`. A guarda de `profiles` é da migration
+de integração e não é removida aqui. Antes, exporte o que precisar guardar
 (`finance_entries`, `finance_audit_log`).
 
 Sem as RPCs, o app mostra "Financeiro ainda não está disponível neste
@@ -170,8 +174,7 @@ servidor" (erro `PGRST202`) e nada mais quebra.
   partir do snapshot do evento `deleted`, mas a linha original some.
 - `paid_at` é a hora do processamento do webhook, não a liberação do dinheiro;
   estornos e chargebacks do Mercado Pago não chegam ao banco.
-- Um manager ainda pode **apagar** profiles pela API (policy `Admin full
-  access` + DELETE de `authenticated`), inclusive o do `super_admin`. A guarda
-  de INSERT impede que ele recrie o profile com outro papel, mas a exclusão em
-  si (e a cascata em `invoices`) é decisão da integração (seção 11 do
-  contrato).
+- A exclusão de profiles pela API (policy `Admin full access` + DELETE de
+  `authenticated`), que a seção 11 do contrato deixava para a integração,
+  foi fechada pela `20261102120000`: `authenticated` não tem mais INSERT nem
+  DELETE em `profiles`.
