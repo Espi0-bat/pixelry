@@ -1,0 +1,15 @@
+{
+  "name": "ponto-trabalho-db-tests",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Testes do banco do módulo Ponto e Trabalho contra um PostgreSQL 17.5 local e descartável (nunca produção).",
+  "type": "module",
+  "scripts": {
+    "test": "node run.mjs",
+    "test:contract": "node contract/replay.mjs"
+  },
+  "devDependencies": {
+    "embedded-postgres": "17.5.0-beta.15",
+    "pg": "8.13.1"
+  }
+}
