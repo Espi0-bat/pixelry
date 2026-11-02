@@ -7,9 +7,11 @@ Contrato: `docs/FINANCEIRO_DESIGN.md`, seção 4, no repositório do app.
 > **Produção não é ambiente de teste.** Rode num Postgres local descartável ou
 > em homologação. Nunca em produção, nem "dentro de transação com rollback".
 
-**Estado:** a suíte ainda **não foi executada** (foi escrita sem Postgres
-disponível). A primeira execução é pendência antes do `db push` (seção 11 do
-contrato). Espere ajustes pequenos nessa primeira rodada.
+**Estado:** executada em 2026-11-02 num PostgreSQL 17.11 local descartável:
+migrations aplicadas duas vezes e 232/232 casos passando. A primeira rodada
+exigiu um ajuste no harness (`pg_temp.u()` precisa ser VOLATILE; veja o
+comentário na função e o autoteste `harness_u_sees_fixture_from_same_command`).
+Rodar de novo em homologação continua pendência antes do `db push`.
 
 ## Arquivos
 
@@ -18,7 +20,7 @@ contrato). Espere ajustes pequenos nessa primeira rodada.
 | `run.sh` | trava de segurança, aplica as migrations duas vezes e roda a suíte |
 | `fixtures/00_supabase_stub.sql` | só para Postgres puro: papéis `anon`/`authenticated`/`service_role`, `auth.users`, `auth.uid()`/`role()`/`email()`/`jwt()` iguais aos do Supabase, default privileges do Supabase em `public`. Não faz nada se `auth.users` existir. |
 | `fixtures/01_baseline_public.sql` | só para Postgres puro: `profiles`, `is_admin()`, `is_team()` e `invoices` no estado efetivo das migrations versionadas (o cabeçalho cita a origem de cada trecho). Não faz nada se `public.profiles` existir. |
-| `finance_rls.test.sql` | os casos (231), numa transação que termina em `ROLLBACK` |
+| `finance_rls.test.sql` | os casos (232), numa transação que termina em `ROLLBACK` |
 
 As migrations antigas não reconstroem o banco do zero (tabelas criadas fora
 delas, CHECK com nome repetido), por isso `supabase db reset` não serve e a

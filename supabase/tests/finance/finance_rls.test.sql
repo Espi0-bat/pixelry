@@ -153,10 +153,16 @@ as $$
   select case when p_result like 'err:%' then substr(p_result, 5, 5) else p_result end
 $$;
 
+-- VOLATILE de propósito. Como STABLE, o planner chamava u() ao estimar a
+-- seletividade de `where p.id = pg_temp.u('x')` num UPDATE/SELECT, usando o
+-- snapshot do começo do comando DO: ela não via a fixture gravada por
+-- remember() nesse mesmo DO e falhava com "fixture desconhecida". Função
+-- VOLATILE nunca é pré-avaliada pelo planner e lê um snapshot atual. O caso
+-- harness_u_sees_fixture_from_same_command, abaixo, impede a regressão.
 create function pg_temp.u(p_name text)
 returns uuid
 language plpgsql
-stable
+volatile
 as $$
 declare
   v_id uuid;
@@ -234,6 +240,47 @@ grant execute on function pg_temp.remember(text, uuid)   to public;
 grant execute on function pg_temp.today()                to public;
 grant execute on function pg_temp.access_text()          to public;
 grant execute on function pg_temp.ledger_text(uuid)      to public;
+
+-- ════════════════════════════════════════════════════════════════════════════
+-- Autoteste do harness
+-- Grava uma fixture e a lê por pg_temp.u() num UPDATE do MESMO comando DO,
+-- exatamente como o bloco de pessoas faz. Com u() STABLE isto falha no planner
+-- (snapshot do começo do comando). O UPDATE é SQL estático, direto neste
+-- bloco, de propósito: chamado via pg_temp.attempt() numa expressão simples,
+-- o PL/pgSQL tira um snapshot novo antes de planejar e o defeito não aparece.
+-- O sub-bloco isola o erro para que o caso fique registrado como FALHOU.
+-- ════════════════════════════════════════════════════════════════════════════
+do $$
+declare
+  v_id  uuid := gen_random_uuid();
+  v_res text;
+  v_vol char;
+begin
+  perform pg_temp.as_actor('postgres');
+  create temp table finance_selftest (id uuid primary key, touched boolean not null default false);
+  insert into pg_temp.finance_selftest (id) values (v_id);
+  perform pg_temp.remember('selftest_same_command', v_id);
+  begin
+    update pg_temp.finance_selftest t set touched = true
+    where t.id = pg_temp.u('selftest_same_command');
+    v_res := 'ok:1';
+  exception when others then
+    v_res := 'err:' || sqlstate || ':' || sqlerrm;
+  end;
+  select p.provolatile into v_vol
+  from pg_catalog.pg_proc p
+  where p.oid = 'pg_temp.u(text)'::regprocedure;
+  perform pg_temp.chk('harness_u_sees_fixture_from_same_command',
+    v_res = 'ok:1' and v_vol = 'v',
+    format('update=%s provolatile=%s (esperado ok:1 e v)', v_res, v_vol));
+  drop table pg_temp.finance_selftest;
+  -- Sem isto a suíte morreria mais adiante, no bloco de pessoas, com um
+  -- "fixture desconhecida" sem explicação. Melhor parar aqui, com a causa.
+  if not (v_res = 'ok:1' and v_vol = 'v') then
+    raise exception 'autoteste do harness falhou: pg_temp.u() precisa ser VOLATILE para ler fixtures gravadas no mesmo comando (update=%, provolatile=%)',
+      v_res, v_vol;
+  end if;
+end $$;
 
 -- ════════════════════════════════════════════════════════════════════════════
 -- Fixtures: pessoas
@@ -3529,7 +3576,7 @@ from pg_temp.finance_t t;
 do $$
 declare
   -- Um por chamada literal de pg_temp.chk neste arquivo (o run.sh confere).
-  v_expected constant integer := 231;
+  v_expected constant integer := 232;
   v_total    bigint;
   v_failed   bigint;
   v_dups     bigint;
